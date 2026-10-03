@@ -1,0 +1,2 @@
+# Training/geospatial environment; submission requirements are separately exported.
+-e .[train,geo]
