@@ -1,0 +1,43 @@
+# Untuned hypotheses; use validation to choose parameters.
+model:
+  encoder: resnet18
+  encoder_weights: null
+  in_channels: 6
+  classes: 3
+inference:
+  batch_size: 16
+  tta: [identity, horizontal, vertical]
+  alignment: none
+postprocess:
+  mode: threshold
+  backend: optimized
+  ndigits: 2
+  classes:
+    new_building:
+      threshold: 0.55
+      min_area: 30
+      min_pos_area: 20
+      simplify_px: 0.5
+      cc_min_area: 0
+      connectivity: 4
+      max_polygons: null
+      morphology:
+        opening: 0
+        closing: 0
+        dilation: 0
+        erosion: 0
+        fill_holes: false
+    tree_removal:
+      threshold: 0.60
+      min_area: 30
+      min_pos_area: 20
+      simplify_px: 0.5
+      cc_min_area: 0
+      connectivity: 4
+      max_polygons: null
+      morphology:
+        opening: 0
+        closing: 0
+        dilation: 0
+        erosion: 0
+        fill_holes: false
