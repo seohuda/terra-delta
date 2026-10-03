@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "terradelta"
+version = "0.1.0"
+description = "Satellite Change Detection for National Park Monitoring"
+requires-python = ">=3.10"
+dependencies = ["torch>=2.5", "segmentation-models-pytorch==0.5.0", "numpy>=2.0", "pillow>=10.0", "shapely>=2.0", "pyyaml>=6"]
+
+[project.optional-dependencies]
+train = ["opencv-python-headless>=4.10,<6", "scipy>=1.13", "tqdm>=4.66"]
+geo = ["rasterio>=1.4", "pyproj>=3.6"]
+dev = ["pytest>=8", "ruff>=0.9", "nbformat>=5", "nbclient>=0.10", "ipykernel>=6"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]

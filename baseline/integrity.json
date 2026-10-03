@@ -1,0 +1,26 @@
+{
+  "source": "https://drive.google.com/file/d/1RZjoG0hITfY5XqIPuv5KtKYV01XUiOT3/view",
+  "archive_sha256": "0cdd846b62bfb08b5b857324c5b33a8f5488d37a04b97e29090c1dbb47afba05",
+  "files": {
+    "03_illegal structure submission/NOTICE": {
+      "size_bytes": 2469,
+      "sha256": "0276404bcd672beb9774c182872efe7c3694aa462c50857e365166ed371528af"
+    },
+    "03_illegal structure submission/requirements.txt": {
+      "size_bytes": 259,
+      "sha256": "f267c659f57f044270e29c50776c191743fe1fe2ce97b197787837d0f6d62a2c"
+    },
+    "03_illegal structure submission/predict.ipynb": {
+      "size_bytes": 13586,
+      "sha256": "616996848f15b96d110f2acab96c1090e02d636954cc2b649c7b59beedeb877a"
+    },
+    "03_illegal structure submission/LICENSE": {
+      "size_bytes": 5970,
+      "sha256": "983e783c98800ca1469b9ad8f88d354d9032f965ca80eb8082bceaffb6a943c6"
+    },
+    "03_illegal structure submission/assets/model/unet_r18_cd.pt": {
+      "size_bytes": 57461007,
+      "sha256": "1be127bd2f70c8e3b0efdc48c6d3effc29f30f090746a91c87e6c23e9b3e878b"
+    }
+  }
+}
