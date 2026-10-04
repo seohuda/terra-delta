@@ -115,3 +115,11 @@ Optimizer constructions=0; optimizer steps=0; backward=0. GPU use=0. Competition
 EBS output root: `/data/terradelta/outputs/threshold-sweep-v1/`. It contains probability-cache, coarse_thresholds.csv, area_search.csv, positive_area_search.csv, final_search.csv, plateau_centers.csv, robustness.csv, best_configs.json, per_sample_changes.csv, three YAMLs, previews, journal/identity/logs and verification.json. Earlier interim selections remain in small archive subdirectories; all share the same 22 probability maps. Raw imagery, checkpoint and maps stay out of Git.
 
 Encrypted 30 GB gp3 `vol-0070845086ec08190` is retained with DeleteOnTermination=false. End-of-run procedure: publish/pull small code/config/report, flush EBS, revoke the temporary read-only deploy key, stop the builder without termination, and verify `stopped` through the EC2 API. The final delivery message reports the observed EC2 state and final Git SHA.
+
+Final shutdown verified through EC2 `DescribeInstances` and `DescribeVolumes`
+at **2026-10-04T07:03:43.780937+00:00**: builder **stopped**, encrypted 30 GB
+gp3 retained/attached, DeleteOnTermination=false. The temporary read-only
+deploy key was revoked and SSM session terminated. EC2 last verified Git HEAD
+was `5ddc61d7706a6010e0cfe610d2d1ca6abde5b083`; only this final shutdown
+confirmation was committed after stop. All experiment code/config/report and
+24 MB of calibration outputs were already retained on EBS before shutdown.
