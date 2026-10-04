@@ -166,3 +166,23 @@ def estimate_raster_bytes(bounds, resolution, bands=4, dtype_bytes=1):
     if not math.isfinite(resolution) or resolution <= 0 or bands <= 0:
         raise ValueError("Resolution/bands must be positive")
     return math.ceil((east - west) / resolution) * math.ceil((north - south) / resolution) * bands * dtype_bytes
+
+
+def cached_metadata_plan(path, *, source, bounds, years=None):
+    """Replay a bounded existing dry-run report offline; never authorize downloads."""
+    path = Path(path)
+    if path.stat().st_size > 1_048_576:
+        raise ValueError("Cached metadata plan exceeds 1 MiB")
+    report = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(report, dict) or report.get("dry_run") is not True:
+        raise ValueError("Expected a metadata-only dry-run report")
+    sources = {asset.get("source") for asset in report.get("assets", [])} or {report.get("source")}
+    if sources != {source} or report.get("bounds") != list(bounds):
+        raise ValueError("Cached plan source/AOI differs from request")
+    if years is not None and report.get("years") != list(years):
+        raise ValueError("Cached plan years differ from request")
+    for asset in report.get("assets", []):
+        if "url" in asset:
+            asset["url"] = public_url(asset["url"])
+    return {**report, "metadata_mode": "offline_cached", "metadata_plan": str(path),
+            "freshness": "Historical metadata; rediscover on EC2 before any future download", "new_download_bytes": 0}

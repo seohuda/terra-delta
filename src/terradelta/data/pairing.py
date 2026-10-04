@@ -24,6 +24,8 @@ EXCLUDED_SOURCES = {"levir", "levir_cd", "levir_cd+", "aihub", "ai_hub"}
 def training_eligibility(row):
     """Return (eligible, reason); unknown/unreviewed labels never enter training."""
     sources = {part.strip().lower().replace("-", "_") for part in str(row.get("source", "")).split("+")}
+    if str(row.get("audit_status", "")).lower() == "unverified" or str(row.get("audit_training_eligible", "")).lower() in {"false", "0", "no"}:
+        return False, "dataset audit has not approved this sample"
     if sources & EXCLUDED_SOURCES:
         return False, "source excluded pending competition-compatible rights"
     if not str(row.get("source", "")).strip():

@@ -15,6 +15,12 @@ submissions have been performed. No competition score is claimed.
 
 ## Official baseline and model
 
+Pre-training audit (2026-10-04): **NOT READY**. The local filesystem contains
+four generated mock pairs and zero real training pairs. The earlier 1,000-pair
+figure is a storage estimate. [Audit evidence and commands](docs/data-audit.md)
+separate mock diagnostics from real validation. Large data/environment operations
+belong on EC2; see [the hotspot-safe workflow](docs/aws-training.md).
+
 The [official baseline archive](https://drive.google.com/file/d/1RZjoG0hITfY5XqIPuv5KtKYV01XUiOT3/view)
 is preserved unchanged under `baseline/original/` locally. Its weights and files
 are excluded from Git; retrieval and SHA-256 inventory are in

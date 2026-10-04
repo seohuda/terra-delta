@@ -52,10 +52,15 @@ def spatial_groups(rows, *, strategy="region", buffer_m=0.0):
             if not row.get("state"):
                 raise ValueError("State split requires state on every row")
             keys.append(("state", str(row["state"])))
-        for key in ("pre", "post", "parent_id", "pair_id", "spatial_group"):
+        for key in ("pre", "post", "parent_id", "pair_id", "spatial_group",
+                    "source_raster", "pre_source_raster", "post_source_raster",
+                    "pre_raster", "post_raster", "aoi_id", "location_id"):
             if row.get(key):
                 # pre/post share the same namespace to stop temporal role crossover.
-                keys.append(("image" if key in {"pre", "post"} else key, str(row[key])))
+                namespace = "image" if key in {"pre", "post"} else key
+                if key in {"source_raster", "pre_source_raster", "post_source_raster", "pre_raster", "post_raster"}:
+                    namespace = "source_raster"
+                keys.append((namespace, str(row[key])))
         for key in keys:
             if key in seen:
                 join(i, seen[key])

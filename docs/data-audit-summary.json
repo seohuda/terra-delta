@@ -1,0 +1,154 @@
+{
+  "date": "2026-10-04",
+  "starting_verified_commit": "037fb91",
+  "readiness": "NOT READY",
+  "real_samples": 0,
+  "mock_samples": 4,
+  "source": "synthetic_mock",
+  "manifest": "outputs/smoke/manifest.csv",
+  "images_masks_bytes": 1422929,
+  "all_manifest_bytes": 2100,
+  "dataset_total_bytes": 1425029,
+  "average_image_mask_bytes_per_sample": 355732.25,
+  "class_distribution": {
+    "valid_samples": 4,
+    "background_only": 2,
+    "new_building_only": 1,
+    "tree_removal_only": 1,
+    "both_classes": 0,
+    "empty_change_masks": 2,
+    "empty_binary_masks": {
+      "new_building": 3,
+      "tree_removal": 3
+    },
+    "pixel_count": {
+      "background": 258944,
+      "new_building": 1600,
+      "tree_removal": 1600
+    },
+    "pixel_ratio": {
+      "background": 0.98779296875,
+      "new_building": 0.006103515625,
+      "tree_removal": 0.006103515625
+    },
+    "valid_pixel_count": 262144,
+    "component_connectivity": 8,
+    "total_samples": 4,
+    "invalid_samples": 0,
+    "mock_samples": 4
+  },
+  "train_samples": 3,
+  "validation_samples": 1,
+  "spatial_candidates": 0,
+  "temporal_candidates": 0,
+  "real_geographic_temporal_verification": "unverified: invented locations and acquisition dates",
+  "alignment": {
+    "method": "phase correlation (analysis only)",
+    "images_modified": false,
+    "estimated_samples": 4,
+    "reliable_samples": 4,
+    "unavailable_or_unreliable": 0,
+    "magnitude_pixels": {
+      "median": 0.003458679522496726,
+      "mean": 0.012583769764984425,
+      "p90": 0.03246761172395901,
+      "p95": 0.037942665869451615,
+      "p99": 0.042322709185845714,
+      "max": 0.04341772001494425
+    },
+    "high_shift_ids": []
+  },
+  "suspicious_samples": 2,
+  "identical_pre_post_informational_samples": 2,
+  "training_eligible_samples": 0,
+  "license_audit": {
+    "actual_dataset_sources": [
+      "synthetic_mock"
+    ],
+    "source_evidence": "scripts/smoke_test.py",
+    "license_inventory": "LICENSE_DATA.md",
+    "inventory_coverage": "all actually used sources documented",
+    "naip_fema_hansen_used_as_sample_inputs": false,
+    "original_license_assertion": "commercial_ok (fixture metadata, not real training approval)",
+    "training_eligible_samples": 0,
+    "official_checkpoint_use": "unchanged competition reference, CPU inference only",
+    "fresh_license_documents_downloaded_bytes": 0
+  },
+  "baseline_validation": {
+    "metric_label": "approximate local metric",
+    "mock_only": true,
+    "total_validation_samples": 1,
+    "metric": {
+      "score": 0.25,
+      "num_samples": 1,
+      "classes": {
+        "new_building": {
+          "presence_macro_f1": 0.5,
+          "shape_score": 0.0,
+          "score": 0.25,
+          "gt_positive_count": 0,
+          "presence_confusion": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 1
+          }
+        },
+        "tree_removal": {
+          "presence_macro_f1": 0.5,
+          "shape_score": 0.0,
+          "score": 0.25,
+          "gt_positive_count": 0,
+          "presence_confusion": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 1
+          }
+        }
+      }
+    },
+    "no_change_samples": 1,
+    "no_change_fp_rate": 0.0,
+    "average_prediction_area": {
+      "new_building": 0.0,
+      "tree_removal": 0.0
+    },
+    "average_polygon_count": {
+      "new_building": 0.0,
+      "tree_removal": 0.0
+    },
+    "note": "Mock scores cannot predict leaderboard performance or establish training readiness.",
+    "optimizer_constructed": false,
+    "optimizer_steps_executed": 0,
+    "device": "cpu",
+    "gradients_enabled": false
+  },
+  "audit_final_bytes": 125412,
+  "preserved_initial_snapshot_bytes": 123622,
+  "audit_artifacts_total_bytes": 249034,
+  "preview_final_bytes": 100884,
+  "network": {
+    "dataset_download_bytes": 0,
+    "external_metadata_download_bytes": 0,
+    "large_transfer": false,
+    "note": "Audit reads existing local files only. Git delivery traffic is reported separately."
+  },
+  "tests": {
+    "pytest_passed": 449,
+    "pytest_failed": 0,
+    "pytest_skipped": 0,
+    "ruff": "passed",
+    "bash_syntax": "passed"
+  },
+  "training_executed": false,
+  "aws_executed": false,
+  "planned_checkpoint_steps": [
+    25,
+    50,
+    75,
+    100,
+    150,
+    250
+  ]
+}

@@ -25,7 +25,27 @@ from that transfer. Access without payment does not establish these rights.
 | AIHub datasets | NIA and dataset-specific providers | [Official AIHub portal](https://www.aihub.or.kr/) | Dataset-specific; not verified for a selected dataset | Unresolved | Unresolved | Unresolved | Dataset-specific | Excluded; no download | Portal availability is not proof of competition or redistribution compatibility |
 | Local test fixtures and synthetic/mock arrays | TerraDelta test authors | `tests/test_dataset.py`, `tests/test_external.py`, `tests/test_synthetic.py` | Generated locally; no external imagery | Subject to repository code terms | Same | Same | Describe synthesis and inherited inputs if real data are later used | Tiny temporary PNG/GeoTIFF fixtures and arrays | Synthetic edits of real NAIP/FEMA retain input provenance and obligations |
 
-## Hansen attribution
+## Actual local dataset audit (2026-10-04)
+
+The only persistent sample imagery is four `synthetic_mock` pairs in
+`outputs/smoke/input/images/`. `scripts/smoke_test.py` creates them from seeded
+NumPy random RGB arrays, two constant-color rectangular edits and binary masks.
+They contain no NAIP, FEMA, Hansen, LEVIR-CD or AIHub imagery/geometry. Their
+2020/2022 dates and `mock_region_*` locations are invented fixture metadata.
+The manifest's `commercial_ok`/`reviewed` assertions do not establish a real
+training dataset. Audit records mark all four unverified and training-ineligible.
+
+| Actually used item | Evidence | Rights/review status | Training usage |
+| --- | --- | --- | --- |
+| Generated RGB arrays and masks | `scripts/smoke_test.py`, `outputs/smoke/manifest.csv` | Local author-generated fixtures; repository terms apply; no real-world provenance | Diagnostic only, all four excluded |
+| Organizer checkpoint | Unchanged local baseline LICENSE/NOTICE and integrity hashes | Existing competition-specific grant; retain bundled notices; no new weight download | CPU inference only; zero optimizer updates |
+| NAIP / FEMA / Hansen | Existing metadata-only plan JSONs | Planned sources, not used sample inputs; prior inventory remains a plan | No acquired imagery/footprints and no training use |
+
+No actually used external sample source is missing from this inventory. Future
+synthetic samples inherit the licenses of their real imagery/footprint inputs;
+they cannot inherit the mock fixture row's status. [Audit report](docs/data-audit.md).
+
+## Hansen attribution (when actually used)
 
 When displaying data use `Source: Hansen/UMD/Google/USGS/NASA`. Link the
 [CC BY 4.0 license](https://creativecommons.org/licenses/by/4.0/) and the

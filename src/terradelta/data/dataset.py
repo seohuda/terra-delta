@@ -76,7 +76,7 @@ def _tensor(image: np.ndarray) -> torch.Tensor:
 
 
 class ChangeDataset(Dataset):
-    """Read a CSV, a sample folder, or a root of sorted sample folders.
+    """Read a CSV, resolved row list, a sample folder, or sorted sample folders.
 
     Missing training masks raise. Explicit class absence may be represented by
     the literal ``absent`` in a mask column or ``<class>_absent=true``. Folder
@@ -89,8 +89,13 @@ class ChangeDataset(Dataset):
         self.transform = transform
         self.require_masks = require_masks
         self.return_auxiliary = return_auxiliary
-        root = Path(manifest)
-        if root.is_file():
+        root = None if isinstance(manifest, (list, tuple)) else Path(manifest)
+        if root is None:
+            self.samples = [dict(row) for row in manifest]
+            ids = [safe_id(row["id"]) for row in self.samples]
+            if len(set(ids)) != len(ids):
+                raise ValueError("Dataset ids must be unique")
+        elif root.is_file():
             self.samples = read_manifest(root)
         elif root.is_dir():
             folders = [root] if (root / "pre.png").exists() else sorted(p for p in root.iterdir() if p.is_dir())
