@@ -21,4 +21,6 @@ outputs/**
 submission/export*/
 build/
 dist/
+raw/
+processed/
 .ipynb_checkpoints/

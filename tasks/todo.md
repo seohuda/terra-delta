@@ -72,3 +72,17 @@ Default-region project-tag lookup returned no instance; other-project keys/hosts
 were not selected. Candidate-source terms and the twenty-field actual-status
 report are recorded in docs/pilot-preflight.md. No new real pairs, remote setup,
 training, cloud provisioning/start or large local transfers were performed.
+
+## Dedicated CPU builder and Redstar inventory (2026-10-04)
+
+User authorizes a new t3.medium (30 GB gp3, up to 40 GB if justified), direct
+EC2 source downloads, real-only pilot review/audit and stopping the builder.
+No training, GPU, unrelated resource mutation or destructive Redstar cleanup.
+
+- [ ] Read-only Redstar dependency/cost inventory; classify SAFE_TO_DELETE/REVIEW/KEEP.
+- [ ] Verify price, AMI, network/access and disk budget for dedicated CPU builder.
+- [ ] Add CPU setup without CUDA requirements or training commands; test and publish.
+- [ ] Provision only dedicated TerraDelta resources; verify remote commit and disk.
+- [ ] Discover actual temporal coverage, acquire bounded data directly on EC2, review labels.
+- [ ] Split/audit real-only high-confidence data; write source terms and small previews.
+- [ ] Preserve data, stop builder and verify final state; report 37 requested fields.
