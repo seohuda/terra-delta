@@ -16,14 +16,15 @@ def main(argv=None):
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--dry-run", action="store_true", help="Default: only asset URLs and estimates")
     mode.add_argument("--download", action="store_true")
-    parser.add_argument("--output-dir", default="data/raw/hansen")
+    parser.add_argument("--output-dir", "--output", default="data/raw/hansen")
     parser.add_argument("--max-files", type=int, default=2)
     parser.add_argument("--max-file-bytes", type=int, default=50_000_000)
     parser.add_argument("--max-total-bytes", type=int, default=100_000_000)
     args = parser.parse_args(argv)
     assets = discover_hansen(bounds=args.bounds, layers=args.layers, max_tiles=args.max_tiles,
                              inspect_sizes=args.inspect_sizes or args.download)
-    print(json.dumps({**plan_summary(assets), "version": VERSION, "purpose": "candidate_mining_only"}, indent=2))
+    print(json.dumps({**plan_summary(assets), "source": "Hansen_GFC", "bounds": args.bounds,
+                      "output_path": args.output_dir, "version": VERSION, "purpose": "candidate_mining_only"}, indent=2))
     if args.download:
         paths = download_assets(assets, args.output_dir,
                                 guard=DownloadGuard(True, args.max_files, args.max_total_bytes, args.max_file_bytes))

@@ -1,6 +1,8 @@
 # Local data workspace
 
-Keep downloaded assets and generated datasets local. `.gitignore` excludes
+On the hotspot-connected PC, keep only existing tiny fixtures and summaries.
+Future source rasters, preprocessing and training belong on EC2 EBS/S3, with
+datasets downloaded directly by EC2. `.gitignore` excludes
 `data/**` except this README. It also excludes checkpoints and archives.
 Never commit external imagery, competition data, SAS URLs, credentials or weights.
 
@@ -40,3 +42,11 @@ grid as segmentation truth. Candidate refinement requires high-resolution review
 
 See [pipeline commands and limits](../docs/data-pipeline.md),
 [permission inventory](../LICENSE_DATA.md) and [source audit](../docs/licenses.md).
+The [filesystem audit](../docs/data-audit.md) confirms four mock pairs and zero
+real pairs. No 1,000-pair dataset exists locally; that figure is a volume estimate.
+
+For audit approval, preserve the documented reviewer and explicit
+`provenance_status=verified` / `license_review_status=verified` decisions plus
+`pre_source`, `post_source`, `mask_source`, `source_url`, `license_source` and
+`resolution_m`. `audit_status=unverified` or `audit_training_eligible=false`
+blocks the resulting manifest in the default training license gate.

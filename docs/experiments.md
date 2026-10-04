@@ -26,8 +26,13 @@ external data or the hidden evaluation set.
    simplification settings with saved maps. Fit these only on validation, never
    on the independent test geography. Examine negative FP rates and missed GT
    positive pairs, because both layers penalize false/missed presence.
-5. Only if this comparison is useful, extend to 150/250/500/750/1000 steps via the
-   medium preset, with the same split. Compare synthetic fill strategies,
+5. The first upper-budget comparison uses `configs/train_first250.yaml` with
+   checkpoints **25/50/75/100/150/250**, seed 0, encoder LR 1e-5 and head LR 1e-4.
+   Inspect 25–100 first; 150/250 are comparisons, not assumed improvements.
+   Do not prioritize the medium 500+ step experiment before these checks.
+   At every checkpoint compare approximate local score, each class score,
+   FP/FN, no-change FP rate and confidence distributions on the same split.
+   Compare synthetic fill strategies,
    hard-negative sampling and TTA one change at a time. Optional alignment needs
    a known-shift sanity check and a validation ablation before use on real data.
 

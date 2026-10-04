@@ -25,3 +25,14 @@ Verified implementation through `0e21d8e` is published to GitHub main with exact
 local/remote commit SHA equality. Git HTTPS push returned HTTP 408; the GitHub
 Git API delivered identical trees/commits and advanced main without force.
 Full deliverables, limitations and future commands: docs/preparation-report.md.
+
+## Pre-training data audit (2026-10-04)
+
+No training, AWS execution or dataset downloads. Reuse the installed environment.
+
+- [x] Verify actual filesystem inventory; distinguish four mock pairs from volume estimates.
+- [x] Audit provenance, distributions, integrity, spatial/temporal split and registration.
+- [x] Run existing official weights on available validation; label mock-only metrics.
+- [x] Inspect bounded previews and error examples; record readiness and bytes.
+- [x] Verify offline downloader plans and document EC2-to-S3 workflow and short experiments.
+- [ ] Test, commit and deliver small code/report changes without force push.

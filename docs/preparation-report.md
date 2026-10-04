@@ -105,7 +105,12 @@ HEAD-confirmed examples, not downloads:
 | FEMA chosen AOI | 218 features, ~327,000 bytes | Geometry-size heuristic; no exact payload size |
 | One 256×256 RGB temporal pair + two uint8 masks | 524,288 | Raw storage, PNG compression varies |
 
-1,000 prepared pairs plus masks are about 524 MB raw; 10,000 about 5.24 GB raw,
+**These are capacity estimates, not an existing dataset count.** Filesystem audit
+on 2026-10-04 found zero real pairs and four mock pairs under outputs/smoke.
+See [the data audit](data-audit.md).
+
+If 1,000 pairs plus masks are prepared later, they would occupy about 524 MB raw;
+10,000 would occupy about 5.24 GB raw,
 excluding original rasters, metadata, float probability maps and checkpoints.
 Actual acquisition totals depend on AOIs/years, complete discovery and HEAD.
 The NAIP example exceeds default guards and will not download implicitly. Small

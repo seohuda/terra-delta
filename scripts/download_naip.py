@@ -3,7 +3,7 @@
 import argparse
 import json
 
-from terradelta.external.common import DownloadGuard, download_assets, plan_summary
+from terradelta.external.common import DownloadGuard, cached_metadata_plan, download_assets, plan_summary
 from terradelta.external.naip import discover_naip, estimate_aoi_bytes, sign_url
 
 
@@ -20,15 +20,23 @@ def main(argv=None):
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--dry-run", action="store_true", help="Default: metadata only")
     mode.add_argument("--download", action="store_true")
-    parser.add_argument("--output-dir", default="data/raw/naip")
+    parser.add_argument("--output-dir", "--output", default="data/raw/naip")
+    parser.add_argument("--metadata-plan", help="Replay an existing dry-run JSON offline; no network")
     parser.add_argument("--max-files", type=int, default=2)
     parser.add_argument("--max-file-bytes", type=int, default=50_000_000)
     parser.add_argument("--max-total-bytes", type=int, default=100_000_000)
     args = parser.parse_args(argv)
+    if args.metadata_plan:
+        if args.download or args.inspect_sizes:
+            parser.error("Cached plans are offline dry-run only; rediscover on EC2 before downloading")
+        report = cached_metadata_plan(args.metadata_plan, source="NAIP", bounds=args.bounds, years=args.years)
+        report.update(output_path=args.output_dir, selected_bands=args.bands, target_resolution_m=args.target_resolution)
+        print(json.dumps(report, indent=2))
+        return report
     result = discover_naip(bounds=args.bounds, years=args.years, region=args.region, state=args.state,
                            max_items=args.max_items, inspect_sizes=args.inspect_sizes or args.download)
     report = plan_summary(result["assets"])
-    report.update(truncated=result["truncated"], region=args.region, bounds=args.bounds, years=args.years,
+    report.update(source="NAIP", output_path=args.output_dir, truncated=result["truncated"], region=args.region, bounds=args.bounds, years=args.years,
                   selected_bands=args.bands, target_resolution_m=args.target_resolution,
                   estimated_aoi_raw_bytes=estimate_aoi_bytes(args.bounds, target_resolution=args.target_resolution,
                                                             bands=args.bands, temporal_images=len(args.years)),
