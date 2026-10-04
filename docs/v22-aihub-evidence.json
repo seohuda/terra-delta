@@ -1,0 +1,56 @@
+{
+  "description": {
+    "source": "https://aihub.or.kr/aihubdata/data/view.do?dataSetSn=71363",
+    "status": 200,
+    "content_type": "text/html;charset=utf-8",
+    "bytes": 274750,
+    "sha256": "a02bc56c3f9f6afa24c2f7ae4f0ecda3b0e543e264f7edcb6904d07b97487ab2",
+    "pdf": false,
+    "final_url": "https://aihub.or.kr/aihubdata/data/view.do?dataSetSn=71363"
+  },
+  "policy": {
+    "source": "https://aihub.or.kr/intrcn/guid/usagepolicy.do?currMenu=151&topMenu=105",
+    "status": 200,
+    "content_type": "text/html;charset=utf-8",
+    "bytes": 88248,
+    "sha256": "97a40aadf5ca61e385f8fb3928d11f515170eb0c0d41b996de1f0ad995f17750",
+    "pdf": false,
+    "final_url": "https://aihub.or.kr/intrcn/guid/usagepolicy.do?currMenu=151&topMenu=105"
+  },
+  "faq": {
+    "source": "https://aihub.or.kr/aihubnews/faq/list.do?currMenu=146&topMenu=104",
+    "status": 200,
+    "content_type": "text/html;charset=utf-8",
+    "bytes": 73737,
+    "sha256": "7fd333bbdd114341f1fa10b4484350910741c6defab60dc2e1a21715a51ac2fa",
+    "pdf": false,
+    "final_url": "https://aihub.or.kr/aihubnews/faq/list.do?currMenu=146&topMenu=104"
+  },
+  "organizer-reference": {
+    "source": "https://aifactory.space/en/competitions/9307/posts/notice/241",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 222946,
+    "sha256": "82e50a984d2c1a8efcc10d1011dcfd95b9b6dc2ae0e8338206d613fd1bcd7628",
+    "pdf": false,
+    "final_url": "https://aifactory.space/en/competitions/9307/posts/notice/241"
+  },
+  "manual": {
+    "source": "https://aihub.or.kr/file/down.do?dataMnlFileSn=19907&dataSetSn=71363&fileSn=19907",
+    "status": 200,
+    "content_type": "text/html;charset=UTF-8",
+    "bytes": 79,
+    "sha256": "f02c3009109228e39726b59d6c1f21806dd3ffbd2faa97ea02df8b51cbecd469",
+    "pdf": false,
+    "final_url": "https://aihub.or.kr/file/down.do?dataMnlFileSn=19907&dataSetSn=71363&fileSn=19907"
+  },
+  "usage-guide": {
+    "source": "https://aihub.or.kr/file/down.do?cnstcPrcuseFileSn=19908&dataSetSn=71363&fileSn=19908",
+    "status": 200,
+    "content_type": "text/html;charset=UTF-8",
+    "bytes": 79,
+    "sha256": "f02c3009109228e39726b59d6c1f21806dd3ffbd2faa97ea02df8b51cbecd469",
+    "pdf": false,
+    "final_url": "https://aihub.or.kr/file/down.do?cnstcPrcuseFileSn=19908&dataSetSn=71363&fileSn=19908"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "reason": "Verifier support/scoring changed; RGB/statistic extraction function and feature order are unchanged.",
+  "original_module_sha256": "e02ede0f9d39993bce1e8d0e4e3a49464e5ecf20d1ad07bb11021c3cc01bbcd8",
+  "feature_extraction_sha256": "74171673802b3011e550537347a47e4259e2cf500d4dabe7d50414f5f6402620",
+  "files": {
+    "train": {
+      "original_cache_sha256": "ff0f24077a64f15730ba1d3f8ac5fd2e9891aba599baa3c3fe81b18768e853da",
+      "new_cache_sha256": "98510cd2d6d2dbd6dfaab9338799dbc1e6cf6f463f3910d059934922f2e946cf"
+    },
+    "legacy": {
+      "original_cache_sha256": "38e3616d97986357703732bc9a313790d1d6ceca1e6c4d55cda2d1fbc81cc5ed",
+      "new_cache_sha256": "3c7f3cb8c511a2815bf6a54ea13e941cfb767c7860708cddd11c5cd5e192f078"
+    },
+    "stress": {
+      "original_cache_sha256": "7cd195ded45e86cf87c91bb778e9b3911d155af169e9a106168b0b7a74c777c4",
+      "new_cache_sha256": "126093c42155b70d2cc9d16ec1cc92826316e1e373df48ec6c8c5bb2cf4b4433"
+    }
+  }
+}

@@ -204,3 +204,22 @@ EBS DeleteOnTermination=false; original GPU terminated externally.
 - [x] Verify tests/Ruff, commit/push v2.1 only, STOP CPU/GPU and preserve 30GB EBS.
 
 V2 MAIN review: exactly one unchanged ZIP, public 364647/private 364648/run 31388 completed; public .1947902971 (display .1948), rank128 at observation, daily MAIN2/3 remained. Frozen v2 branch c9b1c13 and 33-file read-only release preserved. V2.1 .05/.10 arms each completed150 extra steps, all8 checkpoint gates failed; lowest realFP12/17 loses tree recall1/2 and shape/score. Zero v2.1 DEBUG/Main. 608 pytest passed/1 skipped; remote115 passed/1 CPU-fixture CUDA skip, actual A10G run194.92s. CPU/GPU API stopped; original encrypted30GiB restored CPUroot DeleteOnTermination=false; GPUroot30GiB retained. Task SSH keys revoked. V2.1 NOT PROVEN — KEEP FROZEN V2.
+
+## V2.2 frozen class-wise verifier and AIHub 71363 (2026-10-05)
+
+- [x] Start existing CPU builder and create v2.2-verifier-aihub-20261005.
+- [ ] Check AIHub 71363 provider terms, organizer guidance and authenticated availability.
+- [x] Reuse audited 54 real negatives; fit only class-wise verifier on detached frozen-v2 outputs.
+- [x] Keep backbone/decoder bytes and inference thresholds/geometry fixed; compare actual polygons.
+- [x] Preserve building3/3, tree2/2 and stress recall/shape; reduce real no-change FP.
+- [ ] If eligible, reproducible offline ZIP/cleanroom then exactly one DEBUG. MAIN forbidden.
+- [ ] Verify tests, record outcomes and stop CPU; preserve EBS and existing stopped GPU.
+
+V2.2 candidate review: verifier02 local gate passed; realFP17/17→16/17,
+stressFP42/200→29/200; building3/3, tree2/2 and retained shapes unchanged.
+All2261 audited rows include54realnegatives; zero backbone/decoder updates,
+33 frozen release hashes unchanged. Actual inference/cache equality and repeated
+32pair offline extracted cleanroom passed; 619pytest passed/1skipped and Ruff
+passed. AIHub API access still pending; downloaded0bytes/training0rows. DEBUG0,
+MAIN0. Final AIHub comparison and authorized DEBUG are unfinished. See
+docs/v22-verifier.md and docs/v22-comparison.json.
