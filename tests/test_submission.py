@@ -136,3 +136,52 @@ def test_export_strips_training_state(tmp_path, official_checkpoint):
     assert set(exported)=={"state_dict","classes","in_channels","encoder","steps","seed"}
     for key,value in payload["state_dict"].items():
         torch.testing.assert_close(value,exported["state_dict"][key])
+
+
+def test_v2_export_uses_dedicated_independent_inference(tmp_path):
+    from terradelta.models.siamese_v2 import TerraDeltaSiameseV2, save_v2_checkpoint
+    from terradelta.inference.v2 import predict_directory as predict_v2
+    model = TerraDeltaSiameseV2()
+    with torch.no_grad():
+        model.segmentation_head.weight.zero_()
+        model.segmentation_head.bias.fill_(8)
+        model.presence_head[-1].weight.zero_()
+        model.presence_head[-1].bias.fill_(8)
+    checkpoint = tmp_path / "v2.pt"
+    save_v2_checkpoint(checkpoint, model, steps=250, training_format_version=1)
+    config_path = tmp_path / "v2.yaml"
+    config_path.write_text("model:\n  architecture: siamese_v2\n  encoder_weights: null\npostprocess:\n  mode: independent\n")
+    export = export_submission(checkpoint, config_path, tmp_path / "package")
+    archive = make_submission_zip(export, tmp_path / "v2.zip")
+    with zipfile.ZipFile(archive) as z:
+        assert not any("calibration" in n or "/training/" in n or "/data/" in n for n in z.namelist())
+        z.extractall(tmp_path / "extracted")
+    extracted = tmp_path / "extracted"
+    notebook = nbformat.read(extracted / "predict.ipynb", as_version=4)
+    nbformat.validate(notebook)
+    codes = [c.source for c in notebook.cells if c.cell_type == "code"]
+    input_dir = create_input(tmp_path / "input")
+    output = tmp_path / "actual.csv"
+    prelude = '''import socket, torch
+from pathlib import Path
+def forbidden(*a,**kw): raise AssertionError("Network/training forbidden")
+socket.socket.connect = forbidden
+socket.create_connection = forbidden
+torch.hub.download_url_to_file = forbidden
+torch.optim.Optimizer.__init__ = forbidden
+torch.Tensor.backward = forbidden
+torch.autograd.backward = forbidden
+torch.cuda.is_available = lambda: False
+'''
+    suffix = '\nimport terradelta\nassert Path(terradelta.__file__).resolve().is_relative_to(Path.cwd()/"assets/code")\n'
+    env = dict(os.environ, PYTHONPATH="", CUDA_VISIBLE_DEVICES="", AIF_INPUT_DIR=str(input_dir), AIF_PREDICTION_PATH=str(output))
+    r = subprocess.run([str(Path(os.sys.executable).absolute()), "-I", "-c", prelude+"\n".join(codes)+suffix],
+                       cwd=extracted, env=env, text=True, capture_output=True, timeout=90)
+    assert r.returncode == 0, r.stdout+r.stderr
+    expected = tmp_path / "expected.csv"
+    predict_v2(input_dir, expected, checkpoint, load_config(config_path))
+    assert output.read_bytes() == expected.read_bytes()
+    with output.open() as f:
+        row = next(csv.DictReader(f))
+    assert row["id"] == "0001"
+    assert row["new_building"] == row["tree_removal"] != ""

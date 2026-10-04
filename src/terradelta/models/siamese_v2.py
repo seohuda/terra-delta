@@ -180,6 +180,15 @@ def load_v2_checkpoint(path, model=None):
         raise ValueError("v2 checkpoint must contain state_dict")
     if payload.get("architecture") != "siamese_v2":
         raise ValueError("not a TerraDelta v2 checkpoint")
+    if payload.get("encoder") != "resnet18" or payload.get("input") != "pre_rgb+post_rgb":
+        raise ValueError("v2 checkpoint input/encoder contract is incompatible")
+    if payload.get("classes") != ["new_building", "tree_removal"]:
+        raise ValueError("v2 checkpoint class order is incompatible")
+    state = payload["state_dict"]
+    if not isinstance(state, Mapping) or not state or not all(
+        isinstance(key, str) and isinstance(value, torch.Tensor) for key, value in state.items()
+    ):
+        raise ValueError("invalid v2 state_dict")
     if model is not None:
         model.load_state_dict(payload["state_dict"], strict=True)
     return {k: v for k, v in payload.items() if k != "state_dict"}

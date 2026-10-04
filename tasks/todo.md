@@ -168,3 +168,26 @@ DEBUG review: one submission 364413 / run 30967 completed; practice score
 Server detailed logs/durations/CSV are not exposed in current submission UI;
 recorded as unavailable, not inferred. Builder API stopped at 07:39:53 UTC,
 encrypted retained 30 GiB EBS unchanged. DEBUG PASSED — READY FOR NEXT PHASE.
+
+## Resume existing trained Siamese v2 experiment (2026-10-04)
+
+Use branch v2-siamese-20261004 and existing GPU i-09aac8b36f0f45314.
+No dataset generation, new GPU, retraining, or Main submission.
+
+- [x] Inspect CPU/GPU/EBS and retain earlier local edits in stash.
+- [x] Verify five completed checkpoints; no live Python sweep and no coarse JSON.
+- [x] Dedicated independent v2 offline inference and strict checkpoint contract.
+- [x] Coarse sweep only steps 50/150/250; balance real legacy and synthetic WA stress.
+- [x] Save final-v2-selection.json and repeat final inference on both sets.
+- [x] Exact competition notebook ZIP, no training/data/secrets, extracted-only cleanroom.
+- [x] Retrieve existing original baseline result; one v2 DEBUG and wait terminal.
+- [x] pytest/Ruff, source/config/tests/docs commit and push existing branch.
+- [x] External task terminated GPU; finish on approved CPU, STOP/API verify CPU, retain 30GB EBS.
+
+Resume review: selected step 250, building presence disabled/pixel .35, tree
+presence .30/pixel .70; real .508940 / synthetic .635714. Real no-change FP
+17/17 remains. One DEBUG 364583/run 31278 completed at displayed .3331, original
+.2990 and old balanced .1458. Main 0; no new training or GPU. 32-pair extracted
+CPU cleanroom repeated byte identically; 493 pytest plus 2 exporter regressions
+and repository Ruff passed. Existing CPU stopped, preserved encrypted 30 GiB
+EBS DeleteOnTermination=false; original GPU terminated externally.
