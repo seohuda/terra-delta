@@ -4,8 +4,8 @@ model:
   alignment_scales: [3, 4]
   max_offset: 1.5
 data:
-  train_manifest: /data/terradelta/v2/manifests/train-v2.csv
-  legacy_val_manifest: /data/terradelta/v2/manifests/legacy-val-v2.csv
+  train_manifest: /data/terradelta/v2/manifests/train-synthetic.csv
+  legacy_val_manifest: /data/terradelta/processed/micro-pilot-v2/val.csv
   stress_val_manifest: /data/terradelta/v2/manifests/stress-val-v2.csv
 augmentation:
   relative_probability: 0.55
