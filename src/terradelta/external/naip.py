@@ -8,9 +8,10 @@ Dry-run does not sign or read raster assets unless HEAD sizes are requested.
 
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from itertools import combinations
 import re
+from threading import Lock
 from urllib.parse import urlencode, urlsplit, urlunsplit
 
 from .common import Asset, get_json, head_size, safe_filename
@@ -18,23 +19,32 @@ from terradelta.utils.geo import validate_bounds
 
 STAC_API = "https://planetarycomputer.microsoft.com/api/stac/v1"
 SAS_API = "https://planetarycomputer.microsoft.com/api/sas/v1"
+_TOKEN_CACHE = {}
+_TOKEN_LOCK = Lock()
 
 
 def sign_url(url):
     """Use the provider's account/container token API, as its official SDK does.
 
     Tokens remain transient; callers must not log/persist the signed URL.
-    No token caching means each invocation checks current expiry.
+    A transient, expiry-aware account cache avoids provider rate limits. Nothing
+    is persisted, and concurrent calls share one request per account.
     """
     parsed = urlsplit(url)
     account = re.fullmatch(r"([a-z0-9]+)\.blob\.core\.windows\.net", parsed.netloc)
     if parsed.scheme != "https" or not account or not parsed.path.startswith("/naip/") or parsed.query or parsed.fragment:
         raise ValueError("NAIP signing requires an unsigned HTTPS Azure /naip/ blob URL")
-    response = get_json(f"{SAS_API}/token/{account[1]}/naip")
-    expiry = datetime.fromisoformat(response["msft:expiry"].replace("Z", "+00:00"))
-    token = response["token"]
-    if expiry.tzinfo is None or expiry <= datetime.now(timezone.utc) or not isinstance(token, str) or not token:
-        raise ValueError("Provider returned an expired/invalid NAIP SAS token")
+    with _TOKEN_LOCK:
+        cached = _TOKEN_CACHE.get(account[1])
+        if cached and cached[0] > datetime.now(timezone.utc) + timedelta(seconds=60):
+            _, token = cached
+        else:
+            response = get_json(f"{SAS_API}/token/{account[1]}/naip")
+            expiry = datetime.fromisoformat(response["msft:expiry"].replace("Z", "+00:00"))
+            token = response["token"]
+            if expiry.tzinfo is None or expiry <= datetime.now(timezone.utc) or not isinstance(token, str) or not token:
+                raise ValueError("Provider returned an expired/invalid NAIP SAS token")
+            _TOKEN_CACHE[account[1]] = (expiry, token)
     return urlunsplit(parsed._replace(query=token))
 
 
