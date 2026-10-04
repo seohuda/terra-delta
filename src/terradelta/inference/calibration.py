@@ -205,13 +205,18 @@ def rank(trial, kind='balanced'):
     s = trial['summary']
     fn = sum(s[f'{n}.fn'] for n in CLASSES)
     fp, score = s['no_change_fp_rate'], s['overall']
+    settings = trial['config']['postprocess']['classes']
+    # Equal metrics retain original numerical defaults rather than selecting
+    # the first redundant total-area/simplification value in the grid.
+    defaults = -sum(abs(settings[n][p] - v) for n in CLASSES
+                    for p, v in (('min_area', 30), ('min_pos_area', 20), ('simplify_px', .5)))
     # Presence recall is first for all presets. Balanced targets <=30% before
     # score; conservative minimizes FP; aggressive optimizes score then shape.
     if kind == 'conservative':
-        return (-fn, -fp, score)
+        return (-fn, -fp, score, defaults)
     if kind == 'aggressive':
-        return (-fn, score, sum(s[f'{n}.shape_score'] for n in CLASSES), -fp)
-    return (-fn, fp <= .30, score, -fp)
+        return (-fn, score, sum(s[f'{n}.shape_score'] for n in CLASSES), -fp, defaults)
+    return (-fn, fp <= .30, score, -fp, defaults)
 
 
 def finalists(trials):
@@ -249,7 +254,18 @@ def run_sweep(pred_dir, manifest, output, baseline_score):
     # Pick a plateau using each finalist's worst neighbor recall, FP target and
     # mean score; this can displace the isolated highest central score.
     neighborhoods = []
-    for c in finalists(final):
+    centers = {}
+    for finalist in finalists(final):
+        b, t = [finalist['postprocess']['classes'][n]['threshold'] for n in CLASSES]
+        for db, dt in product((-.05, 0, .05), repeat=2):
+            pair = (round(b+db, 2), round(t+dt, 2))
+            if not all(.30 <= v <= .90 for v in pair):
+                continue
+            c = deepcopy(finalist)
+            for n, v in zip(CLASSES, pair):
+                c['postprocess']['classes'][n]['threshold'] = v
+            centers[engine.key(c)] = c
+    for c in centers.values():
         neighbor = []
         b, t = [c['postprocess']['classes'][n]['threshold'] for n in CLASSES]
         for db, dt in product((-.05, 0, .05), repeat=2):
@@ -264,6 +280,7 @@ def run_sweep(pred_dir, manifest, output, baseline_score):
     _, balanced, neighbors = max(neighborhoods, key=lambda x: x[0])
     chosen['balanced'] = balanced
     engine.csv('robustness.csv', neighbors)
+    engine.csv('plateau_centers.csv', [item[1] for item in neighborhoods])
     result = {'baseline': baseline, 'presets': chosen, 'robustness': [t['summary'] for t in neighbors],
               'trial_count': len(engine.trials), 'morphology_searched': False,
               'selection': 'recall first; conservative lowest FP; balanced worst-neighbor recall/FP target then mean score; aggressive central score',

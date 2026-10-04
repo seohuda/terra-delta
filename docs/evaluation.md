@@ -170,7 +170,7 @@ mapping is accepted. Common settings are inherited by each class; overrides in
 `classes.new_building` / `classes.tree_removal` apply independently, followed by
 any direct top-level class overrides. Nested morphology settings merge per key.
 
-The following is a schema example with independent threshold masks, not tuned
+The following is a schema example with class-specific thresholds, not tuned
 parameters or a performance recommendation:
 
 ```yaml
@@ -213,7 +213,7 @@ postprocess:
 
 | Per-class setting | Meaning |
 | --- | --- |
-| `threshold` | Finite `[0,1]` value; threshold mode includes pixels at or above this class probability, allowing both change classes on one pixel |
+| `threshold` | Finite `[0,1]` value; threshold mode admits pixels at or above the class threshold, then selects the highest probability among background and eligible positives; background wins ties and building wins positive ties |
 | `min_area` | Component area cutoff; reference filters before simplification/exterior export, optimized also checks emitted rounded exterior area; default 30 square pixels |
 | `min_pos_area` | Minimum retained total area; reference checks before export, optimized also checks the emitted exterior union; default 20 square pixels |
 | `simplify_px` | Nonnegative topology-preserving simplification tolerance in pixels; default 0.5 |
