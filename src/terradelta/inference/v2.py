@@ -52,7 +52,7 @@ def class_options(config, name):
     return result
 
 
-def output_row(identifier, segmentation, presence, config):
+def output_row(identifier, segmentation, presence, config, accepted=None):
     segmentation, presence = np.asarray(segmentation), np.asarray(presence)
     if segmentation.shape != (2, 256, 256) or presence.shape != (2,):
         raise ValueError("Expected 2x256x256 pixel and two presence probabilities")
@@ -60,10 +60,16 @@ def output_row(identifier, segmentation, presence, config):
         if not np.isfinite(values).all() or ((values < 0) | (values > 1)).any():
             raise ValueError("Probabilities must be finite in [0,1]")
     row = {"id": identifier}
+    if config.get("verifier") is not None and accepted is None:
+        raise ValueError("Verifier config requires decisions from V2Predictor.output_rows")
+    if accepted is not None:
+        accepted = np.asarray(accepted)
+        if accepted.shape != (2,) or accepted.dtype != np.dtype(bool):
+            raise ValueError("Verifier decisions must be two booleans")
     for channel, name in enumerate(CLASSES):
         options = class_options(config, name)
         threshold = options["presence_threshold"]
-        if threshold is not None and presence[channel] < threshold:
+        if (accepted is not None and not accepted[channel]) or (threshold is not None and presence[channel] < threshold):
             row[name] = ""
             continue
         mask = segmentation[channel] >= options["pixel_threshold"]
@@ -85,6 +91,14 @@ class V2Predictor:
         self.device = torch.device(device)
         for name in CLASSES:
             class_options(config, name)
+        self.verifier = config.get("verifier")
+        if self.verifier is not None:
+            from .verifier import validate_verifier, verify_frozen_checkpoint
+            validate_verifier(self.verifier)
+            if self.verifier["pixel_thresholds"] != [class_options(config, n)["pixel_threshold"] for n in CLASSES]:
+                raise ValueError("Verifier pixel thresholds differ from frozen inference")
+            if checkpoint is not None:
+                verify_frozen_checkpoint(checkpoint)
         self.model = model if model is not None else TerraDeltaSiameseV2(**model_options(config))
         if checkpoint is not None:
             self.metadata = load_v2_checkpoint(checkpoint, self.model)
@@ -107,6 +121,17 @@ class V2Predictor:
             raise ValueError("V2 returned nonfinite probabilities")
         return pixels.cpu().numpy(), presence.cpu().numpy()
 
+    def output_rows(self, identifiers, image, pixels, presence):
+        accepted = np.ones((len(pixels), 2), dtype=bool)
+        if len(identifiers) != len(pixels) or len(image) != len(pixels) or len(presence) != len(pixels):
+            raise ValueError("Output batch lengths differ")
+        if self.verifier is not None:
+            from .verifier import change_features, verifier_scores
+            features = change_features(image.detach().cpu().numpy(), pixels, presence,
+                                       self.verifier["pixel_thresholds"])
+            accepted = verifier_scores(features, self.verifier) >= np.asarray(self.verifier["threshold"])
+        return [output_row(i, p, q, self.config, a) for i, p, q, a in zip(identifiers, pixels, presence, accepted)]
+
 
 def predict_directory(input_dir, output_path, checkpoint, config, device="cpu"):
     root, ids = discover_pairs(input_dir)
@@ -126,7 +151,7 @@ def predict_directory(input_dir, output_path, checkpoint, config, device="cpu"):
             ]
         )
         pixels, presence = predictor.probabilities(image)
-        rows.extend(output_row(i, p, q, config) for i, p, q in zip(batch_ids, pixels, presence))
+        rows.extend(predictor.output_rows(batch_ids, image, pixels, presence))
         print(f"Predicted {min(start + batch_size, len(ids))}/{len(ids)}", flush=True)
     write_prediction_csv(output_path, rows)
     return rows

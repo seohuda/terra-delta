@@ -120,6 +120,9 @@ from terradelta.utils.io import write_prediction_csv
 from shapely.geometry import Polygon
 import numpy as np
 assert DEVICE=='cpu'
+if CONFIG.get('verifier') is not None:
+    from terradelta.inference.verifier import validate_verifier
+    validate_verifier(CONFIG['verifier'])
 for name,module in list(sys.modules.items()):
     if name=='terradelta' or name.startswith('terradelta.'):
         assert Path(module.__file__).resolve().is_relative_to(ROOT/'assets/code'),name
@@ -137,18 +140,23 @@ def validate(path,ids):
 ids=[r['id'] for r in csv.DictReader(open(INPUT_DIR/'pairs.csv'))]
 actual=validate(PREDICTION_PATH,ids)
 p=np.zeros((2,256,256),np.float32);q=np.ones(2,np.float32)
-empty=output_row('empty',p,q,CONFIG);assert empty['new_building']==empty['tree_removal']==''
+accepted=np.ones(2,dtype=bool)
+empty=output_row('empty',p,q,CONFIG,accepted) if CONFIG.get('verifier') else output_row('empty',p,q,CONFIG)
+assert empty['new_building']==empty['tree_removal']==''
 p[:,20:60,20:60]=1
-both=output_row('both',p,q,CONFIG)
+both=output_row('both',p,q,CONFIG,accepted) if CONFIG.get('verifier') else output_row('both',p,q,CONFIG)
 assert both['new_building']==both['tree_removal']!=''
 gated=output_row('gated',p,np.zeros(2,np.float32),{'postprocess':{'presence_threshold':.5,'pixel_threshold':0}})
 assert gated['new_building']==gated['tree_removal']==''
+if CONFIG.get('verifier'):
+    rejected=output_row('rejected',p,q,CONFIG,np.array([False,True]))
+    assert rejected['new_building']=='' and rejected['tree_removal']==both['tree_removal']
 write_prediction_csv(ROOT.parent/'contract.csv',[empty,both,gated])
 validate(ROOT.parent/'contract.csv',['empty','both','gated'])
 report={'status':'passed','device':DEVICE,'rows':len(actual),'ids_preserved':True,
         'columns_valid':True,'finite_bounded_valid_polygons':True,'empty_cells':True,
         'independent_overlapping_heads':True,'presence_before_pixel':True,'network_blocked':True,
-        'optimizer_and_backward_blocked':True,'repository_imports':False,
+        'optimizer_and_backward_blocked':True,'repository_imports':False,'verifier_class_independence':bool(CONFIG.get('verifier')),
         'elapsed_seconds':time.monotonic()-started}
 print(json.dumps(report))
 """

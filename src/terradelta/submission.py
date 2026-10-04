@@ -81,10 +81,9 @@ def export_submission(checkpoint, config_path, destination, baseline_root=None):
     # Validate checkpoint against exact architecture before copying bytes.
     architecture = config.get("model", {}).get("architecture", "baseline")
     if architecture == "siamese_v2":
-        from terradelta.inference.v2 import model_options
-        from terradelta.models.siamese_v2 import TerraDeltaSiameseV2, load_v2_checkpoint
-        validated_model = TerraDeltaSiameseV2(**model_options(config))
-        metadata = load_v2_checkpoint(checkpoint, validated_model)
+        from terradelta.inference.v2 import V2Predictor
+        predictor = V2Predictor(checkpoint, config)
+        validated_model, metadata = predictor.model, predictor.metadata
         if "optimizer" in metadata or "config" in metadata or "rng" in metadata:
             raise ValueError("V2 deployment checkpoint must contain weights and provenance only")
     elif architecture == "baseline":
@@ -135,7 +134,7 @@ def export_submission(checkpoint, config_path, destination, baseline_root=None):
             for source in (PACKAGE_ROOT / sub).glob("*.py"):
                 if sub == "utils" and source.name not in {"__init__.py", "io.py"}:
                     continue
-                if sub == "inference" and source.name in {"calibration.py", "v2_calibration.py"}:
+                if sub == "inference" and source.name in {"calibration.py", "v2_calibration.py", "v2_evaluation.py"}:
                     # Offline deployment needs inference only, not pilot cache/search.
                     continue
                 target = code / sub / source.name

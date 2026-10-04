@@ -6,7 +6,7 @@ from terradelta.data.dataset_v2 import IndependentChangeDataset
 from terradelta.metrics.evaluation import _polygon_union, evaluate_predictions
 from terradelta.postprocess.polygons import mask_to_polygons_reference
 from terradelta.utils.io import write_prediction_csv
-from .v2 import CLASSES, V2Predictor, output_row
+from .v2 import CLASSES, V2Predictor
 
 
 @torch.inference_mode()
@@ -19,8 +19,9 @@ def evaluate_model(model, manifest, config, device, prediction_path=None):
         samples = [data[i] for i in range(start, min(start + batch_size, len(data)))]
         if any(not s["valid_mask"].all() for s in samples):
             raise ValueError("Evaluation requires full-tile validation labels")
-        pixels, presence = predictor.probabilities(torch.stack([s["image"] for s in samples]))
-        predictions.extend(output_row(s["id"], p, q, config) for s, p, q in zip(samples, pixels, presence))
+        images = torch.stack([s["image"] for s in samples])
+        pixels, presence = predictor.probabilities(images)
+        predictions.extend(predictor.output_rows([s["id"] for s in samples], images, pixels, presence))
         truth.extend({
             "id": s["id"], **{
                 c: mask_to_polygons_reference(s["target"][i].numpy() > 0, 0, 0, 0)
