@@ -121,9 +121,26 @@ No optimizer construction, backward, training, GPU or competition submission.
 Only the existing CPU builder is authorized; preserve EBS and stop at completion.
 
 - [x] Start approved builder; verify v2 summary and immutable checkpoint hash.
-- [ ] Update builder to current Git main and verify full validation masks/counts.
-- [ ] Own exclusive threshold semantics in postprocessing; compressed cache and deterministic resumable sweep.
-- [ ] Test without optimizer construction; reproduce official baseline from one forward per sample.
-- [ ] Coarse thresholds, promising area/total area and finalist simplification; select three presets and ±0.05 robustness.
-- [ ] Per-sample changes, bounded six-column previews, exact metrics and limitations.
+- [x] Update builder to current Git main and verify full validation masks/counts.
+- [x] Own exclusive threshold semantics in postprocessing; compressed cache and deterministic resumable sweep.
+- [x] Test without optimizer construction; reproduce official baseline from one forward per sample.
+- [x] Coarse thresholds, promising area/total area and finalist simplification; select three presets and ±0.05 robustness.
+- [x] Per-sample changes, bounded six-column previews, exact metrics and limitations.
 - [ ] Publish code/configs/small report, flush EBS, stop and API-verify builder.
+
+### Calibration review
+
+564 unique cached trials; all 22 lossless float32 probability maps came from
+one CPU identity forward per sample. Official baseline exactly reproduced at
+0.4700281110675977. Balanced score 0.5349468546033609, no-change FP 6/17
+versus 12/17, building FP fixed 9 and tree FP fixed 1, all five TP retained,
+no new FP/FN. Nine neighbors preserve all TP, score range 0.513598–0.534947;
+neighbor FP can still reach 8/17. Conservative FP 4/17 trades away most
+building shape quality. Exactly three calibrated YAMLs; no morphology search.
+
+Guarded non-training suite 448 passed; focused 59 passed, Ruff and diff check
+passed. EBS canonical parity, unchanged inputs/weights and byte-identical actual
+resume verified. No optimizer construction, backward, training, GPU, submission
+or new data downloads. Recommend GET MORE DATA FIRST; retain balanced for the
+future frozen-weight comparison. Publish/pull and EBS flush precede builder
+STOP; final EC2 API state and final Git SHA are recorded in the delivery reply.

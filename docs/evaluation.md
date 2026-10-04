@@ -225,7 +225,9 @@ postprocess:
 | `morphology.fill_holes` | Boolean; fill background components disconnected from the image border using 4-way connectivity |
 
 Mask operations run opening → closing → dilation → erosion → optional hole fill
-→ component filter, independently per class. Pixels outside the image are
+→ component filter, independently per class. In threshold mode, any resulting
+mask overlap is resolved by original positive probabilities (building wins ties).
+Argmax morphology retains the existing behavior. Pixels outside the image are
 background. Polygon coordinates use pixel corners: raster `(row, col)` occupies
 `[col,col+1] × [row,row+1]`. Exported rings omit the repeated closing coordinate
 and omit holes, so evaluating original masks instead of exported exteriors can

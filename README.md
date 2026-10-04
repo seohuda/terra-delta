@@ -54,7 +54,10 @@ Baseline inference uses softmax argmax with identical polygon parameters for
 both classes. TerraDelta also supports independent probability thresholds,
 optional horizontal/vertical TTA, raw probability maps and bounded phase/ECC
 registration. Baseline preset disables TTA/alignment and retains exact reference
-polygon serialization. Conservative thresholds are untuned examples.
+polygon serialization. `inference_conservative.yaml` is an untuned example;
+`inference_sweep_*.yaml` contains the three micro-pilot-v2 calibration presets.
+Their tiny AI-reviewed validation limits are recorded in the
+[calibration report](docs/threshold-sweep-report.md).
 
 ## Quick start — no training
 
@@ -163,7 +166,22 @@ private-scorer details. Pixel overlap and boundary metrics are diagnostics.
 Threshold search varies class thresholds, component/total area and simplification
 using the **exported geometry**, producing CSV trials and best YAML. See
 [evaluation](docs/evaluation.md). Example thresholds and mock results are not
-performance evidence.
+performance evidence. Frozen micro-pilot-v2 calibration uses compressed float32
+CPU maps, reference polygons and content-bound resume:
+
+```bash
+python scripts/calibrate_baseline.py \
+  --manifest /data/terradelta/processed/micro-pilot-v2/val.csv \
+  --checkpoint /data/terradelta/baseline/unet_r18_cd.pt \
+  --output /data/terradelta/outputs/threshold-sweep-v1 \
+  --baseline-score 0.4700281110675977
+```
+
+It verifies 22 full validation tiles (3 building, 2 tree, 17 no-change),
+forwards each uncached tile once in CPU inference mode, then uses cached maps
+for all trials. Repeating the same command reuses the cache and journal.
+Changed input contents or scoring code require a new search output directory.
+No training or optimizer is constructed.
 
 ## Polygon inference and submission
 
