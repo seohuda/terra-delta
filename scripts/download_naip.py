@@ -4,13 +4,15 @@ import argparse
 import json
 
 from terradelta.external.common import DownloadGuard, cached_metadata_plan, download_assets, plan_summary
-from terradelta.external.naip import discover_naip, estimate_aoi_bytes, sign_url
+from terradelta.external.naip import discover_naip, discover_naip_years, estimate_aoi_bytes, sign_url
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--bounds", type=float, nargs=4, required=True, metavar=("W", "S", "E", "N"))
-    parser.add_argument("--years", type=int, nargs="+", required=True)
+    temporal = parser.add_mutually_exclusive_group(required=True)
+    temporal.add_argument("--years", type=int, nargs="+")
+    temporal.add_argument("--list-years", action="store_true", help="Bounded acquisition-year discovery; metadata only")
     parser.add_argument("--region", default="")
     parser.add_argument("--state", help="Two-letter NAIP state code")
     parser.add_argument("--bands", choices=["rgb", "rgbnir", "nir"], default="rgb")
@@ -26,6 +28,13 @@ def main(argv=None):
     parser.add_argument("--max-file-bytes", type=int, default=50_000_000)
     parser.add_argument("--max-total-bytes", type=int, default=100_000_000)
     args = parser.parse_args(argv)
+    if args.list_years:
+        if args.download or args.inspect_sizes or args.metadata_plan:
+            parser.error("--list-years is live metadata only; no downloads/HEAD/cached single-year plan")
+        report = discover_naip_years(bounds=args.bounds, region=args.region, state=args.state, max_items=args.max_items)
+        report["output_path"] = args.output_dir
+        print(json.dumps(report, indent=2))
+        return report
     if args.metadata_plan:
         if args.download or args.inspect_sizes:
             parser.error("Cached plans are offline dry-run only; rediscover on EC2 before downloading")

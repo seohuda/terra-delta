@@ -52,3 +52,23 @@ bytes of final audit artifacts; preserved initial snapshot 123,622 bytes.
 Implementation commit `5fb624e` published with exact remote/local SHA equality
 via GitHub Git API, no force update. Large assets and previews stay out of Git.
 See docs/data-audit.md and docs/data-audit-summary.json for evidence and commands.
+
+## Real pilot acquisition (EC2 only, no training)
+
+- [ ] Identify the user's approved existing EC2 and SSH access; do not select ULM or create/start resources implicitly.
+- [ ] Check remote commit ancestry, environment and EBS free space before acquisition.
+- [x] Add bounded NAIP year discovery with actual dates/full-AOI candidates; focused tests 74 passed.
+- [ ] Run discovery on EC2 and select actual overlapping temporal coverage.
+- [ ] Recheck actual source licenses; use only compatible sources with recorded evidence.
+- [ ] Acquire on EC2 only, review real tree/building/no-change pairs across at least three regions.
+- [ ] Preserve high-resolution reviewed masks and provenance; exclude medium/low confidence candidates.
+- [ ] Split, audit, generate small previews and optionally back up to an approved existing S3 bucket.
+- [ ] Report actual counts/bytes/readiness without training or submission.
+
+### Pilot preflight review
+
+Acquisition is blocked by missing approved instance ID, region and SSH target.
+Default-region project-tag lookup returned no instance; other-project keys/hosts
+were not selected. Candidate-source terms and the twenty-field actual-status
+report are recorded in docs/pilot-preflight.md. No new real pairs, remote setup,
+training, cloud provisioning/start or large local transfers were performed.
