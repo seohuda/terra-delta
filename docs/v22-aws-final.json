@@ -1,0 +1,51 @@
+{
+  "verified_at_utc": "2026-10-04T16:26:59.842329+00:00",
+  "region": "ap-northeast-2",
+  "instances": [
+    {
+      "instance_id": "i-0766a472ecb5bcf88",
+      "state": "stopped",
+      "type": "t3.medium",
+      "ebs": [
+        {
+          "device": "/dev/sda1",
+          "volume_id": "vol-0070845086ec08190",
+          "delete_on_termination": false
+        }
+      ]
+    },
+    {
+      "instance_id": "i-0523a619699a95db0",
+      "state": "stopped",
+      "type": "g5.xlarge",
+      "ebs": [
+        {
+          "device": "/dev/sda1",
+          "volume_id": "vol-084ec2fa143c670d6",
+          "delete_on_termination": false
+        }
+      ]
+    }
+  ],
+  "volumes": [
+    {
+      "volume_id": "vol-0070845086ec08190",
+      "state": "in-use",
+      "size_gib": 30,
+      "encrypted": true
+    },
+    {
+      "volume_id": "vol-084ec2fa143c670d6",
+      "state": "in-use",
+      "size_gib": 30,
+      "encrypted": true
+    }
+  ],
+  "task_ssh_key_revoked": true,
+  "task_ssm_session_terminated": true,
+  "frozen_release_files_unchanged": 33,
+  "debug_submissions": 0,
+  "main_submissions": 0,
+  "aihub_download_bytes": 0,
+  "status": "awaiting_aihub_api_key"
+}

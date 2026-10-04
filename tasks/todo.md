@@ -213,7 +213,7 @@ V2 MAIN review: exactly one unchanged ZIP, public 364647/private 364648/run 3138
 - [x] Keep backbone/decoder bytes and inference thresholds/geometry fixed; compare actual polygons.
 - [x] Preserve building3/3, tree2/2 and stress recall/shape; reduce real no-change FP.
 - [ ] If eligible, reproducible offline ZIP/cleanroom then exactly one DEBUG. MAIN forbidden.
-- [ ] Verify tests, record outcomes and stop CPU; preserve EBS and existing stopped GPU.
+- [x] Verify tests, record outcomes and stop CPU; preserve EBS and existing stopped GPU.
 
 V2.2 candidate review: verifier02 local gate passed; realFP17/17→16/17,
 stressFP42/200→29/200; building3/3, tree2/2 and retained shapes unchanged.
@@ -223,3 +223,8 @@ All2261 audited rows include54realnegatives; zero backbone/decoder updates,
 passed. AIHub API access still pending; downloaded0bytes/training0rows. DEBUG0,
 MAIN0. Final AIHub comparison and authorized DEBUG are unfinished. See
 docs/v22-verifier.md and docs/v22-comparison.json.
+
+AWS final: CPU/GPU API stopped at2026-10-04T16:26:59.842329+00:00; both
+encrypted30GiB EBS preserved with DeleteOnTermination=false. Task SSH key
+revoked and SSM tunnel terminated. API credential remains the blocking input;
+no final AIHub candidate or DEBUG result has been claimed.
