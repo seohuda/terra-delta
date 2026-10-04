@@ -35,15 +35,18 @@ Partial scopes are training-only; validation needs fully annotated ground truth.
 `has_labels` alone does not assert full coverage. Optional `auxiliary_mask` output
 contains two Boolean class channels and requires the returned validity mask.
 
-Current verification status: tiny temporary fixtures and live metadata checks only;
-no imagery/footprint acquisition, generated real training dataset, training,
-optimizer steps, AWS actions or submission. Do not include Hansen's coarse loss
-grid as segmentation truth. Candidate refinement requires high-resolution review.
+Current pilot data are on the stopped CPU builder's retained EBS at
+`/data/terradelta`: 644 real temporal candidates and 71 approved no-change pairs.
+New-building/tree-removal GT remains unapproved; readiness is NOT READY.
+No training, optimizer steps, GPU operations or submission occurred. Do not
+include Hansen's coarse loss grid as segmentation truth. Candidate refinement
+requires high-resolution review. [Actual pilot report](../docs/real-pilot-report.md).
 
 See [pipeline commands and limits](../docs/data-pipeline.md),
 [permission inventory](../LICENSE_DATA.md) and [source audit](../docs/licenses.md).
-The [filesystem audit](../docs/data-audit.md) confirms four mock pairs and zero
-real pairs. No 1,000-pair dataset exists locally; that figure is a volume estimate.
+The [initial PC audit](../docs/data-audit.md) confirms four mock pairs and zero
+real pairs on the PC. They are excluded from the EC2 pilot. No 1,000-pair dataset
+exists locally; that figure is a volume estimate.
 
 For audit approval, preserve the documented reviewer and explicit
 `provenance_status=verified` / `license_review_status=verified` decisions plus

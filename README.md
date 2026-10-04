@@ -9,13 +9,18 @@ It prepares an end-to-end workflow for the
 licensed data discovery → aligned temporal tiles → geographic validation → short
 fine-tuning → probability inference → polygon CSV → offline submission ZIP.
 
-**Current status:** code and CPU verification only. No model training, optimizer
-updates, cloud GPU operations, large dataset downloads, or competition/debug
-submissions have been performed. No competition score is claimed.
+**Current status (2026-10-04): NOT READY for training.** A dedicated CPU EC2
+downloaded 3.014 GB directly from providers and produced 644 real temporal
+candidates across three regions. The approved subset contains 71 reviewed
+no-change pairs; approved new-building/tree-removal masks are still absent.
+The builder is stopped with its EBS preserved. No training, optimizer updates,
+GPU operations or competition/debug submissions occurred. No score is claimed.
+See the [actual pilot report](docs/real-pilot-report.md) and
+[machine-readable evidence](docs/real-pilot-summary.json).
 
 ## Official baseline and model
 
-Pre-training audit (2026-10-04): **NOT READY**. The local filesystem contains
+Initial PC pre-training audit (2026-10-04): **NOT READY**. The PC contains
 four generated mock pairs and zero real training pairs. The earlier 1,000-pair
 figure is a storage estimate. [Audit evidence and commands](docs/data-audit.md)
 separate mock diagnostics from real validation. Large data/environment operations
@@ -82,6 +87,7 @@ ordinary Git checkouts do not carry model weights.
 | NAIP | Real 0.3–1 m aerial imagery; AOI/year discovery, common-grid temporal RGB/NIR tiling | Review asset provenance and license; bounded dry-run first |
 | FEMA USA Structures | Building footprints, CRS-aware rasterization, synthetic deletion references | Static footprint is not a temporal change label |
 | Hansen Global Forest Change | 30 m loss event candidate mining | Never direct high-resolution segmentation GT; refine/review using NAIP |
+| Microsoft GlobalML Building Footprints | Static building references; CDLA-Permissive-2.0 | Require actual pre-absence/post-presence and high-resolution boundary review |
 | LEVIR-CD / AIHub | Potentially incompatible or unverified terms | Excluded from default training |
 
 [LICENSE_DATA.md](LICENSE_DATA.md) records commercial use, derivatives,
