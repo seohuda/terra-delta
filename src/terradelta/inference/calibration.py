@@ -251,8 +251,9 @@ def run_sweep(pred_dir, manifest, output, baseline_score):
     total = engine.stage(finalists(area), 'min_pos_area', [10, 20, 30, 50, 75, 100, 150], 'positive_area_search.csv')
     final = engine.stage(finalists(total), 'simplify_px', [0, .25, .5, .75, 1, 1.5], 'final_search.csv', shared=True)
     chosen = {kind: max(final, key=lambda t: rank(t, kind)) for kind in ('conservative', 'balanced', 'aggressive')}
-    # Pick a plateau using each finalist's worst neighbor recall, FP target and
-    # mean score; this can displace the isolated highest central score.
+    # Require a recall-preserving stable plateau before comparing centers.
+    # Prefer centers that improve the baseline, then lower FP. A tiny gain in
+    # neighbor mean must not select a center with substantially more FP.
     neighborhoods = []
     centers = {}
     for finalist in finalists(final):
@@ -276,14 +277,19 @@ def run_sweep(pred_dir, manifest, output, baseline_score):
         worst_fn = max(sum(x['summary'][f'{n}.fn'] for n in CLASSES) for x in neighbor)
         worst_fp = max(x['summary']['no_change_fp_rate'] for x in neighbor)
         mean = sum(x['summary']['overall'] for x in neighbor) / len(neighbor)
-        neighborhoods.append(((-worst_fn, worst_fp <= .30, mean, -worst_fp), engine.evaluate(c), neighbor))
+        spread = max(x['summary']['overall'] for x in neighbor) - min(x['summary']['overall'] for x in neighbor)
+        center = engine.evaluate(c)
+        s = center['summary']
+        priority = (-worst_fn, spread <= .05, s['overall'] >= baseline['summary']['overall'],
+                    -s['no_change_fp_rate'], s['overall'], -worst_fp, mean)
+        neighborhoods.append((priority, center, neighbor))
     _, balanced, neighbors = max(neighborhoods, key=lambda x: x[0])
     chosen['balanced'] = balanced
     engine.csv('robustness.csv', neighbors)
     engine.csv('plateau_centers.csv', [item[1] for item in neighborhoods])
     result = {'baseline': baseline, 'presets': chosen, 'robustness': [t['summary'] for t in neighbors],
               'trial_count': len(engine.trials), 'morphology_searched': False,
-              'selection': 'recall first; conservative lowest FP; balanced worst-neighbor recall/FP target then mean score; aggressive central score',
+              'selection': 'recall first; conservative lowest FP; balanced stable recall plateau, nonregressing center, lower central FP then score; aggressive central score',
               'metric_label': 'approximate local metric; AI-reviewed tiny validation, not a leaderboard estimate'}
     write_json(Path(output) / 'best_configs.json', result)
     for kind, trial in chosen.items():
