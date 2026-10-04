@@ -126,7 +126,7 @@ Only the existing CPU builder is authorized; preserve EBS and stop at completion
 - [x] Test without optimizer construction; reproduce official baseline from one forward per sample.
 - [x] Coarse thresholds, promising area/total area and finalist simplification; select three presets and ±0.05 robustness.
 - [x] Per-sample changes, bounded six-column previews, exact metrics and limitations.
-- [ ] Publish code/configs/small report, flush EBS, stop and API-verify builder.
+- [x] Publish code/configs/small report, flush EBS, stop and API-verify builder.
 
 ### Calibration review
 
@@ -144,3 +144,7 @@ resume verified. No optimizer construction, backward, training, GPU, submission
 or new data downloads. Recommend GET MORE DATA FIRST; retain balanced for the
 future frozen-weight comparison. Publish/pull and EBS flush precede builder
 STOP; final EC2 API state and final Git SHA are recorded in the delivery reply.
+
+Builder final EC2 API state: stopped, verified 2026-10-04T07:03:43.780937+00:00.
+Encrypted 30 GB gp3 preserved, attached, DeleteOnTermination=false; transient
+read-only deploy key revoked and SSM session terminated. No termination.
