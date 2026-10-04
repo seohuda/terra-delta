@@ -4,8 +4,9 @@ Official specification: https://aifactory.space/ko/competitions/9306 .
 The scoring service executes `predict.ipynb` at ZIP root, installs requirements
 before inference, and blocks external inference network access. ZIP limit 6 GB;
 installation up to 10 minutes and inference up to 120 minutes. Recheck live
-rules before a future manual submission. No API key, debug submit, or actual
-submit is implemented or executed here.
+rules before a future manual submission. Repository scripts only export local
+assets and never submit. The first separately authorized DEBUG execution is
+recorded in `debug-submission-report.md`; no main submission was authorized.
 
 ```sh
 python scripts/export_submission.py \
@@ -27,7 +28,9 @@ Requirements are torch, SMP 0.5.0, numpy, Pillow, Shapely and PyYAML; optional
 alignment adds OpenCV. NumPy morphology needs no additional dependency.
 Original attribution/license notices remain at root. Original baseline is never
 modified; exports are a new destination and existing directories/ZIPs are not
-overwritten.
+overwritten. ZIP metadata is fixed and payloads stream into the archive, so
+identical exports produce byte-identical ZIPs without loading a checkpoint
+file into the compression writer all at once.
 
 Inputs: `AIF_INPUT_DIR` (`./input` default), exactly one recursively discovered
 `pairs.csv` with `id` column and images relative to its parent:

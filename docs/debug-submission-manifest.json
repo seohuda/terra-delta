@@ -1,0 +1,303 @@
+{
+  "artifact": "terradelta-balanced-debug-v1.zip",
+  "artifact_bytes": 53201280,
+  "artifact_sha256": "a681e04d7dd773398048c4eabd1344a06cd0fe5e89c0426960f8824c6d0981fd",
+  "checkpoint_sha256": "1be127bd2f70c8e3b0efdc48c6d3effc29f30f090746a91c87e6c23e9b3e878b",
+  "config_sha256": "0b3a4cb235e8de8d6271184c3773becb9450a8ab7f3bd7314d580155fed24424",
+  "git_sha": "46505e43ca00bbea7d43ec4497f11d568f4b5a94",
+  "preset": "balanced",
+  "reproducible_zip": true,
+  "cleanroom": {
+    "status": "passed",
+    "device": "cpu",
+    "notebook_code_cells": 2,
+    "rows": 24,
+    "real_rows": 22,
+    "synthetic_image_rows": 2,
+    "ids_preserved": true,
+    "columns_valid": true,
+    "finite_bounded_valid_polygons": true,
+    "empty_and_both_class_contract": "passed",
+    "exclusive_masks": "passed",
+    "network_blocked": true,
+    "optimizer_and_backward_blocked": true,
+    "repository_imports": false,
+    "elapsed_seconds": 7.328997263000019,
+    "modules": {
+      "terradelta": "/data/terradelta/submissions/balanced-debug-v1/cleanroom/assets/code/terradelta/__init__.py",
+      "terradelta.utils": "/data/terradelta/submissions/balanced-debug-v1/cleanroom/assets/code/terradelta/utils/__init__.py",
+      "terradelta.utils.io": "/data/terradelta/submissions/balanced-debug-v1/cleanroom/assets/code/terradelta/utils/io.py",
+      "terradelta.inference": "/data/terradelta/submissions/balanced-debug-v1/cleanroom/assets/code/terradelta/inference/__init__.py",
+      "terradelta.models": "/data/terradelta/submissions/balanced-debug-v1/cleanroom/assets/code/terradelta/models/__init__.py",
+      "terradelta.models.unet_r18": "/data/terradelta/submissions/balanced-debug-v1/cleanroom/assets/code/terradelta/models/unet_r18.py",
+      "terradelta.models.factory": "/data/terradelta/submissions/balanced-debug-v1/cleanroom/assets/code/terradelta/models/factory.py",
+      "terradelta.models.checkpoint": "/data/terradelta/submissions/balanced-debug-v1/cleanroom/assets/code/terradelta/models/checkpoint.py",
+      "terradelta.inference.alignment": "/data/terradelta/submissions/balanced-debug-v1/cleanroom/assets/code/terradelta/inference/alignment.py",
+      "terradelta.inference.tta": "/data/terradelta/submissions/balanced-debug-v1/cleanroom/assets/code/terradelta/inference/tta.py",
+      "terradelta.inference.predictor": "/data/terradelta/submissions/balanced-debug-v1/cleanroom/assets/code/terradelta/inference/predictor.py",
+      "terradelta.postprocess.reference": "/data/terradelta/submissions/balanced-debug-v1/cleanroom/assets/code/terradelta/postprocess/reference.py",
+      "terradelta.postprocess.polygons": "/data/terradelta/submissions/balanced-debug-v1/cleanroom/assets/code/terradelta/postprocess/polygons.py",
+      "terradelta.postprocess.mask": "/data/terradelta/submissions/balanced-debug-v1/cleanroom/assets/code/terradelta/postprocess/mask.py",
+      "terradelta.postprocess.thresholds": "/data/terradelta/submissions/balanced-debug-v1/cleanroom/assets/code/terradelta/postprocess/thresholds.py",
+      "terradelta.postprocess": "/data/terradelta/submissions/balanced-debug-v1/cleanroom/assets/code/terradelta/postprocess/__init__.py"
+    },
+    "output_bytes": 67412
+  },
+  "requirements": [
+    "torch>=2.5",
+    "segmentation-models-pytorch==0.5.0",
+    "numpy>=2.0",
+    "pillow>=10.0",
+    "shapely>=2.0",
+    "pyyaml>=6"
+  ],
+  "runtime_versions": {
+    "torch": "2.14.1+cpu",
+    "segmentation-models-pytorch": "0.5.0",
+    "numpy": "2.5.2",
+    "pillow": "12.3.0",
+    "shapely": "2.1.2",
+    "pyyaml": "6.0.3"
+  },
+  "files": [
+    {
+      "path": "LICENSE",
+      "bytes": 5970,
+      "compressed_bytes": 2162,
+      "sha256": "983e783c98800ca1469b9ad8f88d354d9032f965ca80eb8082bceaffb6a943c6"
+    },
+    {
+      "path": "NOTICE",
+      "bytes": 2651,
+      "compressed_bytes": 1338,
+      "sha256": "c945ed3ec0dbe1da89638219d65c81a84eb52813db2ab219ce547fa41cfd4af2"
+    },
+    {
+      "path": "assets/code/terradelta/__init__.py",
+      "bytes": 158,
+      "compressed_bytes": 138,
+      "sha256": "ec2a91450470c6bfd3fafc1d46474cdd814e093d77d1f30b47275f4b69df182e"
+    },
+    {
+      "path": "assets/code/terradelta/inference/__init__.py",
+      "bytes": 0,
+      "compressed_bytes": 2,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "assets/code/terradelta/inference/alignment.py",
+      "bytes": 3419,
+      "compressed_bytes": 1257,
+      "sha256": "5775069989f92ffb0dccf7071cc91a73294a34440d4bcb8ee647e7f9fa1fac85"
+    },
+    {
+      "path": "assets/code/terradelta/inference/predictor.py",
+      "bytes": 5660,
+      "compressed_bytes": 2157,
+      "sha256": "02f3c91df1ec0851fa30009e2c618a0e65ef4c9b7a497697e42765a90eafd775"
+    },
+    {
+      "path": "assets/code/terradelta/inference/tta.py",
+      "bytes": 783,
+      "compressed_bytes": 396,
+      "sha256": "73234a4ce31cdcdab95b8fdc637f36b13bc06cebcf4c0e2a19c520f30b4b036a"
+    },
+    {
+      "path": "assets/code/terradelta/models/__init__.py",
+      "bytes": 0,
+      "compressed_bytes": 2,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "assets/code/terradelta/models/checkpoint.py",
+      "bytes": 1692,
+      "compressed_bytes": 695,
+      "sha256": "29cb28ce58bd12b428f972fc813a5d8b3f3703bcf885c6ab5e7010a7c653a112"
+    },
+    {
+      "path": "assets/code/terradelta/models/factory.py",
+      "bytes": 595,
+      "compressed_bytes": 312,
+      "sha256": "a092f62de7e1265f0705b13cf5c6a9648e8422badc8a1132b545a5bfc7985c82"
+    },
+    {
+      "path": "assets/code/terradelta/models/unet_r18.py",
+      "bytes": 306,
+      "compressed_bytes": 211,
+      "sha256": "68798bc99b8f8f4e29b8191b8e2f241133b8498ab0307541dfdc2258f86677c5"
+    },
+    {
+      "path": "assets/code/terradelta/postprocess/__init__.py",
+      "bytes": 580,
+      "compressed_bytes": 236,
+      "sha256": "2e84a58b47804f11091c1a1fe0fcc26602c36c61064997d6a99257a4416056e6"
+    },
+    {
+      "path": "assets/code/terradelta/postprocess/mask.py",
+      "bytes": 3739,
+      "compressed_bytes": 1391,
+      "sha256": "ef124f3c1b1abf575d0bfa2b4201dcd7488e35be4acaf7b6b97119b46070fd1c"
+    },
+    {
+      "path": "assets/code/terradelta/postprocess/polygons.py",
+      "bytes": 7882,
+      "compressed_bytes": 2684,
+      "sha256": "873dc43862fec5e9061dcf81b1819c44c763500452ba00463cfd25976445ec1c"
+    },
+    {
+      "path": "assets/code/terradelta/postprocess/reference.py",
+      "bytes": 2506,
+      "compressed_bytes": 1482,
+      "sha256": "a637cba0836c509ccc419b581811d9c1c64970c9b953811a2abd93123ab42e7f"
+    },
+    {
+      "path": "assets/code/terradelta/postprocess/thresholds.py",
+      "bytes": 5261,
+      "compressed_bytes": 1754,
+      "sha256": "5945882e3a3163e59dd2b8bc68042ee6c68e3883d0609c7fa141f489d3826591"
+    },
+    {
+      "path": "assets/code/terradelta/utils/__init__.py",
+      "bytes": 0,
+      "compressed_bytes": 2,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "assets/code/terradelta/utils/io.py",
+      "bytes": 2848,
+      "compressed_bytes": 1113,
+      "sha256": "78cd1df12e64b6dc93b1a9998fb54d75c86a74ebc60c32b341f0c53c9c902741"
+    },
+    {
+      "path": "assets/config.yaml",
+      "bytes": 532,
+      "compressed_bytes": 251,
+      "sha256": "0b3a4cb235e8de8d6271184c3773becb9450a8ab7f3bd7314d580155fed24424"
+    },
+    {
+      "path": "assets/model/model.pt",
+      "bytes": 57461007,
+      "compressed_bytes": 53179392,
+      "sha256": "1be127bd2f70c8e3b0efdc48c6d3effc29f30f090746a91c87e6c23e9b3e878b"
+    },
+    {
+      "path": "predict.ipynb",
+      "bytes": 2811,
+      "compressed_bytes": 1018,
+      "sha256": "18980c5bc38b8f585d72a563266e5cb4077fb81d5de76b0bb9219dda98895acd"
+    },
+    {
+      "path": "requirements.txt",
+      "bytes": 93,
+      "compressed_bytes": 81,
+      "sha256": "d6582c522bab910a871cc018d92b0b8a227e854cdfa1e1ef1915511ae8e1053c"
+    }
+  ],
+  "input_hashes_unchanged": true,
+  "submission_count": 1,
+  "main_count": 0,
+  "optimizer_count": 0,
+  "backward_count": 0,
+  "gpu_training_count": 0,
+  "status": "passed",
+  "elapsed_seconds": 9.962389101999975,
+  "submission": {
+    "submitted_at_utc": "2026-10-04T07:33:05.372175+00:00",
+    "mode": "DEBUG",
+    "competition_id_user_confirmed": 9306,
+    "api_calls": [
+      {
+        "method": "POST",
+        "endpoint": "upload-url",
+        "debug": true
+      },
+      {
+        "method": "POST",
+        "endpoint": "code-submissions",
+        "debug": true
+      }
+    ],
+    "response": {
+      "debugSubmissionId": 364413,
+      "codeRunId": 30967
+    },
+    "artifact_sha256": "a681e04d7dd773398048c4eabd1344a06cd0fe5e89c0426960f8824c6d0981fd"
+  },
+  "config": {
+    "inference": {
+      "alignment": "none",
+      "batch_size": 1,
+      "tta": [
+        "identity"
+      ]
+    },
+    "model": {
+      "classes": 3,
+      "encoder": "resnet18",
+      "encoder_weights": null,
+      "in_channels": 6
+    },
+    "postprocess": {
+      "backend": "reference",
+      "classes": {
+        "new_building": {
+          "min_area": 100,
+          "min_pos_area": 20,
+          "simplify_px": 0.25,
+          "threshold": 0.55
+        },
+        "tree_removal": {
+          "min_area": 100,
+          "min_pos_area": 20,
+          "simplify_px": 0.25,
+          "threshold": 0.3
+        }
+      },
+      "mode": "threshold",
+      "morphology": {
+        "closing": 0,
+        "dilation": 0,
+        "erosion": 0,
+        "fill_holes": false,
+        "opening": 0
+      },
+      "ndigits": 2
+    }
+  },
+  "submission_status": "\uc644\ub8cc",
+  "artifact_frozen_mode": "0444",
+  "credentials_persisted": false,
+  "temporary_deploy_key_revoked": true,
+  "ssm_session_terminated": true,
+  "server_install_runtime_seconds": null,
+  "server_inference_runtime_seconds": null,
+  "server_logs": null,
+  "server_output_validation": "Scoring completed and produced a displayed practice score; exact server CSV is not exposed for independent validation.",
+  "server_score": null,
+  "server_terminal_status": "completed_as_displayed",
+  "server_score_display": "0.1458",
+  "server_score_is_practice_only": true,
+  "terminal_verified_at_utc": "2026-10-04T07:41:17+00:00",
+  "next_step": "DEBUG PASSED \u2014 READY FOR NEXT PHASE",
+  "main_quota_before": "3/3",
+  "main_quota_after": "3/3",
+  "debug_quota_after": "1/10",
+  "server_logs_availability": "Current competition submission UI exposes no stdout/stderr/install/inference log control or durations; values remain unknown.",
+  "server_queue_runtime_seconds": null,
+  "server_timeout_or_oom": "No failure is shown; absence of warnings/OOM cannot be independently audited without logs.",
+  "artifact_location_on_ebs": "/data/terradelta/submissions/balanced-debug-v1/terradelta-balanced-debug-v1.zip",
+  "report_metadata_location": "Repository docs/debug-submission-manifest.json; EBS manifest preserves package, cleanroom and registration metadata saved before stopping builder.",
+  "aws_final": {
+    "instance_id": "i-0766a472ecb5bcf88",
+    "state": "stopped",
+    "verified_at_utc": "2026-10-04T07:39:53.850111+00:00",
+    "instance_type": "t3.medium",
+    "volume_id": "vol-0070845086ec08190",
+    "encrypted": true,
+    "size_gib": 30,
+    "delete_on_termination": false,
+    "volume_state": "in-use",
+    "temporary_deploy_key_revoked": true,
+    "ssm_session_terminated": true
+  }
+}
