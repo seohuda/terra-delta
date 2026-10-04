@@ -134,8 +134,12 @@ or real score currently exists.
 
 ## Git delivery
 
-Verified implementation is committed in meaningful stages and prepared for push
-to https://github.com/seohuda/terra-delta . Remote completion is checked after push.
+Verified implementation is committed in meaningful stages and published to
+https://github.com/seohuda/terra-delta on main. Implementation commit
+`0e21d8e5bcdfe1ec7de44209ad3110909fd6019a` was verified against the remote HEAD.
+Git HTTPS push returned HTTP 408; GitHub's Git API delivered the exact same
+trees and commits, verified each SHA, and advanced main without force. Weights,
+datasets, local outputs and credentials are excluded from Git.
 
 ## Tracked changed-file inventory
 
