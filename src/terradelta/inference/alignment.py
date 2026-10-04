@@ -11,6 +11,8 @@ def align_pair(pre, post, method="none", max_shift=4.0, on_failure="raise"):
         raise ValueError(f"Unknown alignment: {method}")
     if on_failure not in {"raise", "identity"}:
         raise ValueError("on_failure must be raise or identity")
+    if not np.isfinite(max_shift) or max_shift < 0:
+        raise ValueError("max_shift must be finite and nonnegative")
     import cv2
     try:
         a = cv2.cvtColor(pre, cv2.COLOR_RGB2GRAY).astype(np.float32)
