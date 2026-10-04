@@ -1,6 +1,10 @@
 # Future AWS workflow with hotspot protection
 
 Current dataset verdict is **NOT READY**: four mock pairs, zero real samples.
+For the current EC2-only pilot request, see [pilot-preflight.md](pilot-preflight.md).
+That phase forbids all training commands, including training dry runs. Its
+approved existing host is not yet identified; do not use the future start or
+training examples below as authorization.
 No command creating/starting EC2, transferring S3 data or training was run.
 Future AWS operations need separate authorization. This document records those
 future commands; it does not authorize or execute them.
@@ -68,10 +72,11 @@ python scripts/download_hansen.py --bounds -76.61 39.29 -76.60 39.30 \
 
 Example AOI is a planning probe, not an approved training region. Current NAIP
 downloader resolves Planetary Computer COGs on Azure; do not describe that backend
-as S3. If an equivalent, verified AWS Open Data asset is selected, access its S3
-object directly **from EC2**, using its documented region/access mode (for a
-public asset, `aws s3 cp "$TERRADELTA_NAIP_OPEN_DATA_URI" /data/naip/ --no-sign-request`).
-Verify matching acquisition date/bands/resolution/license before substituting.
+as S3. The [NAIP AWS registry](https://registry.opendata.aws/naip/) lists its
+buckets as Requester Pays in `us-west-2`; public-domain terms do not imply
+anonymous free access. Do not substitute an anonymous S3 copy or enable
+requester billing without selecting that access path explicitly. Verify matching
+acquisition date/bands/resolution/license before any source substitution.
 FEMA and Hansen also download directly to EC2 after rights/size review. Never
 stage them on the PC. Current download guards require explicit `--download`,
 full discovery and byte limits; no large-download command is run in this phase.

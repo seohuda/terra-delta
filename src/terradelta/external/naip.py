@@ -8,6 +8,8 @@ Dry-run does not sign or read raster assets unless HEAD sizes are requested.
 
 from __future__ import annotations
 
+from datetime import date
+from itertools import combinations
 from urllib.parse import urlencode
 
 from .common import Asset, get_json, head_size, safe_filename
@@ -94,3 +96,42 @@ def estimate_aoi_bytes(bounds, *, target_resolution=1.0, bands="rgb", temporal_i
     projected = project_bounds(bounds, "EPSG:4326", metric_crs(bounds))
     count = {"rgb": 3, "rgbnir": 4, "nir": 1}[bands]
     return estimate_raster_bytes(projected, target_resolution, count) * temporal_images
+
+
+def discover_naip_years(*, bounds, region="", state=None, max_items=200,
+                        endpoint=STAC_API, request_json=None):
+    """List observed acquisition years and 2–4-year options from bounded metadata.
+
+    A listed year only intersects the AOI. Candidate temporal pairs require an
+    individual footprint covering the entire requested AOI in both years.
+    Truncated discovery never establishes that missing years are unavailable.
+    No signing, HEAD request, raster read or payload download is performed.
+    """
+    from shapely.geometry import box, shape
+    result = discover_naip(bounds=bounds, years=range(2003, date.today().year + 1),
+                           region=region, state=state, max_items=max_items,
+                           inspect_sizes=False, endpoint=endpoint, request_json=request_json)
+    aoi = box(*result["bounds"])
+    groups = {}
+    for asset, item in zip(result["assets"], result["items"]):
+        properties = item["properties"]
+        geometry = item.get("geometry")
+        covers = bool(geometry and shape(geometry).covers(aoi))
+        groups.setdefault(asset.year, []).append({"id": asset.id,
+            "acquired": properties.get("datetime") or properties.get("start_datetime"),
+            "resolution_m": asset.resolution_m, "covers_full_aoi": covers,
+            "url": asset.url, "filename": asset.filename, "license_status": asset.license_status})
+    years = sorted(groups)
+    options = []
+    for pre_year, post_year in combinations(years, 2):
+        if 2 <= post_year - pre_year <= 4:
+            pre = [item["id"] for item in groups[pre_year] if item["covers_full_aoi"]]
+            post = [item["id"] for item in groups[post_year] if item["covers_full_aoi"]]
+            if pre and post:
+                options.append({"year_pre": pre_year, "year_post": post_year,
+                                "gap_years": post_year - pre_year, "pre_asset_ids": pre, "post_asset_ids": post})
+    return {"dry_run": True, "source": "NAIP", "region": region, "bounds": list(result["bounds"]),
+            "observed_years": years, "object_count": len(result["assets"]), "truncated": result["truncated"],
+            "years": [{"year": year, "object_count": len(groups[year]), "items": groups[year]} for year in years],
+            "temporal_options": options, "estimated_download_bytes": None, "payload_downloaded_bytes": 0,
+            "note": "Metadata discovery only; observed years are not an availability guarantee when truncated. No event or labels are inferred."}
