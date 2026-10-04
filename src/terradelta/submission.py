@@ -15,7 +15,9 @@ PACKAGE_ROOT = Path(__file__).parent
 REPO_ROOT = PACKAGE_ROOT.parents[1]
 
 
-def make_notebook():
+def make_notebook(architecture="baseline"):
+    if architecture not in {"baseline", "siamese_v2"}:
+        raise ValueError("Unknown submission architecture")
     code = '''# Offline inference. All assets are bundled in this ZIP.
 import os
 import sys
@@ -52,6 +54,14 @@ rows = predict_directory(INPUT_DIR, PREDICTION_PATH,
     ROOT / "assets/model/model.pt", CONFIG, device=DEVICE)
 print("Saved", len(rows), "pairs to", PREDICTION_PATH)
 '''
+    if architecture == "siamese_v2":
+        code = code.replace("from terradelta.inference.predictor import predict_directory",
+                            "from terradelta.inference.v2 import predict_directory")
+        code += "\ntorch.set_num_threads(2)\ntorch.use_deterministic_algorithms(True)\ntorch.backends.cudnn.benchmark = False\ntorch.backends.cudnn.deterministic = True\n"
+        infer = infer.replace("from terradelta.models.factory import build_model\nfrom terradelta.models.checkpoint import load_checkpoint",
+                              "from terradelta.models.siamese_v2 import TerraDeltaSiameseV2, load_v2_checkpoint\nfrom terradelta.inference.v2 import model_options")
+        infer = infer.replace('build_model({"encoder_weights": None})', 'TerraDeltaSiameseV2(**model_options(CONFIG))')
+        infer = infer.replace("load_checkpoint(", "load_v2_checkpoint(")
     def cell(kind, source):
         c = {"cell_type": kind, "id": "terradelta-" + str(len(source)) + "-" + kind, "metadata": {}, "source": source.splitlines(keepends=True)}
         if kind == "code":
@@ -69,8 +79,19 @@ def export_submission(checkpoint, config_path, destination, baseline_root=None):
     if config.get("model", {}).get("encoder_weights") is not None:
         raise ValueError("Submission must set encoder_weights: null")
     # Validate checkpoint against exact architecture before copying bytes.
-    validated_model = build_model()
-    metadata = load_checkpoint(checkpoint, validated_model)
+    architecture = config.get("model", {}).get("architecture", "baseline")
+    if architecture == "siamese_v2":
+        from terradelta.inference.v2 import model_options
+        from terradelta.models.siamese_v2 import TerraDeltaSiameseV2, load_v2_checkpoint
+        validated_model = TerraDeltaSiameseV2(**model_options(config))
+        metadata = load_v2_checkpoint(checkpoint, validated_model)
+        if "optimizer" in metadata or "config" in metadata or "rng" in metadata:
+            raise ValueError("V2 deployment checkpoint must contain weights and provenance only")
+    elif architecture == "baseline":
+        validated_model = build_model()
+        metadata = load_checkpoint(checkpoint, validated_model)
+    else:
+        raise ValueError("Unknown submission architecture")
     if destination.exists():
         raise FileExistsError(f"Destination already exists: {destination}")
     baseline_root = Path(baseline_root or REPO_ROOT / "baseline/original/03_illegal structure submission")
@@ -81,7 +102,7 @@ def export_submission(checkpoint, config_path, destination, baseline_root=None):
     with tempfile.TemporaryDirectory(prefix="terradelta-export-", dir=destination.parent) as td:
         root = Path(td) / "package"
         (root / "assets/model").mkdir(parents=True)
-        if "optimizer" in metadata or "training_format_version" in metadata:
+        if architecture == "baseline" and ("optimizer" in metadata or "training_format_version" in metadata):
             # Deployment carries weights/provenance only, not optimizer state,
             # RNG, local dataset paths or the full training configuration.
             import torch
@@ -93,7 +114,7 @@ def export_submission(checkpoint, config_path, destination, baseline_root=None):
         else:
             shutil.copyfile(checkpoint, root / "assets/model/model.pt")
         (root / "assets/config.yaml").write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
-        (root / "predict.ipynb").write_text(json.dumps(make_notebook(), ensure_ascii=False, indent=2), encoding="utf-8")
+        (root / "predict.ipynb").write_text(json.dumps(make_notebook(architecture), ensure_ascii=False, indent=2), encoding="utf-8")
         dependencies = ["torch>=2.5", "segmentation-models-pytorch==0.5.0", "numpy>=2.0",
                         "pillow>=10.0", "shapely>=2.0", "pyyaml>=6"]
         post = config.get("postprocess", {})
@@ -114,7 +135,7 @@ def export_submission(checkpoint, config_path, destination, baseline_root=None):
             for source in (PACKAGE_ROOT / sub).glob("*.py"):
                 if sub == "utils" and source.name not in {"__init__.py", "io.py"}:
                     continue
-                if sub == "inference" and source.name == "calibration.py":
+                if sub == "inference" and source.name in {"calibration.py", "v2_calibration.py"}:
                     # Offline deployment needs inference only, not pilot cache/search.
                     continue
                 target = code / sub / source.name

@@ -1,0 +1,23 @@
+model:
+  architecture: siamese_v2
+  alignment: true
+  alignment_scales:
+  - 3
+  - 4
+  max_offset: 1.5
+  encoder_weights: null
+inference:
+  batch_size: 8
+postprocess:
+  mode: independent
+  min_area: 30
+  min_pos_area: 20
+  simplify_px: 0.5
+  ndigits: 2
+  classes:
+    new_building:
+      presence_threshold: null
+      pixel_threshold: 0.35
+    tree_removal:
+      presence_threshold: 0.3
+      pixel_threshold: 0.7
