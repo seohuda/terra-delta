@@ -1,0 +1,16 @@
+{
+  "mode": "MAIN", "status": "completed", "main_attempts": 1,
+  "publicSubmissionId": 364647, "privateSubmissionId": 364648, "codeRunId": 31388,
+  "registered_at_utc": "2026-10-04T14:07:10Z",
+  "public_score": 0.1947902971, "score_display": "0.1948", "rank_at_observation": 128,
+  "remaining_main_daily_quota": "2/3", "remaining_main_authorization": 0,
+  "debug_baseline_display": "0.3331", "private_score": null,
+  "zip_sha256": "bb437aa1d3dcbf7a1ab053281b37bdbb8804faaa6cc91458250a9fb0c7ef8f43",
+  "checkpoint_sha256": "ca59fe6698d8ee6bef354a7f40c1ef6d8901826e0572a5b80eb2b1d8b2ca4372",
+  "frozen_commit": "c9b1c136ee7af9cf68b23e2f63f60b981da5724c",
+  "release": "/data/terradelta/releases/v2-main-01/",
+  "freeze_receipt_note": "Frozen during external scoring; final result is an append-only sidecar, leaving all release bytes unchanged.",
+  "ui_proof": ["outputs/v2-main/main-completed.png", "outputs/v2-main/main-leaderboard.png"],
+  "server_detailed_logs": null, "server_runtime": null,
+  "main_retries": 0
+}

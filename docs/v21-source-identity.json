@@ -1,0 +1,11 @@
+{
+  "scripts/train_v21.py": "40f7c0cc6f40401bc7fef8a38aebd5b32dcd8fb7bedf08e91f493814f16cd119",
+  "scripts/prepare_v21.py": "4803ec658f2a98cfc446ba4b78cb47aeaa96508bcf0900ce478ef9c7f187a30c",
+  "configs/v21_short.yaml": "bc418d838a4c8fdb0a1ca8d7403f436ac087b2ac8898bc9023d33f0eb09cbd27",
+  "src/terradelta/data/season_v21.py": "650c68dc32f7a7f81de130416b1cf07b2aede82243f59764f7dfc96648a23b24",
+  "src/terradelta/training/losses_v21.py": "09ecc6644f91f7cd76886ba71d2664299bc432f62204a93a4855a146d509845d",
+  "src/terradelta/training/sampling_v21.py": "3b53f2307c5fd525e3b7c43c55697582cc72a2d8efb0924dfe748c8eb912a531",
+  "src/terradelta/inference/v2_evaluation.py": "c7d0c1e707d394cc1dfdbd7bf95d157c6444957cb2945c2a78ac0b52da48a924",
+  "src/terradelta/models/siamese_v2.py": "3ed873ac71e86f1f77a2ee5038eaa5bcb07160b0a2130ba66c8d69ad52d3299f",
+  "src/terradelta/inference/v2.py": "7fd0115b31ea08287b65bb5f232a6d949857d0afefbd5395f39820257cd02115"
+}

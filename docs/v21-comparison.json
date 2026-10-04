@@ -1,0 +1,1121 @@
+{
+  "status": "not_proven",
+  "selected": {
+    "step": 100,
+    "lambda": 0.05,
+    "checkpoint": "/data/terradelta/v2.1/checkpoints/season-consistency-01/lambda-0.05/step-0100.pt",
+    "checkpoint_sha256": "20ca88dcffdecae4260da2f5271d6a48dc4a785588be2845d169c2c711e6c0e7",
+    "metrics": {
+      "legacy": {
+        "score": 0.33536195405808855,
+        "num_samples": 22,
+        "classes": {
+          "new_building": {
+            "presence_macro_f1": 0.35833333333333334,
+            "shape_score": 0.1354128683306258,
+            "score": 0.24687310083197955,
+            "gt_positive_count": 3,
+            "presence_confusion": {
+              "tp": 3,
+              "fp": 14,
+              "fn": 0,
+              "tn": 5
+            },
+            "no_change_fp_count": 12
+          },
+          "tree_removal": {
+            "presence_macro_f1": 0.5111111111111111,
+            "shape_score": 0.3365905034572841,
+            "score": 0.42385080728419755,
+            "gt_positive_count": 2,
+            "presence_confusion": {
+              "tp": 1,
+              "fp": 6,
+              "fn": 1,
+              "tn": 14
+            },
+            "no_change_fp_count": 5
+          }
+        },
+        "no_change_count": 17,
+        "no_change_fp_any": 12
+      },
+      "stress": {
+        "score": 0.5785372106407989,
+        "num_samples": 470,
+        "classes": {
+          "new_building": {
+            "presence_macro_f1": 0.7219165853557267,
+            "shape_score": 0.40970615384441433,
+            "score": 0.5658113696000705,
+            "gt_positive_count": 150,
+            "presence_confusion": {
+              "tp": 94,
+              "fp": 58,
+              "fn": 56,
+              "tn": 262
+            },
+            "no_change_fp_count": 0
+          },
+          "tree_removal": {
+            "presence_macro_f1": 0.7734211794954202,
+            "shape_score": 0.40910492386763425,
+            "score": 0.5912630516815273,
+            "gt_positive_count": 150,
+            "presence_confusion": {
+              "tp": 85,
+              "fp": 19,
+              "fn": 65,
+              "tn": 301
+            },
+            "no_change_fp_count": 0
+          }
+        },
+        "no_change_count": 200,
+        "no_change_fp_any": 0
+      }
+    },
+    "gate": {
+      "passed": false,
+      "reasons": [
+        "legacy: overall score regressed",
+        "legacy/new_building: shape score dropped more than 5 percent",
+        "legacy/tree_removal: positive recall regressed",
+        "legacy/tree_removal: shape score dropped more than 5 percent",
+        "stress: overall score regressed",
+        "stress/new_building: positive recall regressed",
+        "stress/new_building: shape score dropped more than 5 percent",
+        "stress/tree_removal: positive recall regressed",
+        "stress/tree_removal: shape score dropped more than 5 percent"
+      ]
+    },
+    "loss": 0.5114185214042664,
+    "parts": {
+      "bce": 0.02617480233311653,
+      "dice_loss": 0.3395928144454956,
+      "presence_loss": 0.5822538137435913,
+      "supervised_original": 0.5146054625511169,
+      "supervised_photometric": 0.508056640625,
+      "supervised": 0.5113310813903809,
+      "consistency_segmentation": 0.0010816236026585102,
+      "consistency_presence": 0.0006671558367088437,
+      "consistency": 0.001748779439367354,
+      "weighted_consistency": 8.743897342355922e-05,
+      "total": 0.5114185214042664
+    },
+    "sampled_categories": {
+      "tree_removal": 200,
+      "real_negative": 219,
+      "new_building": 200,
+      "both": 100,
+      "negative": 81
+    },
+    "elapsed_seconds": 64.92093894899995
+  },
+  "baseline": {
+    "legacy": {
+      "score": 0.5089515440759216,
+      "num_samples": 22,
+      "classes": {
+        "new_building": {
+          "presence_macro_f1": 0.12,
+          "shape_score": 0.8826520023039562,
+          "score": 0.5013260011519781,
+          "gt_positive_count": 3,
+          "presence_confusion": {
+            "tp": 3,
+            "fp": 19,
+            "fn": 0,
+            "tn": 0
+          },
+          "no_change_fp_count": 17
+        },
+        "tree_removal": {
+          "presence_macro_f1": 0.47619047619047616,
+          "shape_score": 0.5569636978092538,
+          "score": 0.5165770869998649,
+          "gt_positive_count": 2,
+          "presence_confusion": {
+            "tp": 2,
+            "fp": 10,
+            "fn": 0,
+            "tn": 10
+          },
+          "no_change_fp_count": 7
+        }
+      },
+      "no_change_count": 17,
+      "no_change_fp_any": 17
+    },
+    "stress": {
+      "score": 0.6357185695782356,
+      "num_samples": 470,
+      "classes": {
+        "new_building": {
+          "presence_macro_f1": 0.61951281631465,
+          "shape_score": 0.563582749965487,
+          "score": 0.5915477831400685,
+          "gt_positive_count": 150,
+          "presence_confusion": {
+            "tp": 130,
+            "fp": 158,
+            "fn": 20,
+            "tn": 162
+          },
+          "no_change_fp_count": 42
+        },
+        "tree_removal": {
+          "presence_macro_f1": 0.8300124942460709,
+          "shape_score": 0.5297662177867344,
+          "score": 0.6798893560164027,
+          "gt_positive_count": 150,
+          "presence_confusion": {
+            "tp": 104,
+            "fp": 20,
+            "fn": 46,
+            "tn": 300
+          },
+          "no_change_fp_count": 1
+        }
+      },
+      "no_change_count": 200,
+      "no_change_fp_any": 42
+    }
+  },
+  "runs": [
+    {
+      "step": 25,
+      "lambda": 0.05,
+      "checkpoint": "/data/terradelta/v2.1/checkpoints/season-consistency-01/lambda-0.05/step-0025.pt",
+      "checkpoint_sha256": "b53be82a11c637bcb49a5a361683c74f30ec718c9e062942f718bc26a2256d4c",
+      "metrics": {
+        "legacy": {
+          "score": 0.41178976460856886,
+          "num_samples": 22,
+          "classes": {
+            "new_building": {
+              "presence_macro_f1": 0.22567287784679088,
+              "shape_score": 0.5653581940391003,
+              "score": 0.3955155359429456,
+              "gt_positive_count": 3,
+              "presence_confusion": {
+                "tp": 3,
+                "fp": 17,
+                "fn": 0,
+                "tn": 2
+              },
+              "no_change_fp_count": 15
+            },
+            "tree_removal": {
+              "presence_macro_f1": 0.5111111111111111,
+              "shape_score": 0.3450168754372733,
+              "score": 0.4280639932741922,
+              "gt_positive_count": 2,
+              "presence_confusion": {
+                "tp": 1,
+                "fp": 6,
+                "fn": 1,
+                "tn": 14
+              },
+              "no_change_fp_count": 5
+            }
+          },
+          "no_change_count": 17,
+          "no_change_fp_any": 15
+        },
+        "stress": {
+          "score": 0.36815795673632423,
+          "num_samples": 470,
+          "classes": {
+            "new_building": {
+              "presence_macro_f1": 0.4849344776670358,
+              "shape_score": 0.04421274555914061,
+              "score": 0.2645736116130882,
+              "gt_positive_count": 150,
+              "presence_confusion": {
+                "tp": 31,
+                "fp": 71,
+                "fn": 119,
+                "tn": 249
+              },
+              "no_change_fp_count": 0
+            },
+            "tree_removal": {
+              "presence_macro_f1": 0.7014915797914996,
+              "shape_score": 0.24199302392762084,
+              "score": 0.47174230185956023,
+              "gt_positive_count": 150,
+              "presence_confusion": {
+                "tp": 58,
+                "fp": 7,
+                "fn": 92,
+                "tn": 313
+              },
+              "no_change_fp_count": 0
+            }
+          },
+          "no_change_count": 200,
+          "no_change_fp_any": 0
+        }
+      },
+      "gate": {
+        "passed": false,
+        "reasons": [
+          "legacy: overall score regressed",
+          "legacy/new_building: shape score dropped more than 5 percent",
+          "legacy/tree_removal: positive recall regressed",
+          "legacy/tree_removal: shape score dropped more than 5 percent",
+          "stress: overall score regressed",
+          "stress/new_building: positive recall regressed",
+          "stress/new_building: shape score dropped more than 5 percent",
+          "stress/tree_removal: positive recall regressed",
+          "stress/tree_removal: shape score dropped more than 5 percent"
+        ]
+      },
+      "loss": 0.9126408100128174,
+      "parts": {
+        "bce": 0.010250840336084366,
+        "dice_loss": 0.7559070587158203,
+        "presence_loss": 0.5854553580284119,
+        "supervised_original": 0.9231442213058472,
+        "supervised_photometric": 0.9018993377685547,
+        "supervised": 0.9125217795372009,
+        "consistency_segmentation": 0.0005299830809235573,
+        "consistency_presence": 0.0018512224778532982,
+        "consistency": 0.0023812055587768555,
+        "weighted_consistency": 0.00011906027793884277,
+        "total": 0.9126408100128174
+      },
+      "sampled_categories": {
+        "tree_removal": 50,
+        "real_negative": 58,
+        "new_building": 50,
+        "both": 25,
+        "negative": 17
+      },
+      "elapsed_seconds": 25.26621474700005
+    },
+    {
+      "step": 50,
+      "lambda": 0.05,
+      "checkpoint": "/data/terradelta/v2.1/checkpoints/season-consistency-01/lambda-0.05/step-0050.pt",
+      "checkpoint_sha256": "433c30106e3e5ef2adddb6ac26f690bb294cc2323b4cdc10383aa4bbcd66994d",
+      "metrics": {
+        "legacy": {
+          "score": 0.43213323308524104,
+          "num_samples": 22,
+          "classes": {
+            "new_building": {
+              "presence_macro_f1": 0.175,
+              "shape_score": 0.7238653893310881,
+              "score": 0.44943269466554403,
+              "gt_positive_count": 3,
+              "presence_confusion": {
+                "tp": 3,
+                "fp": 18,
+                "fn": 0,
+                "tn": 1
+              },
+              "no_change_fp_count": 16
+            },
+            "tree_removal": {
+              "presence_macro_f1": 0.5111111111111111,
+              "shape_score": 0.31855643189876504,
+              "score": 0.41483377150493805,
+              "gt_positive_count": 2,
+              "presence_confusion": {
+                "tp": 1,
+                "fp": 6,
+                "fn": 1,
+                "tn": 14
+              },
+              "no_change_fp_count": 5
+            }
+          },
+          "no_change_count": 17,
+          "no_change_fp_any": 16
+        },
+        "stress": {
+          "score": 0.4558058174168942,
+          "num_samples": 470,
+          "classes": {
+            "new_building": {
+              "presence_macro_f1": 0.5668202764976958,
+              "shape_score": 0.19086237946926,
+              "score": 0.3788413279834779,
+              "gt_positive_count": 150,
+              "presence_confusion": {
+                "tp": 65,
+                "fp": 95,
+                "fn": 85,
+                "tn": 225
+              },
+              "no_change_fp_count": 0
+            },
+            "tree_removal": {
+              "presence_macro_f1": 0.7367523865186051,
+              "shape_score": 0.3287882271820157,
+              "score": 0.5327703068503105,
+              "gt_positive_count": 150,
+              "presence_confusion": {
+                "tp": 70,
+                "fp": 12,
+                "fn": 80,
+                "tn": 308
+              },
+              "no_change_fp_count": 0
+            }
+          },
+          "no_change_count": 200,
+          "no_change_fp_any": 0
+        }
+      },
+      "gate": {
+        "passed": false,
+        "reasons": [
+          "legacy: overall score regressed",
+          "legacy/new_building: shape score dropped more than 5 percent",
+          "legacy/tree_removal: positive recall regressed",
+          "legacy/tree_removal: shape score dropped more than 5 percent",
+          "stress: overall score regressed",
+          "stress/new_building: positive recall regressed",
+          "stress/new_building: shape score dropped more than 5 percent",
+          "stress/tree_removal: positive recall regressed",
+          "stress/tree_removal: shape score dropped more than 5 percent"
+        ]
+      },
+      "loss": 0.6904751658439636,
+      "parts": {
+        "bce": 0.024904517456889153,
+        "dice_loss": 0.5348656177520752,
+        "presence_loss": 0.5224912166595459,
+        "supervised_original": 0.6654962301254272,
+        "supervised_photometric": 0.7152895927429199,
+        "supervised": 0.6903929114341736,
+        "consistency_segmentation": 0.0004971874877810478,
+        "consistency_presence": 0.0011480425018817186,
+        "consistency": 0.0016452299896627665,
+        "weighted_consistency": 8.226150384871289e-05,
+        "total": 0.6904751658439636
+      },
+      "sampled_categories": {
+        "tree_removal": 100,
+        "real_negative": 114,
+        "new_building": 100,
+        "both": 50,
+        "negative": 36
+      },
+      "elapsed_seconds": 41.59651072300005
+    },
+    {
+      "step": 100,
+      "lambda": 0.05,
+      "checkpoint": "/data/terradelta/v2.1/checkpoints/season-consistency-01/lambda-0.05/step-0100.pt",
+      "checkpoint_sha256": "20ca88dcffdecae4260da2f5271d6a48dc4a785588be2845d169c2c711e6c0e7",
+      "metrics": {
+        "legacy": {
+          "score": 0.33536195405808855,
+          "num_samples": 22,
+          "classes": {
+            "new_building": {
+              "presence_macro_f1": 0.35833333333333334,
+              "shape_score": 0.1354128683306258,
+              "score": 0.24687310083197955,
+              "gt_positive_count": 3,
+              "presence_confusion": {
+                "tp": 3,
+                "fp": 14,
+                "fn": 0,
+                "tn": 5
+              },
+              "no_change_fp_count": 12
+            },
+            "tree_removal": {
+              "presence_macro_f1": 0.5111111111111111,
+              "shape_score": 0.3365905034572841,
+              "score": 0.42385080728419755,
+              "gt_positive_count": 2,
+              "presence_confusion": {
+                "tp": 1,
+                "fp": 6,
+                "fn": 1,
+                "tn": 14
+              },
+              "no_change_fp_count": 5
+            }
+          },
+          "no_change_count": 17,
+          "no_change_fp_any": 12
+        },
+        "stress": {
+          "score": 0.5785372106407989,
+          "num_samples": 470,
+          "classes": {
+            "new_building": {
+              "presence_macro_f1": 0.7219165853557267,
+              "shape_score": 0.40970615384441433,
+              "score": 0.5658113696000705,
+              "gt_positive_count": 150,
+              "presence_confusion": {
+                "tp": 94,
+                "fp": 58,
+                "fn": 56,
+                "tn": 262
+              },
+              "no_change_fp_count": 0
+            },
+            "tree_removal": {
+              "presence_macro_f1": 0.7734211794954202,
+              "shape_score": 0.40910492386763425,
+              "score": 0.5912630516815273,
+              "gt_positive_count": 150,
+              "presence_confusion": {
+                "tp": 85,
+                "fp": 19,
+                "fn": 65,
+                "tn": 301
+              },
+              "no_change_fp_count": 0
+            }
+          },
+          "no_change_count": 200,
+          "no_change_fp_any": 0
+        }
+      },
+      "gate": {
+        "passed": false,
+        "reasons": [
+          "legacy: overall score regressed",
+          "legacy/new_building: shape score dropped more than 5 percent",
+          "legacy/tree_removal: positive recall regressed",
+          "legacy/tree_removal: shape score dropped more than 5 percent",
+          "stress: overall score regressed",
+          "stress/new_building: positive recall regressed",
+          "stress/new_building: shape score dropped more than 5 percent",
+          "stress/tree_removal: positive recall regressed",
+          "stress/tree_removal: shape score dropped more than 5 percent"
+        ]
+      },
+      "loss": 0.5114185214042664,
+      "parts": {
+        "bce": 0.02617480233311653,
+        "dice_loss": 0.3395928144454956,
+        "presence_loss": 0.5822538137435913,
+        "supervised_original": 0.5146054625511169,
+        "supervised_photometric": 0.508056640625,
+        "supervised": 0.5113310813903809,
+        "consistency_segmentation": 0.0010816236026585102,
+        "consistency_presence": 0.0006671558367088437,
+        "consistency": 0.001748779439367354,
+        "weighted_consistency": 8.743897342355922e-05,
+        "total": 0.5114185214042664
+      },
+      "sampled_categories": {
+        "tree_removal": 200,
+        "real_negative": 219,
+        "new_building": 200,
+        "both": 100,
+        "negative": 81
+      },
+      "elapsed_seconds": 64.92093894899995
+    },
+    {
+      "step": 150,
+      "lambda": 0.05,
+      "checkpoint": "/data/terradelta/v2.1/checkpoints/season-consistency-01/lambda-0.05/step-0150.pt",
+      "checkpoint_sha256": "4c891991a5e9594f170d48848f11d3acf00e849109722bdd552c07d14a7c7138",
+      "metrics": {
+        "legacy": {
+          "score": 0.33840718298775524,
+          "num_samples": 22,
+          "classes": {
+            "new_building": {
+              "presence_macro_f1": 0.22567287784679088,
+              "shape_score": 0.2996869655301791,
+              "score": 0.262679921688485,
+              "gt_positive_count": 3,
+              "presence_confusion": {
+                "tp": 3,
+                "fp": 17,
+                "fn": 0,
+                "tn": 2
+              },
+              "no_change_fp_count": 15
+            },
+            "tree_removal": {
+              "presence_macro_f1": 0.48235294117647054,
+              "shape_score": 0.3459159473975804,
+              "score": 0.4141344442870255,
+              "gt_positive_count": 2,
+              "presence_confusion": {
+                "tp": 1,
+                "fp": 7,
+                "fn": 1,
+                "tn": 13
+              },
+              "no_change_fp_count": 6
+            }
+          },
+          "no_change_count": 17,
+          "no_change_fp_any": 15
+        },
+        "stress": {
+          "score": 0.596300800369179,
+          "num_samples": 470,
+          "classes": {
+            "new_building": {
+              "presence_macro_f1": 0.6974012798501639,
+              "shape_score": 0.46096128002713926,
+              "score": 0.5791812799386515,
+              "gt_positive_count": 150,
+              "presence_confusion": {
+                "tp": 106,
+                "fp": 88,
+                "fn": 44,
+                "tn": 232
+              },
+              "no_change_fp_count": 0
+            },
+            "tree_removal": {
+              "presence_macro_f1": 0.8008224950608515,
+              "shape_score": 0.4260181465385614,
+              "score": 0.6134203207997064,
+              "gt_positive_count": 150,
+              "presence_confusion": {
+                "tp": 84,
+                "fp": 5,
+                "fn": 66,
+                "tn": 315
+              },
+              "no_change_fp_count": 0
+            }
+          },
+          "no_change_count": 200,
+          "no_change_fp_any": 0
+        }
+      },
+      "gate": {
+        "passed": false,
+        "reasons": [
+          "legacy: overall score regressed",
+          "legacy/new_building: shape score dropped more than 5 percent",
+          "legacy/tree_removal: positive recall regressed",
+          "legacy/tree_removal: shape score dropped more than 5 percent",
+          "stress: overall score regressed",
+          "stress/new_building: positive recall regressed",
+          "stress/new_building: shape score dropped more than 5 percent",
+          "stress/tree_removal: positive recall regressed",
+          "stress/tree_removal: shape score dropped more than 5 percent"
+        ]
+      },
+      "loss": 0.5480659604072571,
+      "parts": {
+        "bce": 0.024574007838964462,
+        "dice_loss": 0.3786575198173523,
+        "presence_loss": 0.5786775350570679,
+        "supervised_original": 0.5196720361709595,
+        "supervised_photometric": 0.576129674911499,
+        "supervised": 0.5479008555412292,
+        "consistency_segmentation": 0.0012463235761970282,
+        "consistency_presence": 0.0020561490673571825,
+        "consistency": 0.0033024726435542107,
+        "weighted_consistency": 0.00016512363799847662,
+        "total": 0.5480659604072571
+      },
+      "sampled_categories": {
+        "tree_removal": 300,
+        "real_negative": 336,
+        "new_building": 300,
+        "both": 150,
+        "negative": 114
+      },
+      "elapsed_seconds": 88.14735370000005
+    },
+    {
+      "step": 25,
+      "lambda": 0.1,
+      "checkpoint": "/data/terradelta/v2.1/checkpoints/season-consistency-01/lambda-0.10/step-0025.pt",
+      "checkpoint_sha256": "c88a8d4ca84e4c41e09b139e690f62e7bd7bafd14a73d6a15e63782f1df14ea2",
+      "metrics": {
+        "legacy": {
+          "score": 0.41103410505102056,
+          "num_samples": 22,
+          "classes": {
+            "new_building": {
+              "presence_macro_f1": 0.22567287784679088,
+              "shape_score": 0.5623464535344064,
+              "score": 0.39400966569059864,
+              "gt_positive_count": 3,
+              "presence_confusion": {
+                "tp": 3,
+                "fp": 17,
+                "fn": 0,
+                "tn": 2
+              },
+              "no_change_fp_count": 15
+            },
+            "tree_removal": {
+              "presence_macro_f1": 0.5111111111111111,
+              "shape_score": 0.34500597771177405,
+              "score": 0.42805854441144253,
+              "gt_positive_count": 2,
+              "presence_confusion": {
+                "tp": 1,
+                "fp": 6,
+                "fn": 1,
+                "tn": 14
+              },
+              "no_change_fp_count": 5
+            }
+          },
+          "no_change_count": 17,
+          "no_change_fp_any": 15
+        },
+        "stress": {
+          "score": 0.3681570231505489,
+          "num_samples": 470,
+          "classes": {
+            "new_building": {
+              "presence_macro_f1": 0.4849344776670358,
+              "shape_score": 0.04402132685897323,
+              "score": 0.2644779022630045,
+              "gt_positive_count": 150,
+              "presence_confusion": {
+                "tp": 31,
+                "fp": 71,
+                "fn": 119,
+                "tn": 249
+              },
+              "no_change_fp_count": 0
+            },
+            "tree_removal": {
+              "presence_macro_f1": 0.7014915797914996,
+              "shape_score": 0.2421807082846871,
+              "score": 0.4718361440380933,
+              "gt_positive_count": 150,
+              "presence_confusion": {
+                "tp": 58,
+                "fp": 7,
+                "fn": 92,
+                "tn": 313
+              },
+              "no_change_fp_count": 0
+            }
+          },
+          "no_change_count": 200,
+          "no_change_fp_any": 0
+        }
+      },
+      "gate": {
+        "passed": false,
+        "reasons": [
+          "legacy: overall score regressed",
+          "legacy/new_building: shape score dropped more than 5 percent",
+          "legacy/tree_removal: positive recall regressed",
+          "legacy/tree_removal: shape score dropped more than 5 percent",
+          "stress: overall score regressed",
+          "stress/new_building: positive recall regressed",
+          "stress/new_building: shape score dropped more than 5 percent",
+          "stress/tree_removal: positive recall regressed",
+          "stress/tree_removal: shape score dropped more than 5 percent"
+        ]
+      },
+      "loss": 0.9127392172813416,
+      "parts": {
+        "bce": 0.010263903997838497,
+        "dice_loss": 0.7557573318481445,
+        "presence_loss": 0.5859287977218628,
+        "supervised_original": 0.9231667518615723,
+        "supervised_photometric": 0.9018401503562927,
+        "supervised": 0.9125034809112549,
+        "consistency_segmentation": 0.0005324612138792872,
+        "consistency_presence": 0.0018249410204589367,
+        "consistency": 0.0023574023507535458,
+        "weighted_consistency": 0.00023574024089612067,
+        "total": 0.9127392172813416
+      },
+      "sampled_categories": {
+        "tree_removal": 50,
+        "real_negative": 58,
+        "new_building": 50,
+        "both": 25,
+        "negative": 17
+      },
+      "elapsed_seconds": 14.996532219000073
+    },
+    {
+      "step": 50,
+      "lambda": 0.1,
+      "checkpoint": "/data/terradelta/v2.1/checkpoints/season-consistency-01/lambda-0.10/step-0050.pt",
+      "checkpoint_sha256": "25b3857d020f7295a6b5e1dca8811dfcd8535a9c624612a8228fff338fb94599",
+      "metrics": {
+        "legacy": {
+          "score": 0.4323754736029233,
+          "num_samples": 22,
+          "classes": {
+            "new_building": {
+              "presence_macro_f1": 0.175,
+              "shape_score": 0.7258483610248216,
+              "score": 0.45042418051241084,
+              "gt_positive_count": 3,
+              "presence_confusion": {
+                "tp": 3,
+                "fp": 18,
+                "fn": 0,
+                "tn": 1
+              },
+              "no_change_fp_count": 16
+            },
+            "tree_removal": {
+              "presence_macro_f1": 0.5111111111111111,
+              "shape_score": 0.31754242227576046,
+              "score": 0.41432676669343577,
+              "gt_positive_count": 2,
+              "presence_confusion": {
+                "tp": 1,
+                "fp": 6,
+                "fn": 1,
+                "tn": 14
+              },
+              "no_change_fp_count": 5
+            }
+          },
+          "no_change_count": 17,
+          "no_change_fp_any": 16
+        },
+        "stress": {
+          "score": 0.4563201819530565,
+          "num_samples": 470,
+          "classes": {
+            "new_building": {
+              "presence_macro_f1": 0.5668202764976958,
+              "shape_score": 0.1917306877448241,
+              "score": 0.37927548212125994,
+              "gt_positive_count": 150,
+              "presence_confusion": {
+                "tp": 65,
+                "fp": 95,
+                "fn": 85,
+                "tn": 225
+              },
+              "no_change_fp_count": 0
+            },
+            "tree_removal": {
+              "presence_macro_f1": 0.7367523865186051,
+              "shape_score": 0.32997737705110114,
+              "score": 0.5333648817848531,
+              "gt_positive_count": 150,
+              "presence_confusion": {
+                "tp": 70,
+                "fp": 12,
+                "fn": 80,
+                "tn": 308
+              },
+              "no_change_fp_count": 0
+            }
+          },
+          "no_change_count": 200,
+          "no_change_fp_any": 0
+        }
+      },
+      "gate": {
+        "passed": false,
+        "reasons": [
+          "legacy: overall score regressed",
+          "legacy/new_building: shape score dropped more than 5 percent",
+          "legacy/tree_removal: positive recall regressed",
+          "legacy/tree_removal: shape score dropped more than 5 percent",
+          "stress: overall score regressed",
+          "stress/new_building: positive recall regressed",
+          "stress/new_building: shape score dropped more than 5 percent",
+          "stress/tree_removal: positive recall regressed",
+          "stress/tree_removal: shape score dropped more than 5 percent"
+        ]
+      },
+      "loss": 0.6898350119590759,
+      "parts": {
+        "bce": 0.02480260282754898,
+        "dice_loss": 0.5341789722442627,
+        "presence_loss": 0.5227595567703247,
+        "supervised_original": 0.6649932265281677,
+        "supervised_photometric": 0.714349627494812,
+        "supervised": 0.6896713972091675,
+        "consistency_segmentation": 0.0005007717991247773,
+        "consistency_presence": 0.001135276979766786,
+        "consistency": 0.0016360487788915634,
+        "weighted_consistency": 0.00016360488370992243,
+        "total": 0.6898350119590759
+      },
+      "sampled_categories": {
+        "tree_removal": 100,
+        "real_negative": 114,
+        "new_building": 100,
+        "both": 50,
+        "negative": 36
+      },
+      "elapsed_seconds": 30.54463015600004
+    },
+    {
+      "step": 100,
+      "lambda": 0.1,
+      "checkpoint": "/data/terradelta/v2.1/checkpoints/season-consistency-01/lambda-0.10/step-0100.pt",
+      "checkpoint_sha256": "2f708fcd8d24d9dc979ec6374d395c6b4918890823dfecfb76267ce4d5c7e8f4",
+      "metrics": {
+        "legacy": {
+          "score": 0.33417514123949643,
+          "num_samples": 22,
+          "classes": {
+            "new_building": {
+              "presence_macro_f1": 0.35833333333333334,
+              "shape_score": 0.13549622767966937,
+              "score": 0.24691478050650134,
+              "gt_positive_count": 3,
+              "presence_confusion": {
+                "tp": 3,
+                "fp": 14,
+                "fn": 0,
+                "tn": 5
+              },
+              "no_change_fp_count": 12
+            },
+            "tree_removal": {
+              "presence_macro_f1": 0.5111111111111111,
+              "shape_score": 0.3317598928338718,
+              "score": 0.42143550197249147,
+              "gt_positive_count": 2,
+              "presence_confusion": {
+                "tp": 1,
+                "fp": 6,
+                "fn": 1,
+                "tn": 14
+              },
+              "no_change_fp_count": 5
+            }
+          },
+          "no_change_count": 17,
+          "no_change_fp_any": 12
+        },
+        "stress": {
+          "score": 0.5747499334820316,
+          "num_samples": 470,
+          "classes": {
+            "new_building": {
+              "presence_macro_f1": 0.7180155577623304,
+              "shape_score": 0.41028626712051924,
+              "score": 0.5641509124414248,
+              "gt_positive_count": 150,
+              "presence_confusion": {
+                "tp": 94,
+                "fp": 60,
+                "fn": 56,
+                "tn": 260
+              },
+              "no_change_fp_count": 0
+            },
+            "tree_removal": {
+              "presence_macro_f1": 0.7659081150708458,
+              "shape_score": 0.4047897939744314,
+              "score": 0.5853489545226386,
+              "gt_positive_count": 150,
+              "presence_confusion": {
+                "tp": 84,
+                "fp": 21,
+                "fn": 66,
+                "tn": 299
+              },
+              "no_change_fp_count": 0
+            }
+          },
+          "no_change_count": 200,
+          "no_change_fp_any": 0
+        }
+      },
+      "gate": {
+        "passed": false,
+        "reasons": [
+          "legacy: overall score regressed",
+          "legacy/new_building: shape score dropped more than 5 percent",
+          "legacy/tree_removal: positive recall regressed",
+          "legacy/tree_removal: shape score dropped more than 5 percent",
+          "stress: overall score regressed",
+          "stress/new_building: positive recall regressed",
+          "stress/new_building: shape score dropped more than 5 percent",
+          "stress/tree_removal: positive recall regressed",
+          "stress/tree_removal: shape score dropped more than 5 percent"
+        ]
+      },
+      "loss": 0.516438901424408,
+      "parts": {
+        "bce": 0.02640017867088318,
+        "dice_loss": 0.34449416399002075,
+        "presence_loss": 0.5814749002456665,
+        "supervised_original": 0.5200050473213196,
+        "supervised_photometric": 0.5125210285186768,
+        "supervised": 0.5162630081176758,
+        "consistency_segmentation": 0.0010793362744152546,
+        "consistency_presence": 0.0006792996427975595,
+        "consistency": 0.001758635975420475,
+        "weighted_consistency": 0.00017586360627319664,
+        "total": 0.516438901424408
+      },
+      "sampled_categories": {
+        "tree_removal": 200,
+        "real_negative": 219,
+        "new_building": 200,
+        "both": 100,
+        "negative": 81
+      },
+      "elapsed_seconds": 52.530109141000025
+    },
+    {
+      "step": 150,
+      "lambda": 0.1,
+      "checkpoint": "/data/terradelta/v2.1/checkpoints/season-consistency-01/lambda-0.10/step-0150.pt",
+      "checkpoint_sha256": "c812801855eb870c8063cf7b21993f9213bf788f08658c1182d668284d5f6e13",
+      "metrics": {
+        "legacy": {
+          "score": 0.3397567383762122,
+          "num_samples": 22,
+          "classes": {
+            "new_building": {
+              "presence_macro_f1": 0.22567287784679088,
+              "shape_score": 0.2988602704418861,
+              "score": 0.2622665741443385,
+              "gt_positive_count": 3,
+              "presence_confusion": {
+                "tp": 3,
+                "fp": 17,
+                "fn": 0,
+                "tn": 2
+              },
+              "no_change_fp_count": 15
+            },
+            "tree_removal": {
+              "presence_macro_f1": 0.48235294117647054,
+              "shape_score": 0.3521408640397012,
+              "score": 0.41724690260808583,
+              "gt_positive_count": 2,
+              "presence_confusion": {
+                "tp": 1,
+                "fp": 7,
+                "fn": 1,
+                "tn": 13
+              },
+              "no_change_fp_count": 6
+            }
+          },
+          "no_change_count": 17,
+          "no_change_fp_any": 15
+        },
+        "stress": {
+          "score": 0.5986161940875234,
+          "num_samples": 470,
+          "classes": {
+            "new_building": {
+              "presence_macro_f1": 0.6897328362845605,
+              "shape_score": 0.4649923801426639,
+              "score": 0.5773626082136122,
+              "gt_positive_count": 150,
+              "presence_confusion": {
+                "tp": 106,
+                "fp": 92,
+                "fn": 44,
+                "tn": 228
+              },
+              "no_change_fp_count": 0
+            },
+            "tree_removal": {
+              "presence_macro_f1": 0.8052286343508015,
+              "shape_score": 0.43451092557206794,
+              "score": 0.6198697799614348,
+              "gt_positive_count": 150,
+              "presence_confusion": {
+                "tp": 86,
+                "fp": 6,
+                "fn": 64,
+                "tn": 314
+              },
+              "no_change_fp_count": 0
+            }
+          },
+          "no_change_count": 200,
+          "no_change_fp_any": 0
+        }
+      },
+      "gate": {
+        "passed": false,
+        "reasons": [
+          "legacy: overall score regressed",
+          "legacy/new_building: shape score dropped more than 5 percent",
+          "legacy/tree_removal: positive recall regressed",
+          "legacy/tree_removal: shape score dropped more than 5 percent",
+          "stress: overall score regressed",
+          "stress/new_building: positive recall regressed",
+          "stress/new_building: shape score dropped more than 5 percent",
+          "stress/tree_removal: positive recall regressed",
+          "stress/tree_removal: shape score dropped more than 5 percent"
+        ]
+      },
+      "loss": 0.5577698349952698,
+      "parts": {
+        "bce": 0.02502281777560711,
+        "dice_loss": 0.3871259093284607,
+        "presence_loss": 0.5811247825622559,
+        "supervised_original": 0.525313675403595,
+        "supervised_photometric": 0.5895462036132812,
+        "supervised": 0.5574299097061157,
+        "consistency_segmentation": 0.0013822800246998668,
+        "consistency_presence": 0.0020167650654911995,
+        "consistency": 0.003399045206606388,
+        "weighted_consistency": 0.0003399045381229371,
+        "total": 0.5577698349952698
+      },
+      "sampled_categories": {
+        "tree_removal": 300,
+        "real_negative": 336,
+        "new_building": 300,
+        "both": 150,
+        "negative": 114
+      },
+      "elapsed_seconds": 74.92008693700006
+    }
+  ],
+  "config_sha256": "bc418d838a4c8fdb0a1ca8d7403f436ac087b2ac8898bc9023d33f0eb09cbd27",
+  "inference_config_sha256": "d7f60936aebf65122e14040aa4b3e17b126c2ad65493db69fb03908585e2d99c",
+  "data_audit": {
+    "status": "passed",
+    "rows": 2261,
+    "categories": {
+      "new_building": 705,
+      "tree_removal": 702,
+      "both": 100,
+      "negative": 700,
+      "real_negative": 54
+    },
+    "real_negative_regions": {
+      "nc_wake": 22,
+      "md_laurel": 32
+    },
+    "held_out_regions": [
+      "wa_olympia",
+      "wa_stress"
+    ],
+    "source_id_overlap": 0,
+    "path_overlap": 0,
+    "exact_image_hash_overlap": 0,
+    "real_negatives_fully_valid_zero_masks": 54,
+    "reviewer_limitation": "Existing AI visual reviews, not independent human annotation.",
+    "input_sha256": {
+      "/data/terradelta/v2/manifests/train-v2.csv": "a7efada2e978d3152253f513bc2d3552b2220634e47ae9e48a09fec4499b7b9a",
+      "/data/terradelta/processed/micro-pilot-v2/train.csv": "675e51d330c699c880dfe2df9af8dbedf3513f779fca2c9cded73360caeda9a8",
+      "/data/terradelta/processed/micro-pilot-v2/val.csv": "4e205c1a064b5bc315884ecc0d5ac92c17fbddfbb56918811cabf4589a71df77",
+      "/data/terradelta/v2/manifests/stress-val-v2.csv": "8bf7554944dce5cef1fff722490dbd72510a11a5a100ad2feadbe556bc3135bf"
+    },
+    "train_sha256": "bb23a36ac5e5045606da3967de585794e50793d914e971c61842dbcb02089d5b"
+  },
+  "main_submissions": 0,
+  "debug_submissions": 0,
+  "device": "cuda",
+  "gpu": "NVIDIA A10G",
+  "seed": 20261004
+}

@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "rows": 2261,
+  "categories": {
+    "new_building": 705,
+    "tree_removal": 702,
+    "both": 100,
+    "negative": 700,
+    "real_negative": 54
+  },
+  "real_negative_regions": {
+    "nc_wake": 22,
+    "md_laurel": 32
+  },
+  "held_out_regions": [
+    "wa_olympia",
+    "wa_stress"
+  ],
+  "source_id_overlap": 0,
+  "path_overlap": 0,
+  "exact_image_hash_overlap": 0,
+  "real_negatives_fully_valid_zero_masks": 54,
+  "reviewer_limitation": "Existing AI visual reviews, not independent human annotation.",
+  "input_sha256": {
+    "/data/terradelta/v2/manifests/train-v2.csv": "a7efada2e978d3152253f513bc2d3552b2220634e47ae9e48a09fec4499b7b9a",
+    "/data/terradelta/processed/micro-pilot-v2/train.csv": "675e51d330c699c880dfe2df9af8dbedf3513f779fca2c9cded73360caeda9a8",
+    "/data/terradelta/processed/micro-pilot-v2/val.csv": "4e205c1a064b5bc315884ecc0d5ac92c17fbddfbb56918811cabf4589a71df77",
+    "/data/terradelta/v2/manifests/stress-val-v2.csv": "8bf7554944dce5cef1fff722490dbd72510a11a5a100ad2feadbe556bc3135bf"
+  },
+  "train_sha256": "bb23a36ac5e5045606da3967de585794e50793d914e971c61842dbcb02089d5b"
+}
