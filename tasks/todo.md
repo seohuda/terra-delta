@@ -55,6 +55,9 @@ See docs/data-audit.md and docs/data-audit-summary.json for evidence and command
 
 ## Real pilot acquisition (EC2 only, no training)
 
+Historical preflight checklist. The missing approved-host blocker was superseded
+by the user's dedicated-builder authorization below; preserve this checkpoint.
+
 - [ ] Identify the user's approved existing EC2 and SSH access; do not select ULM or create/start resources implicitly.
 - [ ] Check remote commit ancestry, environment and EBS free space before acquisition.
 - [x] Add bounded NAIP year discovery with actual dates/full-AOI candidates; focused tests 74 passed.
@@ -79,10 +82,35 @@ User authorizes a new t3.medium (30 GB gp3, up to 40 GB if justified), direct
 EC2 source downloads, real-only pilot review/audit and stopping the builder.
 No training, GPU, unrelated resource mutation or destructive Redstar cleanup.
 
-- [ ] Read-only Redstar dependency/cost inventory; classify SAFE_TO_DELETE/REVIEW/KEEP.
-- [ ] Verify price, AMI, network/access and disk budget for dedicated CPU builder.
-- [ ] Add CPU setup without CUDA requirements or training commands; test and publish.
-- [ ] Provision only dedicated TerraDelta resources; verify remote commit and disk.
-- [ ] Discover actual temporal coverage, acquire bounded data directly on EC2, review labels.
-- [ ] Split/audit real-only high-confidence data; write source terms and small previews.
-- [ ] Preserve data, stop builder and verify final state; report 37 requested fields.
+- [x] Read-only Redstar dependency/cost inventory; classify SAFE_TO_DELETE/REVIEW/KEEP.
+- [x] Verify price, AMI, network/access and 30 GB disk budget for dedicated CPU builder.
+- [x] Add CPU setup without CUDA requirements or training commands; test and publish.
+- [x] Provision only dedicated TerraDelta resources; verify remote commit and disk.
+- [x] Discover actual temporal coverage and download 11 sources / 3.014 GB directly on EC2.
+- [x] Build 644 real temporal candidates; inspect 149 full-tile comparisons and record decisions.
+- [x] Export 71 HIGH no-change pairs, exclude 75 MEDIUM / 3 LOW / 495 unreviewed candidates.
+- [ ] Complete high-resolution positive masks and the balanced 100–500-pair target: NOT achieved; no automatic proposal approval.
+- [x] Split/audit approved subset and full candidate imagery; retain source terms and bounded previews.
+- [x] Verify all raw SHA-256s, flush retained EBS, stop builder and verify final state.
+- [x] Revoke temporary read-only GitHub deploy key; terminate the task's SSM tunnel.
+- [x] Report the 37 requested fields with actual counts and NOT READY judgment.
+
+### CPU pilot review
+
+Data pipeline code `a9fab650b29f7781b2d5a58b7ce2b8ecebdf0113`; 159 focused data/
+external/audit/review tests passed, Ruff/diff check passed, actual EC2 processing
+and audits completed. Three regions; all 0.6 m, 256x256 RGB. Approved 71 pairs
+are no-change only, not a balanced or independently human-annotated benchmark.
+Audit has zero corruption, duplicate or split-leak candidates in this subset;
+mean/max reliable shift 1.0048/1.9384 px. Missing both positive target classes
+forces NOT READY. No training, optimizer step, GPU or submission.
+
+Builder `i-0766a472ecb5bcf88` stopped at final API verification; encrypted 30 GB
+EBS `vol-0070845086ec08190` preserved, DeleteOnTermination=false, no S3/snapshot.
+Provider payload stayed on EC2; PC preview/summary files total 11,393,132 bytes.
+Redstar stayed stopped with uninspected 80 GB gp3 preserved; no other resource
+mutation. Actual balanced GT target remains unfinished. Do not start 25/50/75/
+100-step training with this background-only subset.
+
+Full evidence, source obligations, retention/costs and next annotation work:
+docs/real-pilot-report.md and docs/real-pilot-summary.json.

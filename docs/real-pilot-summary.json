@@ -1,0 +1,573 @@
+{
+  "report_date": "2026-10-04",
+  "readiness": "NOT READY",
+  "balanced_pilot_complete": false,
+  "requested_HIGH_pair_target": "200-500; quality 100-200 acceptable",
+  "actual": {
+    "real_temporal_candidates": 644,
+    "approved_real_gt_pairs": 71,
+    "classes": {
+      "no_change": 71,
+      "new_building": 0,
+      "tree_removal": 0
+    },
+    "confidence": {
+      "HIGH": 71,
+      "MEDIUM": 75,
+      "LOW": 3,
+      "UNREVIEWED": 495
+    },
+    "regions": {
+      "wa_olympia": {
+        "candidates": 180,
+        "approved": 17,
+        "years": [
+          2019,
+          2023
+        ],
+        "dates": [
+          "2019-10-10",
+          "2023-08-14"
+        ]
+      },
+      "nc_wake": {
+        "candidates": 240,
+        "approved": 22,
+        "years": [
+          2018,
+          2022
+        ],
+        "dates": [
+          "2018-08-26",
+          "2022-07-20"
+        ]
+      },
+      "md_laurel": {
+        "candidates": 224,
+        "approved": 32,
+        "years": [
+          2018,
+          2021
+        ],
+        "dates": [
+          "2018-10-19",
+          "2021-06-17"
+        ]
+      }
+    },
+    "resolution_m": 0.6,
+    "size_px": [
+      256,
+      256
+    ],
+    "rgb_channels_per_image": 3
+  },
+  "aws": {
+    "verified_at_utc": "2026-10-04T04:13:00.725685+00:00",
+    "instances": [
+      {
+        "id": "i-0db8b62f43d95f150",
+        "type": "t2.micro",
+        "state": "running"
+      },
+      {
+        "id": "i-0426ce1098082fee2",
+        "type": "c8i.xlarge",
+        "state": "stopped",
+        "state_transition_reason": "User initiated (2026-09-19 00:31:06 GMT)",
+        "block_devices": [
+          {
+            "DeviceName": "/dev/sda1",
+            "Ebs": {
+              "AttachTime": "2026-09-18T00:20:45+00:00",
+              "DeleteOnTermination": true,
+              "Status": "attached",
+              "VolumeId": "vol-0fd71ecf4d0529fc7",
+              "EbsCardIndex": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "i-0766a472ecb5bcf88",
+        "type": "t3.medium",
+        "state": "stopped",
+        "state_transition_reason": "User initiated (2026-10-04 04:12:11 GMT)",
+        "block_devices": [
+          {
+            "DeviceName": "/dev/sda1",
+            "Ebs": {
+              "AttachTime": "2026-10-04T03:00:17+00:00",
+              "DeleteOnTermination": false,
+              "Status": "attached",
+              "VolumeId": "vol-0070845086ec08190",
+              "EbsCardIndex": 0
+            }
+          }
+        ]
+      }
+    ],
+    "volumes": [
+      {
+        "id": "vol-0070845086ec08190",
+        "state": "in-use",
+        "size": 30,
+        "type": "gp3",
+        "encrypted": true
+      },
+      {
+        "id": "vol-0fd71ecf4d0529fc7",
+        "state": "in-use",
+        "size": 80,
+        "type": "gp3",
+        "encrypted": false
+      }
+    ],
+    "builder_ingress": [],
+    "cpu_credits": [
+      {
+        "InstanceId": "i-0766a472ecb5bcf88",
+        "CpuCredits": "standard"
+      }
+    ]
+  },
+  "preservation": {
+    "verified_at_utc": "2026-10-04T04:10:09Z",
+    "files": [
+      {
+        "id": "wa_m_4612201_ne_10_060_20191010_20191217",
+        "bytes": 394243445,
+        "sha256_verified": true
+      },
+      {
+        "id": "wa_m_4612201_ne_10_060_20230814_20240209",
+        "bytes": 387954298,
+        "sha256_verified": true
+      },
+      {
+        "id": "nc_m_3507804_se_17_060_20180826_20190210",
+        "bytes": 484392338,
+        "sha256_verified": true
+      },
+      {
+        "id": "nc_m_3507804_se_17_060_20220720",
+        "bytes": 494691575,
+        "sha256_verified": true
+      },
+      {
+        "id": "md_m_3907658_nw_18_060_20181019_20190212",
+        "bytes": 555773694,
+        "sha256_verified": true
+      },
+      {
+        "id": "md_m_3907658_nw_18_060_20210617",
+        "bytes": 458058464,
+        "sha256_verified": true
+      },
+      {
+        "id": "lossyear_50N_130W",
+        "bytes": 61287904,
+        "sha256_verified": true
+      },
+      {
+        "id": "lossyear_40N_080W",
+        "bytes": 42217473,
+        "sha256_verified": true
+      },
+      {
+        "id": "microsoft_021230201",
+        "bytes": 15064041,
+        "sha256_verified": true
+      },
+      {
+        "id": "microsoft_032010032",
+        "bytes": 81239560,
+        "sha256_verified": true
+      },
+      {
+        "id": "microsoft_032012002",
+        "bytes": 39090648,
+        "sha256_verified": true
+      }
+    ],
+    "all_raw_hashes_verified": true,
+    "root_ebs_volume": "vol-0070845086ec08190",
+    "delete_on_termination": false,
+    "retention": "STOP with retained EBS; no snapshot/S3",
+    "disk": {
+      "total": 30083776512,
+      "used": 7713370112,
+      "free": 22353629184
+    },
+    "data_bytes": 3267034801,
+    "training_executed": false
+  },
+  "cost": {
+    "currency": "USD",
+    "cpu_per_hour": 0.052,
+    "public_ipv4_per_hour": 0.005,
+    "combined_runtime_cost_estimate_range": [
+      0.068305,
+      0.06909232334583333
+    ],
+    "runtime_seconds_to_stop_request": 4314,
+    "runtime_upper_bound_seconds_at_stopped_verification": 4363.725685,
+    "builder_ebs_nominal_monthly": 2.736,
+    "redstar_ebs_nominal_monthly": 7.296,
+    "actual_billed_amount": "Not established; Cost Explorer Project tag inactive; nominal prices before taxes/credits"
+  },
+  "source_usage": {
+    "NAIP": {
+      "license": "USDA catalog public domain",
+      "raw_rasters": 6,
+      "candidate_pair_inputs": 644,
+      "final_pair_inputs": 71,
+      "GT": "reviewed absence facts; 71 zero masks"
+    },
+    "Hansen_GFC_v1_12": {
+      "license": "CC BY 4.0",
+      "raw_lossyear_rasters": 2,
+      "final_GT_pairs": 0,
+      "role": "candidate mining only; retain provider attribution and reprojection/change notice"
+    },
+    "Microsoft_GlobalML_2026_07_24": {
+      "license": "CDLA-Permissive-2.0",
+      "raw_gzip_files": 3,
+      "final_GT_pairs": 0,
+      "role": "static reference only; retained agreement"
+    },
+    "FEMA": {
+      "files": 0,
+      "final_GT_pairs": 0,
+      "role": "excluded because metadata text and badge disagree on license version"
+    }
+  },
+  "network": {
+    "provider_payload_bytes_received_on_EC2": 3014013440,
+    "local_preview_and_small_summary_file_bytes": 11393132,
+    "local_large_dataset_transfer": false,
+    "local_raw_rasters": 0,
+    "note": "Only code, SSH/SSM, logs, small JSON and bounded JPEG previews on the PC. Git/HTTP/TLS traffic excluded from preview file sum."
+  },
+  "approved_audit": {
+    "readiness": "NOT READY",
+    "blockers": [
+      "No reviewed new_building masks; target class is missing",
+      "No reviewed tree_removal masks; target class is missing"
+    ],
+    "manifest": "/data/terradelta/processed/pilot/manifest.csv",
+    "total_samples": 71,
+    "real_samples": 71,
+    "mock_samples": 0,
+    "sources": [
+      "NAIP"
+    ],
+    "dataset_image_mask_bytes": 16496947,
+    "manifest_bytes": 145835,
+    "training_eligible_samples": 71,
+    "suspicious_samples": 0,
+    "informational_samples": 0,
+    "baseline_validation": null,
+    "previews": [
+      {
+        "file": "preview.jpg",
+        "rows": [
+          [
+            "background_only",
+            "wa_olympia_r01_c04"
+          ],
+          [
+            "hard_negative",
+            "wa_olympia_r01_c04"
+          ]
+        ],
+        "bytes": 38934
+      }
+    ],
+    "network": {
+      "dataset_download_bytes": 0,
+      "external_metadata_download_bytes": 0,
+      "large_transfer": false,
+      "note": "Audit reads existing local files only. Git delivery traffic is reported separately."
+    },
+    "training_executed": false,
+    "optimizer_constructed": false,
+    "optimizer_steps": 0,
+    "aws_executed": false,
+    "alignment_applied": false,
+    "audit_output_bytes": 339442,
+    "classes": {
+      "valid_samples": 71,
+      "background_only": 71,
+      "new_building_only": 0,
+      "tree_removal_only": 0,
+      "both_classes": 0,
+      "empty_change_masks": 71,
+      "empty_binary_masks": {
+        "new_building": 71,
+        "tree_removal": 71
+      },
+      "pixel_count": {
+        "background": 4653056,
+        "new_building": 0,
+        "tree_removal": 0
+      },
+      "pixel_ratio": {
+        "background": 1.0,
+        "new_building": 0.0,
+        "tree_removal": 0.0
+      },
+      "valid_pixel_count": 4653056,
+      "component_connectivity": 8,
+      "total_samples": 71,
+      "invalid_samples": 0,
+      "mock_samples": 0
+    },
+    "alignment": {
+      "method": "phase correlation (analysis only)",
+      "images_modified": false,
+      "estimated_samples": 71,
+      "reliable_samples": 71,
+      "unavailable_or_unreliable": 0,
+      "magnitude_pixels": {
+        "median": 1.085808558179111,
+        "mean": 1.0048265231434785,
+        "p90": 1.7363195386205144,
+        "p95": 1.8173706304348294,
+        "p99": 1.9083154524110824,
+        "max": 1.9383781662124535
+      },
+      "high_shift_ids": []
+    },
+    "split": {
+      "groups": 3,
+      "spatial_candidates": [],
+      "temporal_candidates": [],
+      "errors": [],
+      "rows_with_real_coordinate_evidence": 71,
+      "status": "no_candidates",
+      "note": "No candidates among placeholder region IDs is not evidence of real geographic separation.",
+      "split_errors": [],
+      "train_samples": 39,
+      "validation_samples": 32
+    },
+    "duplicates": [],
+    "review_summary": {
+      "candidate_pairs": 644,
+      "accepted_HIGH": 71,
+      "reviewed_confidence": {
+        "HIGH": 71,
+        "MEDIUM": 75,
+        "LOW": 3
+      },
+      "unreviewed": 495,
+      "rejected": 3,
+      "train": 39,
+      "val": 32,
+      "training_executed": false
+    },
+    "raw_bytes": 3014013440,
+    "candidate_bytes": 220306240,
+    "processed_bytes": 17839809,
+    "approved_regions": {
+      "wa_olympia": 17,
+      "nc_wake": 22,
+      "md_laurel": 32
+    },
+    "partition_regions": {
+      "train": {
+        "wa_olympia": 17,
+        "nc_wake": 22
+      },
+      "val": {
+        "md_laurel": 32
+      }
+    }
+  },
+  "candidate_audit": {
+    "readiness": "NOT READY",
+    "blockers": [
+      "No reviewed no-change samples for false-positive control",
+      "No reviewed new_building masks; target class is missing",
+      "No reviewed tree_removal masks; target class is missing",
+      "Unverified provenance/license/label review; excluded from training readiness",
+      "Image/mask integrity errors"
+    ],
+    "manifest": "/data/terradelta/review/candidates/candidates.csv",
+    "total_samples": 644,
+    "real_samples": 644,
+    "mock_samples": 0,
+    "sources": [
+      "NAIP"
+    ],
+    "dataset_image_mask_bytes": 154786720,
+    "manifest_bytes": 744655,
+    "training_eligible_samples": 0,
+    "suspicious_samples": 644,
+    "informational_samples": 0,
+    "baseline_validation": null,
+    "previews": [],
+    "network": {
+      "dataset_download_bytes": 0,
+      "external_metadata_download_bytes": 0,
+      "large_transfer": false,
+      "note": "Audit reads existing local files only. Git delivery traffic is reported separately."
+    },
+    "training_executed": false,
+    "optimizer_constructed": false,
+    "optimizer_steps": 0,
+    "aws_executed": false,
+    "alignment_applied": false,
+    "audit_output_bytes": 1614654,
+    "unreadable_or_rgb_dimension_errors": [],
+    "mask_missing_errors": 644,
+    "alignment": {
+      "method": "phase correlation (analysis only)",
+      "images_modified": false,
+      "estimated_samples": 644,
+      "reliable_samples": 560,
+      "unavailable_or_unreliable": 84,
+      "magnitude_pixels": {
+        "median": 1.339340885313994,
+        "mean": 3.502779314987464,
+        "p90": 10.370048479264927,
+        "p95": 15.972648048157685,
+        "p99": 33.49818299415119,
+        "max": 57.02800412860902
+      },
+      "high_shift_ids": [
+        "wa_olympia_r00_c04",
+        "wa_olympia_r00_c05",
+        "wa_olympia_r00_c06",
+        "wa_olympia_r00_c10",
+        "wa_olympia_r00_c11",
+        "wa_olympia_r01_c01",
+        "wa_olympia_r01_c02",
+        "wa_olympia_r01_c06",
+        "wa_olympia_r01_c11",
+        "wa_olympia_r02_c00",
+        "wa_olympia_r02_c04",
+        "wa_olympia_r02_c05",
+        "wa_olympia_r02_c06",
+        "wa_olympia_r02_c07",
+        "wa_olympia_r02_c08",
+        "wa_olympia_r03_c01",
+        "wa_olympia_r03_c07",
+        "wa_olympia_r04_c00",
+        "wa_olympia_r04_c01",
+        "wa_olympia_r04_c11",
+        "wa_olympia_r05_c00",
+        "wa_olympia_r05_c01",
+        "wa_olympia_r05_c04",
+        "wa_olympia_r06_c00",
+        "wa_olympia_r06_c01",
+        "wa_olympia_r06_c06",
+        "wa_olympia_r07_c00",
+        "wa_olympia_r07_c01",
+        "wa_olympia_r07_c02",
+        "wa_olympia_r07_c03",
+        "wa_olympia_r07_c06",
+        "wa_olympia_r08_c01",
+        "wa_olympia_r08_c08",
+        "wa_olympia_r09_c01",
+        "wa_olympia_r09_c11",
+        "wa_olympia_r11_c06",
+        "wa_olympia_r12_c01",
+        "wa_olympia_r12_c02",
+        "wa_olympia_r13_c03",
+        "wa_olympia_r13_c04",
+        "wa_olympia_r13_c05",
+        "wa_olympia_r13_c11",
+        "wa_olympia_r14_c03",
+        "wa_olympia_r14_c04",
+        "wa_olympia_r14_c06",
+        "nc_wake_r00_c02",
+        "nc_wake_r00_c03",
+        "nc_wake_r03_c00",
+        "nc_wake_r03_c02",
+        "nc_wake_r05_c02",
+        "nc_wake_r05_c04",
+        "nc_wake_r06_c14",
+        "nc_wake_r07_c00",
+        "nc_wake_r07_c02",
+        "nc_wake_r07_c12",
+        "nc_wake_r07_c13",
+        "nc_wake_r08_c08",
+        "nc_wake_r09_c03",
+        "nc_wake_r09_c12",
+        "nc_wake_r09_c13",
+        "nc_wake_r10_c03",
+        "nc_wake_r10_c06",
+        "nc_wake_r10_c11",
+        "nc_wake_r10_c12",
+        "nc_wake_r11_c03",
+        "nc_wake_r11_c04",
+        "nc_wake_r11_c06",
+        "nc_wake_r11_c07",
+        "nc_wake_r11_c10",
+        "nc_wake_r11_c14",
+        "nc_wake_r12_c01",
+        "nc_wake_r12_c03",
+        "nc_wake_r12_c04",
+        "nc_wake_r12_c05",
+        "nc_wake_r12_c07",
+        "nc_wake_r12_c08",
+        "nc_wake_r12_c09",
+        "nc_wake_r12_c11",
+        "nc_wake_r13_c08",
+        "nc_wake_r13_c10",
+        "nc_wake_r14_c00",
+        "nc_wake_r14_c04",
+        "nc_wake_r14_c07",
+        "nc_wake_r15_c00",
+        "nc_wake_r15_c01",
+        "nc_wake_r15_c03",
+        "nc_wake_r15_c04",
+        "nc_wake_r15_c13",
+        "md_laurel_r01_c08",
+        "md_laurel_r01_c13",
+        "md_laurel_r02_c11",
+        "md_laurel_r02_c12",
+        "md_laurel_r03_c12",
+        "md_laurel_r04_c07",
+        "md_laurel_r04_c13",
+        "md_laurel_r05_c12",
+        "md_laurel_r05_c13",
+        "md_laurel_r06_c12",
+        "md_laurel_r10_c09",
+        "md_laurel_r10_c13",
+        "md_laurel_r13_c12"
+      ]
+    },
+    "duplicates": [],
+    "split": {
+      "groups": 3,
+      "spatial_candidates": [],
+      "temporal_candidates": [],
+      "errors": [],
+      "rows_with_real_coordinate_evidence": 644,
+      "status": "no_candidates",
+      "note": "No candidates among placeholder region IDs is not evidence of real geographic separation.",
+      "split_errors": [],
+      "train_samples": 420,
+      "validation_samples": 224
+    }
+  },
+  "candidate_high_shift_count": 101,
+  "constraints": {
+    "training_executed": false,
+    "optimizer_steps": 0,
+    "GPU_created_or_started": false,
+    "competition_submission": false,
+    "mock_in_real_pilot": 0,
+    "synthetic_training_data": 0,
+    "bot_or_unrelated_resource_mutation": false,
+    "redstar_deletion": false
+  },
+  "git": {
+    "data_pipeline_commit": "a9fab650b29f7781b2d5a58b7ce2b8ecebdf0113",
+    "final_report_commit": "subsequent documentation commit; see repository HEAD and delivery verification",
+    "dataset_pushed": false
+  },
+  "decision": "Do not start 25/50/75/100-step training. Only negatives have approved masks; refine both positive classes, independently review boundaries, and obtain positive validation examples first."
+}

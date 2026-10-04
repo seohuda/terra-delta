@@ -1,5 +1,10 @@
 # Pre-training data audit — 2026-10-04
 
+This is the initial PC/mock audit. The later EC2-only real pilot is in
+[real-pilot-report.md](real-pilot-report.md); it has 644 temporal candidates and
+71 approved no-change pairs. Its positive masks are still missing, so readiness
+remains NOT READY. Earlier mock facts and metrics below are preserved.
+
 **NOT READY.** The repository contains zero real training samples and four locally
 invented mock pairs. The earlier 1,000-pair/524 MB figure was a capacity estimate,
 not an acquired or prepared dataset. This audit started from verified commit

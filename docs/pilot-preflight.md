@@ -1,5 +1,10 @@
 # Real pilot: acquisition blocked, preparation verified
 
+Historical preflight before the user authorized a dedicated CPU builder.
+That host-access blocker was subsequently resolved. See the
+[actual acquisition, audit and stopped-instance report](real-pilot-report.md).
+The status table below preserves the earlier zero-acquisition checkpoint.
+
 Status on 2026-10-04: **NOT READY**. No real pilot pair has been acquired or
 reviewed. The approved existing EC2 instance ID, region and SSH target are
 missing; an optional existing S3 bucket is also unspecified. The default

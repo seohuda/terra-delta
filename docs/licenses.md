@@ -4,6 +4,15 @@ Reviewed 2026-10-04. [LICENSE_DATA.md](../LICENSE_DATA.md) records commercial us
 derivatives, redistribution, attribution and actual usage. This inventory does
 not grant new rights or approve data solely because an endpoint is public.
 
+The dry-run proof below is the initial PC verification. Subsequent acquisition
+is documented in the [actual CPU pilot report](real-pilot-report.md): six NAIP
+rasters, two Hansen lossyear rasters and three Microsoft GlobalML gzips were
+downloaded directly on EC2. Provider pages and CDLA-Permissive-2.0 were retained.
+NAIP supplies 644 candidates and 71 approved no-change pairs. Hansen and
+Microsoft supply mining/reference evidence only, with zero final GT masks.
+FEMA remains excluded. No training occurred; positive mask quality and model
+quality remain unverified.
+
 ## Organizer baseline and encoder weights
 
 Preserved original LICENSE grants baseline use, modification, retraining and
@@ -70,8 +79,10 @@ Endpoints and contracts:
 [Esri count/GeoJSON/offset query](https://developers.arcgis.com/rest/services-reference/enterprise/query-feature-service-layer/),
 [Hansen granule](https://storage.googleapis.com/earthenginepartners-hansen/GFC-2024-v1.12/Hansen_GFC-2024-v1.12_lossyear_40N_080W.tif).
 
-Real FEMA GeoJSON pagination, downloaded raster readability/tiling, high-resolution
-label quality and model quality remain unverified. Offline mocks/local fixtures
+During that initial verification, real FEMA pagination, downloaded raster
+readability/tiling, high-resolution labels and model quality were unverified.
+The later EC2 pilot proves actual raster decoding/tiling; FEMA geometry and
+positive GT/model quality remain unverified. Offline mocks/local fixtures
 cover the API and CRS contracts. A successful metadata plan is not acquisition,
 permission approval, or a training outcome. Pinned Hansen v1.12 is superseded by
 v1.13 according to the [provider catalog](https://developers.google.com/earth-engine/datasets/catalog/UMD_hansen_global_forest_change_2024_v1_12);
