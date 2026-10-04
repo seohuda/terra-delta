@@ -155,9 +155,16 @@ Only DEBUG is authorized; main/leaderboard submission is prohibited. No training
 optimizer construction, new EC2/GPU or unrelated AWS resource mutation.
 
 - [x] Verify local expected main, balanced config and live official submission/DEBUG rules.
-- [ ] Start only existing CPU builder; ff-update Git, verify pristine weights/config.
-- [ ] Produce reproducible minimal offline ZIP and extracted-entrypoint clean-room proof.
-- [ ] Inspect ZIP contents, hashes, dependencies and CPU/device/CSV/polygon cases.
-- [ ] Submit explicitly with DEBUG mode; record and follow job to terminal state.
-- [ ] Freeze exact package/logs/manifest; publish only small code/config/report.
-- [ ] Flush retained EBS, revoke transient access, STOP builder and API-verify stopped.
+- [x] Start only existing CPU builder; ff-update Git, verify pristine weights/config.
+- [x] Produce reproducible minimal offline ZIP and extracted-entrypoint clean-room proof.
+- [x] Inspect ZIP contents, hashes, dependencies and CPU/device/CSV/polygon cases.
+- [x] Submit explicitly with DEBUG mode; record and follow job to terminal state.
+- [x] Freeze exact package/logs/manifest; publish only small code/config/report.
+- [x] Flush retained EBS, revoke transient access, STOP builder and API-verify stopped.
+
+DEBUG review: one submission 364413 / run 30967 completed; practice score
+0.1458, main quota remains 3/3. Frozen ZIP 53,201,280 bytes, code 46505e4;
+24-pair extracted offline cleanroom passed in 7.329s; 36 targeted tests passed.
+Server detailed logs/durations/CSV are not exposed in current submission UI;
+recorded as unavailable, not inferred. Builder API stopped at 07:39:53 UTC,
+encrypted retained 30 GiB EBS unchanged. DEBUG PASSED — READY FOR NEXT PHASE.
