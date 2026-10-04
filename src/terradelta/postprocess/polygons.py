@@ -48,7 +48,13 @@ def mask_to_polygons_reference(mask, min_area=30, min_pos_area=20,
         return _official_mask_to_polygons(mask)
     MIN_AREA, MIN_POS_AREA = min_area, min_pos_area
     SIMPLIFY_PX, NDIGITS = simplify_px, ndigits
-    m = np.asarray(mask, dtype=bool)
+    return serialize_polygons(reference_exteriors(reference_components(mask), MIN_AREA, MIN_POS_AREA,
+                                                  SIMPLIFY_PX, NDIGITS))
+
+
+def reference_components(mask):
+    """Exact reference union before filtering; reusable for cached-map search."""
+    m = _binary_mask(mask)
     boxes = []
     for r in np.flatnonzero(m.any(axis=1)):
         pad = np.concatenate(([0], m[r].astype(np.int8), [0]))
@@ -56,19 +62,25 @@ def mask_to_polygons_reference(mask, min_area=30, min_pos_area=20,
         for s, e in zip(edges[::2], edges[1::2]):
             boxes.append(box(float(s), float(r), float(e), float(r + 1)))
     if not boxes:
-        return ""
+        return []
     g = unary_union(boxes)
     parts = list(g.geoms) if isinstance(g, MultiPolygon) else [g]
-    parts = [p for p in parts if isinstance(p, Polygon) and p.area >= MIN_AREA]
-    if not parts or sum(p.area for p in parts) < MIN_POS_AREA:
-        return ""
+    return [p for p in parts if isinstance(p, Polygon)]
+
+
+def reference_exteriors(parts, min_area=30, min_pos_area=20, simplify_px=.5, ndigits=2):
+    """Apply original pre-export filters and simplification to cached components."""
+    _validate_parameters(min_area, min_pos_area, simplify_px, ndigits)
+    parts = [p for p in parts if p.area >= min_area]
+    if not parts or sum(p.area for p in parts) < min_pos_area:
+        return []
     out = []
     for p in parts:
-        p = p.simplify(SIMPLIFY_PX, preserve_topology=True)
+        p = p.simplify(simplify_px, preserve_topology=True)
         if p.is_empty or p.area <= 0:
             continue
-        out.append([[round(float(x), NDIGITS), round(float(y), NDIGITS)] for x, y in list(p.exterior.coords)[:-1]])
-    return json.dumps(out, separators=(",", ":")) if out else ""
+        out.append([[round(float(x), ndigits), round(float(y), ndigits)] for x, y in list(p.exterior.coords)[:-1]])
+    return out
 
 
 def _run_rectangles(mask):

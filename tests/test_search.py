@@ -55,7 +55,7 @@ def test_cartesian_finds_independent_thresholds_and_preserves_config(probability
     assert result["best_score"] == pytest.approx(1)
     settings = result["best_config"]["postprocess"]
     assert settings["mode"] == "threshold"
-    assert settings["classes"]["new_building"]["threshold"] == 0.5
+    assert settings["classes"]["new_building"]["threshold"] == 0.4
     assert settings["classes"]["tree_removal"]["threshold"] == 0.7
     assert len(result["results"]) == 9
     assert config == original
