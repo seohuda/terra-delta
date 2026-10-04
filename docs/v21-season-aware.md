@@ -5,8 +5,9 @@
 One unchanged v2 ZIP was submitted to MAIN on 2026-10-04 at 14:07:10 UTC.
 Public submission 364647, private submission 364648, run 31388 completed.
 Public leaderboard score **0.1947902971** (submission display **0.1948**),
-rank 128 at observation. MAIN daily quota **2/3 remains**, with no authorization
-for either remaining attempt. DEBUG v2 remains a separate practice score 0.3331.
+rank 128 at observation. On October 4, MAIN daily quota **2/3 remained** at
+observation, with no authorization for either remaining attempt. A daily reset
+does not authorize another MAIN. DEBUG v2 remains a separate practice score 0.3331.
 Server runtime, detailed logs, and private score were not exposed.
 
 The exact release is read-only under `/data/terradelta/releases/v2-main-01/`.
