@@ -8,20 +8,34 @@ Dry-run does not sign or read raster assets unless HEAD sizes are requested.
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime, timezone
 from itertools import combinations
-from urllib.parse import urlencode
+import re
+from urllib.parse import urlencode, urlsplit, urlunsplit
 
 from .common import Asset, get_json, head_size, safe_filename
 from terradelta.utils.geo import validate_bounds
 
 STAC_API = "https://planetarycomputer.microsoft.com/api/stac/v1"
-SIGN_API = "https://planetarycomputer.microsoft.com/api/sas/v1/sign"
+SAS_API = "https://planetarycomputer.microsoft.com/api/sas/v1"
 
 
 def sign_url(url):
-    """Transient SAS authorization; caller must not log/persist the signed URL."""
-    return get_json(SIGN_API, params={"href": url})["href"]
+    """Use the provider's account/container token API, as its official SDK does.
+
+    Tokens remain transient; callers must not log/persist the signed URL.
+    No token caching means each invocation checks current expiry.
+    """
+    parsed = urlsplit(url)
+    account = re.fullmatch(r"([a-z0-9]+)\.blob\.core\.windows\.net", parsed.netloc)
+    if parsed.scheme != "https" or not account or not parsed.path.startswith("/naip/") or parsed.query or parsed.fragment:
+        raise ValueError("NAIP signing requires an unsigned HTTPS Azure /naip/ blob URL")
+    response = get_json(f"{SAS_API}/token/{account[1]}/naip")
+    expiry = datetime.fromisoformat(response["msft:expiry"].replace("Z", "+00:00"))
+    token = response["token"]
+    if expiry.tzinfo is None or expiry <= datetime.now(timezone.utc) or not isinstance(token, str) or not token:
+        raise ValueError("Provider returned an expired/invalid NAIP SAS token")
+    return urlunsplit(parsed._replace(query=token))
 
 
 def discover_naip(*, bounds, years, region="", state=None, max_items=20,
