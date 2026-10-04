@@ -1,15 +1,26 @@
 #!/usr/bin/env bash
-# Run only later, on an already provisioned EC2 host. No provisioning/start/stop calls.
+# Run on an already provisioned EC2 host. No provisioning or training calls.
 set -euo pipefail
-if [[ ${1:-} != --execute ]]; then
+EXECUTE=false
+MODE=cpu
+for arg in "$@"; do
+  case "$arg" in
+    --execute) EXECUTE=true ;;
+    --cpu) MODE=cpu ;;
+    --gpu) MODE=gpu ;;
+    *) printf 'Unknown argument: %s\n' "$arg" >&2; exit 2 ;;
+  esac
+done
+if [[ "$EXECUTE" != true ]]; then
   cat <<'PLAN'
 Preparation script: no actions without --execute.
-Recommended future host: EC2 g5.2xlarge (A10G), Ubuntu/NVIDIA GPU image.
+Default: CPU dataset builder on an existing Ubuntu host (t3.medium, 30 GB gp3).
 1. Clone terra-delta and create Python venv.
-2. Install reviewed dependencies and verify torch CUDA availability.
+2. Install CPU-only torch/torchvision, project and geospatial dependencies.
 3. Optionally sync approved datasets/checkpoints from S3 using instance role.
-4. Run training manually after license and geographic-split checks.
-5. Back up checkpoints to a user-specified S3 URI; stop instance manually.
+4. Build/review/audit real datasets; no training command is run or suggested.
+5. Preserve data and stop the instance after the task.
+Future GPU setup requires explicit --gpu on an already authorized GPU host.
 PLAN
   exit 0
 fi
@@ -25,14 +36,24 @@ if [[ ! -x .venv/bin/python ]]; then
 fi
 source .venv/bin/activate
 python -m pip install --upgrade pip
-# Install a CUDA-enabled torch wheel appropriate to your selected NVIDIA image first.
-python -m pip install -r requirements-dev.txt
-python - <<'PY'
+if [[ "$MODE" == cpu ]]; then
+  python -m pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu torch torchvision
+fi
+python -m pip install --no-cache-dir -r requirements.txt
+python - "$MODE" <<'PY'
+import sys
 import torch
+import rasterio
+import scipy
+import shapely
 print('torch', torch.__version__, 'CUDA build', torch.version.cuda)
-if not torch.cuda.is_available():
+if sys.argv[1] == 'cpu' and torch.version.cuda is not None:
+    raise SystemExit('CPU setup resolved a CUDA wheel; do not proceed with this environment.')
+if sys.argv[1] == 'gpu' and not torch.cuda.is_available():
     raise SystemExit('CUDA unavailable. Check driver/image/wheel before future GPU training.')
-print(torch.cuda.get_device_name(0))
+if sys.argv[1] == 'gpu':
+    print(torch.cuda.get_device_name(0))
+print('geospatial dependencies:', rasterio.__version__, scipy.__version__, shapely.__version__)
 PY
 if [[ -n ${TERRADELTA_DATA_S3_URI:-} ]]; then
   aws s3 sync "$TERRADELTA_DATA_S3_URI" data/approved/
@@ -42,10 +63,7 @@ if [[ -n ${TERRADELTA_CHECKPOINT_S3_URI:-} ]]; then
 fi
 cat <<'NEXT'
 Setup finished; no training was started.
-Review config/data licenses, then manually run:
-  python scripts/train.py --config configs/train_short.yaml --dry-run
-  python scripts/train.py --config configs/train_short.yaml
-Checkpoint backup example (replace YOUR_BUCKET):
-  aws s3 sync checkpoints/ s3://YOUR_BUCKET/terradelta/checkpoints/
-After backup, stop your instance manually in the EC2 console or AWS CLI.
+Review source licenses, build real temporal pairs and run the data audit.
+Preserve the dataset on EBS or an explicitly approved backup target.
+Stop your instance after the dataset task; do not terminate unbacked data.
 NEXT
