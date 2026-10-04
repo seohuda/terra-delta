@@ -452,6 +452,11 @@ def audit_dataset(manifest, output, *, train_manifest=None, val_manifest=None, c
         if preview:
             previews.append(preview)
     blockers = []
+    if not classes["background_only"]:
+        blockers.append("No reviewed no-change samples for false-positive control")
+    for label in MASK_CLASSES:
+        if not classes["pixel_count"][label]:
+            blockers.append("No reviewed " + label + " masks; target class is missing")
     if not rows or all(is_mock(r) for r in rows):
         blockers.append("No real training dataset; available samples are mock/demo only")
     if any(not r["audit_training_eligible"] for r in audited):
