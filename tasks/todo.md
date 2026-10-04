@@ -35,4 +35,20 @@ No training, AWS execution or dataset downloads. Reuse the installed environment
 - [x] Run existing official weights on available validation; label mock-only metrics.
 - [x] Inspect bounded previews and error examples; record readiness and bytes.
 - [x] Verify offline downloader plans and document EC2-to-S3 workflow and short experiments.
-- [ ] Test, commit and deliver small code/report changes without force push.
+- [x] Test, commit and deliver small code/report changes without force push.
+
+### Audit review
+
+449 tests passed; Ruff, shell syntax and original baseline hashes verified.
+Actual dataset: four mock pairs, zero real pairs; 1,422,929 image/mask bytes.
+Verdict NOT READY. Existing split is 3/1 on invented locations/years; real
+spatial/temporal isolation remains unverified. Two synthetic constant-fill
+warnings, no integrity errors. Validation metric 0.25 on one background mock;
+all-four diagnostics 0.214286, not evidence of real detection quality.
+
+No training, optimizer update, AWS operation, source payload download or fresh
+provider metadata/HEAD. Offline plans and bounded previews produced 125,412
+bytes of final audit artifacts; preserved initial snapshot 123,622 bytes.
+Implementation commit `5fb624e` published with exact remote/local SHA equality
+via GitHub Git API, no force update. Large assets and previews stay out of Git.
+See docs/data-audit.md and docs/data-audit-summary.json for evidence and commands.

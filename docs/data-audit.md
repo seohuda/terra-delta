@@ -195,3 +195,14 @@ Real manifests need explicit `provenance_status=verified`,
 pre/post/mask sources, acquisition interval, resolution and geographic metadata.
 These are documented human review decisions; the tool does not establish rights
 merely from a URL or a status string.
+
+## Git delivery
+
+Verified audit implementation `5fb624eaa0577441bef820a1a604f9fd8d986851`
+was published to main with exact local/remote SHA equality. Existing Git HTTPS
+transport failures were avoided by uploading identical trees/commits through
+GitHub Git API and advancing main without force. Only code and a small JSON/
+Markdown summary are version controlled; source samples, weights and generated
+audit images/reports are ignored. Final completion records are a subsequent
+documentation commit. Git API traffic is small code delivery, separate from
+the zero dataset-download bytes in the audit.
