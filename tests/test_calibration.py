@@ -106,7 +106,11 @@ def test_complete_sweep_selects_recall_plateau_and_resumes(tmp_path):
     assert all(s['tree_removal.fn'] == 0 and s['new_building.fn'] == 0 for s in result['robustness'])
     assert result['presets']['balanced']['config']['postprocess']['classes']['tree_removal']['threshold'] == .3
     before = engine.journal.read_bytes()
+    artifacts = {p.name: p.read_bytes() for p in engine.output.iterdir()
+                 if p.suffix in ('.json', '.yaml', '.csv')}
     _, repeated = run_sweep(maps, gt, tmp_path / 'out', 1)
     assert repeated == result
     assert engine.journal.read_bytes() == before
+    assert {p.name: p.read_bytes() for p in engine.output.iterdir()
+            if p.suffix in ('.json', '.yaml', '.csv')} == artifacts
     assert len(list((tmp_path / 'out').glob('inference_sweep_*.yaml'))) == 3
