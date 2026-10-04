@@ -1,0 +1,65 @@
+# Future run only. This config has not been used to train a model.
+model:
+  encoder: resnet18
+  encoder_weights: null
+  in_channels: 6
+  classes: 3
+data:
+  manifest: data/train_manifest.csv
+  require_license_approval: true
+  split:
+    strategy: region
+    val_fraction: 0.2
+    seed: 0
+  augmentation:
+    enabled: true
+    photometric_probability: 0.35
+    affine_probability: 0.5
+training:
+  device: auto
+  seed: 0
+  deterministic: true
+  max_optimizer_steps: 100
+  batch_size: 4
+  gradient_accumulation_steps: 4
+  num_workers: 0
+  amp: true
+  encoder_lr: 0.00001
+  head_lr: 0.0001
+  weight_decay: 0.0001
+  max_grad_norm: 1.0
+  loss:
+    name: ce_dice
+    class_weights: [0.2, 1.0, 1.0]
+    include_background: false
+    ce_weight: 1.0
+    dice_weight: 1.0
+  scheduler:
+    name: constant
+    warmup_steps: 0
+  checkpoint_steps: [25, 50, 75, 100]
+  validate_every_steps: 25
+  output_dir: outputs/train_short
+  init_checkpoint: baseline/original/03_illegal structure submission/assets/model/unet_r18_cd.pt
+  resume: null
+  early_stopping:
+    enabled: false
+    metric: score
+    mode: max
+    patience: 5
+    min_delta: 0.0
+inference:
+  batch_size: 4
+  tta: [identity]
+  alignment: none
+postprocess:
+  mode: threshold
+  min_area: 30
+  min_pos_area: 20
+  simplify_px: 0.5
+  ndigits: 2
+  classes:
+    new_building:
+      threshold: 0.5
+    tree_removal:
+      threshold: 0.5

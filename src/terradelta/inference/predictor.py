@@ -39,17 +39,25 @@ class Predictor:
         self.device = device
         self.model = model.to(device).eval()
         self.transforms = self.options.get("tta", ["identity"])
-        if self.transforms is False:
+        if self.transforms is False or self.transforms == []:
             self.transforms = ["identity"]
-        if self.config.get("postprocess", {}).get("mode", "argmax") == "baseline":
-            if self.transforms != ["identity"] or self.options.get("alignment", "none") != "none":
-                raise ValueError("Baseline mode requires identity TTA and no alignment")
+        self.alignment = self.options.get("alignment", "none")
 
     @torch.inference_mode()
     def predict_batch(self, image):
         if image.ndim != 4 or image.shape[1] != 6:
             raise ValueError("Expected B,6,H,W input")
-        return predict_probabilities(self.model, image.to(self.device), self.transforms).cpu().numpy()
+        # Keep optional registration in one owner so validation and submission
+        # process normalized tensors identically. Inversion recovers uint8 RGB.
+        if self.alignment != "none":
+            pairs = image.detach().cpu().permute(0, 2, 3, 1).numpy()
+            rgb_pairs = np.clip(np.rint((pairs * np.tile(STD, 2) + np.tile(MEAN, 2)) * 255), 0, 255).astype(np.uint8)
+            image = torch.stack([prepare_pair(pair[..., :3], pair[..., 3:], self.alignment,
+                self.options.get("alignment_options")) for pair in rgb_pairs])
+        result = predict_probabilities(self.model, image.to(self.device), self.transforms)
+        if result.shape != (image.shape[0], 3, *image.shape[2:]) or not torch.isfinite(result).all():
+            raise ValueError("Model must return finite B,3,H,W logits at input resolution")
+        return result.cpu().numpy()
 
 
 def discover_pairs(input_dir):
@@ -98,8 +106,7 @@ def predict_directory(input_dir, output_path, checkpoint, config, device="cpu", 
     for start in range(0, len(ids), batch_size):
         batch_ids = ids[start:start + batch_size]
         image = torch.stack([prepare_pair(read_image(root / "images" / i / "pre.png"),
-            read_image(root / "images" / i / "post.png"), options.get("alignment", "none"),
-            options.get("alignment_options")) for i in batch_ids])
+            read_image(root / "images" / i / "post.png")) for i in batch_ids])
         probabilities = predictor.predict_batch(image)
         for sample_id, prob in zip(batch_ids, probabilities):
             if probability_dir is not None:
