@@ -19,3 +19,6 @@ checkpoints/**
 outputs/**
 !outputs/.gitkeep
 submission/export*/
+build/
+dist/
+.ipynb_checkpoints/
