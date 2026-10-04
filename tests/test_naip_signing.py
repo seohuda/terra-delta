@@ -1,7 +1,16 @@
 """Signing follows the official SDK account/container API without token persistence."""
 import pytest
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timedelta, timezone
 
 from terradelta.external import naip
+
+
+@pytest.fixture(autouse=True)
+def clear_token_cache():
+    naip._TOKEN_CACHE.clear()
+    yield
+    naip._TOKEN_CACHE.clear()
 
 
 def test_actual_asset_account_owns_token_request(monkeypatch):
@@ -13,6 +22,25 @@ def test_actual_asset_account_owns_token_request(monkeypatch):
     url = "https://naipeuwest.blob.core.windows.net/naip/v002/wa/source.tif"
     assert naip.sign_url(url) == url + "?sp=r&sig=temporary"
     assert calls == ["https://planetarycomputer.microsoft.com/api/sas/v1/token/naipeuwest/naip"]
+
+
+def test_concurrent_account_requests_share_one_transient_token(monkeypatch):
+    calls = []
+    def get(url):
+        calls.append(url)
+        return {"msft:expiry": "2099-01-01T00:00:00Z", "token": "sig=temporary"}
+    monkeypatch.setattr(naip, "get_json", get)
+    urls = [f"https://naipeuwest.blob.core.windows.net/naip/{i}.tif" for i in range(12)]
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        signed = list(executor.map(naip.sign_url, urls))
+    assert signed == [u + "?sig=temporary" for u in urls]
+    assert len(calls) == 1
+
+
+def test_nearly_expired_cache_is_refreshed(monkeypatch):
+    naip._TOKEN_CACHE["naipeuwest"] = (datetime.now(timezone.utc) + timedelta(seconds=30), "sig=old")
+    monkeypatch.setattr(naip, "get_json", lambda url: {"msft:expiry": "2099-01-01T00:00:00Z", "token": "sig=fresh"})
+    assert naip.sign_url("https://naipeuwest.blob.core.windows.net/naip/a.tif").endswith("?sig=fresh")
 
 
 @pytest.mark.parametrize("url", [
