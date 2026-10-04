@@ -1,0 +1,160 @@
+{
+  "status": "verified",
+  "region": "ap-northeast-2",
+  "cpu_instance": "i-0766a472ecb5bcf88",
+  "gpu_instance": "i-0523a619699a95db0",
+  "instances": [
+    {
+      "InstanceId": "i-0766a472ecb5bcf88",
+      "InstanceType": "t3.medium",
+      "State": {
+        "Code": 80,
+        "Name": "stopped"
+      },
+      "Placement": {
+        "AvailabilityZoneId": "apne2-az3",
+        "GroupName": "",
+        "Tenancy": "default",
+        "AvailabilityZone": "ap-northeast-2c"
+      },
+      "BlockDeviceMappings": [
+        {
+          "DeviceName": "/dev/sda1",
+          "Ebs": {
+            "AttachTime": "2026-10-04T14:57:39+00:00",
+            "DeleteOnTermination": false,
+            "Status": "attached",
+            "VolumeId": "vol-0070845086ec08190",
+            "EbsCardIndex": 0
+          }
+        }
+      ],
+      "Tags": [
+        {
+          "Key": "Name",
+          "Value": "terradelta-data-builder"
+        },
+        {
+          "Key": "Project",
+          "Value": "terra-delta"
+        },
+        {
+          "Key": "Purpose",
+          "Value": "dataset-builder"
+        }
+      ]
+    },
+    {
+      "InstanceId": "i-0523a619699a95db0",
+      "InstanceType": "g5.xlarge",
+      "State": {
+        "Code": 80,
+        "Name": "stopped"
+      },
+      "Placement": {
+        "AvailabilityZoneId": "apne2-az3",
+        "GroupName": "",
+        "Tenancy": "default",
+        "AvailabilityZone": "ap-northeast-2c"
+      },
+      "BlockDeviceMappings": [
+        {
+          "DeviceName": "/dev/sda1",
+          "Ebs": {
+            "AttachTime": "2026-10-04T14:27:39+00:00",
+            "DeleteOnTermination": false,
+            "Status": "attached",
+            "VolumeId": "vol-084ec2fa143c670d6",
+            "EbsCardIndex": 0
+          }
+        }
+      ],
+      "Tags": [
+        {
+          "Key": "Project",
+          "Value": "terra-delta"
+        },
+        {
+          "Key": "Name",
+          "Value": "terradelta-v21-season-training"
+        },
+        {
+          "Key": "Purpose",
+          "Value": "v2.1-season-training"
+        }
+      ]
+    }
+  ],
+  "volumes": [
+    {
+      "VolumeId": "vol-0070845086ec08190",
+      "Size": 30,
+      "Encrypted": true,
+      "State": "in-use",
+      "Attachments": [
+        {
+          "DeleteOnTermination": false,
+          "EbsCardIndex": 0,
+          "VolumeId": "vol-0070845086ec08190",
+          "InstanceId": "i-0766a472ecb5bcf88",
+          "Device": "/dev/sda1",
+          "State": "attached",
+          "AttachTime": "2026-10-04T14:57:39+00:00"
+        }
+      ],
+      "Tags": [
+        {
+          "Key": "Project",
+          "Value": "terra-delta"
+        },
+        {
+          "Key": "Purpose",
+          "Value": "dataset-builder"
+        },
+        {
+          "Key": "Name",
+          "Value": "terradelta-data-builder"
+        }
+      ]
+    },
+    {
+      "VolumeId": "vol-084ec2fa143c670d6",
+      "Size": 30,
+      "Encrypted": true,
+      "State": "in-use",
+      "Attachments": [
+        {
+          "DeleteOnTermination": false,
+          "EbsCardIndex": 0,
+          "VolumeId": "vol-084ec2fa143c670d6",
+          "InstanceId": "i-0523a619699a95db0",
+          "Device": "/dev/sda1",
+          "State": "attached",
+          "AttachTime": "2026-10-04T14:27:39+00:00"
+        }
+      ],
+      "Tags": [
+        {
+          "Key": "Purpose",
+          "Value": "v2.1-season-training"
+        },
+        {
+          "Key": "Name",
+          "Value": "terradelta-v21-season-training"
+        },
+        {
+          "Key": "Project",
+          "Value": "terra-delta"
+        }
+      ]
+    }
+  ],
+  "original_data_restored_to_cpu_root": true,
+  "all_frozen_v2_files_hash_verified_after_training": 33,
+  "task_ssh_keys_revoked": true,
+  "training_checkpoints": 8,
+  "v2_main_submissions": 1,
+  "v21_main_submissions": 0,
+  "v21_debug_submissions": 0,
+  "api_access_note": "AWS connectors expired after training; final reads and shutdown used existing local AWS authentication."
+}

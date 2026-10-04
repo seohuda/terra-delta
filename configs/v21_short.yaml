@@ -1,0 +1,28 @@
+seed: 20261004
+inference_config: /data/terradelta/releases/v2-main-01/inference_v2_selected.yaml
+data:
+  train_manifest: /data/terradelta/v2.1/manifests/train.csv
+  audit: /data/terradelta/v2.1/manifests/audit.json
+  legacy_val_manifest: /data/terradelta/processed/micro-pilot-v2/val.csv
+  stress_val_manifest: /data/terradelta/v2/manifests/stress-val-v2.csv
+augmentation:
+  relative_probability: 0.65
+  max_translation: 6.0
+  max_rotation: 1.5
+  max_scale: 0.02
+training:
+  init_checkpoint: /data/terradelta/releases/v2-main-01/step-0250.pt
+  output_dir: /data/terradelta/v2.1/checkpoints/season-consistency-01
+  batch_size: 8
+  encoder_lr: 0.000005
+  new_lr: 0.00005
+  weight_decay: 0.0001
+  max_grad_norm: 1.0
+  real_negative_ratio: 3.0
+  consistency_lambdas: [0.05, 0.10]
+  checkpoints: [25, 50, 100, 150]
+  loss:
+    bce_weight: 1.0
+    dice_weight: 1.0
+    presence_weight: 0.25
+    focal_gamma: 1.5

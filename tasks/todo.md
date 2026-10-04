@@ -191,3 +191,16 @@ presence .30/pixel .70; real .508940 / synthetic .635714. Real no-change FP
 CPU cleanroom repeated byte identically; 493 pytest plus 2 exporter regressions
 and repository Ruff passed. Existing CPU stopped, preserved encrypted 30 GiB
 EBS DeleteOnTermination=false; original GPU terminated externally.
+
+## V2 MAIN first, then season-aware v2.1 (2026-10-04)
+
+- [x] Verify exact v2 ZIP/checkpoint hashes and MAIN quota.
+- [x] Submit exactly one MAIN; record registration and terminal/available leaderboard result.
+- [x] Freeze release v2-main-01 before any v2.1 implementation.
+- [x] Create v2.1-season-aware-20261004; audit training negatives/split leakage.
+- [x] Implement bounded appearance invariance and real-negative sampling.
+- [x] Short GPU run 25/50/100/150 from frozen step250; compare recall and no-change FP.
+- [x] At most one v2.1 DEBUG only if local improvement passes; no more MAIN. (All gates failed; zero v2.1 submissions.)
+- [x] Verify tests/Ruff, commit/push v2.1 only, STOP CPU/GPU and preserve 30GB EBS.
+
+V2 MAIN review: exactly one unchanged ZIP, public 364647/private 364648/run 31388 completed; public .1947902971 (display .1948), rank128 at observation, daily MAIN2/3 remained. Frozen v2 branch c9b1c13 and 33-file read-only release preserved. V2.1 .05/.10 arms each completed150 extra steps, all8 checkpoint gates failed; lowest realFP12/17 loses tree recall1/2 and shape/score. Zero v2.1 DEBUG/Main. 608 pytest passed/1 skipped; remote115 passed/1 CPU-fixture CUDA skip, actual A10G run194.92s. CPU/GPU API stopped; original encrypted30GiB restored CPUroot DeleteOnTermination=false; GPUroot30GiB retained. Task SSH keys revoked. V2.1 NOT PROVEN — KEEP FROZEN V2.
