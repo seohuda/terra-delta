@@ -1,0 +1,31 @@
+inference:
+  alignment: none
+  batch_size: 1
+  tta:
+  - identity
+model:
+  classes: 3
+  encoder: resnet18
+  encoder_weights: null
+  in_channels: 6
+postprocess:
+  backend: reference
+  classes:
+    new_building:
+      min_area: 100
+      min_pos_area: 20
+      simplify_px: 0.25
+      threshold: 0.55
+    tree_removal:
+      min_area: 100
+      min_pos_area: 20
+      simplify_px: 0.25
+      threshold: 0.35
+  mode: threshold
+  morphology:
+    closing: 0
+    dilation: 0
+    erosion: 0
+    fill_holes: false
+    opening: 0
+  ndigits: 2
