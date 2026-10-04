@@ -27,7 +27,7 @@ def digest(path):
 def write_json(path, value):
     path = Path(path)
     temp = path.with_suffix(path.suffix + '.tmp')
-    temp.write_text(json.dumps(value, indent=2, allow_nan=False) + '\n')
+    temp.write_text(json.dumps(value, indent=2, allow_nan=False, sort_keys=True) + '\n')
     temp.replace(path)
 
 
@@ -196,7 +196,7 @@ class Calibration:
     def csv(self, filename, trials):
         path = self.output / filename
         with path.open('w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=list(trials[0]['summary']))
+            writer = csv.DictWriter(f, fieldnames=sorted(trials[0]['summary']))
             writer.writeheader()
             writer.writerows(t['summary'] for t in trials)
 
@@ -293,7 +293,7 @@ def run_sweep(pred_dir, manifest, output, baseline_score):
               'metric_label': 'approximate local metric; AI-reviewed tiny validation, not a leaderboard estimate'}
     write_json(Path(output) / 'best_configs.json', result)
     for kind, trial in chosen.items():
-        (Path(output) / f'inference_sweep_{kind}.yaml').write_text(yaml.safe_dump(trial['config'], sort_keys=False))
+        (Path(output) / f'inference_sweep_{kind}.yaml').write_text(yaml.safe_dump(trial['config'], sort_keys=True))
     return engine, result
 
 
