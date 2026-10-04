@@ -58,6 +58,15 @@ DEBUG submissions: 0. MAIN submissions: 0. The authorized single DEBUG is reserv
 until AIHub access and sample suitability are resolved. No server score is claimed
 for v2.2. Frozen v2 remains the reference (DEBUG0.3331; MAIN0.1947902971).
 
+## AWS state
+
+The CPU and GPU were both API-verified stopped at
+2026-10-04T16:26:59.842329+00:00 (October5 KST). Both encrypted30GiB root
+volumes remain attached with DeleteOnTermination=false. The task SSH key was
+removed and the task SSM forwarding session terminated. Source, feature caches,
+original data, frozen weights and the candidate ZIP are preserved. See
+[v22-aws-final.json](v22-aws-final.json).
+
 ## Resume
 
 Read small reports/config/source already committed on
