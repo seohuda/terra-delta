@@ -114,6 +114,9 @@ def export_submission(checkpoint, config_path, destination, baseline_root=None):
             for source in (PACKAGE_ROOT / sub).glob("*.py"):
                 if sub == "utils" and source.name not in {"__init__.py", "io.py"}:
                     continue
+                if sub == "inference" and source.name == "calibration.py":
+                    # Offline deployment needs inference only, not pilot cache/search.
+                    continue
                 target = code / sub / source.name
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(source, target)
@@ -143,7 +146,14 @@ def make_submission_zip(source, output):
             for path in files:
                 if path.suffix in {".pyc", ".pyo"} or "__pycache__" in path.parts:
                     continue
-                archive.write(path, path.relative_to(source).as_posix())
+                # Fixed metadata makes identical payloads reproducible across
+                # exports, filesystems and source modification times.
+                info = zipfile.ZipInfo(path.relative_to(source).as_posix(), (1980, 1, 1, 0, 0, 0))
+                info.create_system = 3
+                info.external_attr = 0o100644 << 16
+                info.compress_type = zipfile.ZIP_DEFLATED
+                with path.open("rb") as payload, archive.open(info, "w") as member:
+                    shutil.copyfileobj(payload, member)
         if temp.stat().st_size > 6_000_000_000:
             raise ValueError("Submission ZIP exceeds competition 6 GB limit")
         temp.rename(output)

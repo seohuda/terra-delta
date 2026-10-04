@@ -148,3 +148,16 @@ STOP; final EC2 API state and final Git SHA are recorded in the delivery reply.
 Builder final EC2 API state: stopped, verified 2026-10-04T07:03:43.780937+00:00.
 Encrypted 30 GB gp3 preserved, attached, DeleteOnTermination=false; transient
 read-only deploy key revoked and SSM session terminated. No termination.
+
+## First AIFactory DEBUG submission (2026-10-04)
+
+Only DEBUG is authorized; main/leaderboard submission is prohibited. No training,
+optimizer construction, new EC2/GPU or unrelated AWS resource mutation.
+
+- [x] Verify local expected main, balanced config and live official submission/DEBUG rules.
+- [ ] Start only existing CPU builder; ff-update Git, verify pristine weights/config.
+- [ ] Produce reproducible minimal offline ZIP and extracted-entrypoint clean-room proof.
+- [ ] Inspect ZIP contents, hashes, dependencies and CPU/device/CSV/polygon cases.
+- [ ] Submit explicitly with DEBUG mode; record and follow job to terminal state.
+- [ ] Freeze exact package/logs/manifest; publish only small code/config/report.
+- [ ] Flush retained EBS, revoke transient access, STOP builder and API-verify stopped.

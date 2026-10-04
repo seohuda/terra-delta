@@ -29,7 +29,8 @@ def create_input(root):
     return root
 
 
-@pytest.mark.parametrize("config_name", ["inference_baseline.yaml", "inference_conservative.yaml"])
+@pytest.mark.parametrize("config_name", ["inference_baseline.yaml", "inference_conservative.yaml",
+                                       "inference_sweep_balanced.yaml"])
 def test_zip_root_and_offline_cells(tmp_path, official_checkpoint, config_name):
     config_path = REPO / "configs" / config_name
     export = export_submission(official_checkpoint, config_path, tmp_path / "export")
@@ -39,6 +40,7 @@ def test_zip_root_and_offline_cells(tmp_path, official_checkpoint, config_name):
     with zipfile.ZipFile(archive) as z:
         assert {"predict.ipynb", "requirements.txt", "LICENSE", "NOTICE", "assets/model/model.pt", "assets/config.yaml"} <= set(z.namelist())
         assert not any(n.startswith("export/") for n in z.namelist())
+        assert not any("calibration.py" in n or "/training/" in n for n in z.namelist())
         z.extractall(extracted)
     notebook = nbformat.read(extracted / "predict.ipynb", as_version=4)
     nbformat.validate(notebook)
@@ -71,6 +73,21 @@ torch.hub.download_url_to_file = forbidden
     with output.open(newline="") as f:
         row = next(csv.DictReader(f))
     assert row["id"] == "0001"
+
+
+def test_zip_bytes_ignore_source_mtimes(tmp_path):
+    source = tmp_path / "export"
+    for name in ("predict.ipynb", "requirements.txt", "LICENSE", "NOTICE",
+                 "assets/model/model.pt", "assets/config.yaml"):
+        p = source / name
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_bytes(b"fixed payload")
+    first = make_submission_zip(source, tmp_path / "first.zip")
+    for p in source.rglob("*"):
+        if p.is_file():
+            os.utime(p, (1_900_000_000, 1_900_000_000))
+    second = make_submission_zip(source, tmp_path / "second.zip")
+    assert first.read_bytes() == second.read_bytes()
 
 
 def test_csv_empty_and_json_roundtrip(tmp_path):
