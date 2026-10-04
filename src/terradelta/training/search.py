@@ -31,12 +31,21 @@ DEFAULT_GRID = {
 
 
 def load_probability_maps(pred_dir):
-    files = sorted(Path(pred_dir).glob("*.npy"))
+    files = sorted([*Path(pred_dir).glob("*.npy"), *Path(pred_dir).glob("*.npz")])
     if not files:
-        raise ValueError(f"No .npy probability maps found in {pred_dir}")
-    return {sample_id(path.stem): check_probabilities(
-        np.load(path, allow_pickle=False, mmap_mode="r"), context=str(path),
-    ) for path in files}
+        raise ValueError(f"No .npy/.npz probability maps found in {pred_dir}")
+    result = {}
+    for path in files:
+        identifier = sample_id(path.stem)
+        if identifier in result:
+            raise ValueError(f"Duplicate probability ID: {identifier}")
+        if path.suffix == ".npz":
+            with np.load(path, allow_pickle=False) as archive:
+                value = archive["probabilities"]
+        else:
+            value = np.load(path, allow_pickle=False, mmap_mode="r")
+        result[identifier] = check_probabilities(value, context=str(path))
+    return result
 
 
 def load_ground_truth(path, *, kind="auto"):

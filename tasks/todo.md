@@ -114,3 +114,16 @@ mutation. Actual balanced GT target remains unfinished. Do not start 25/50/75/
 
 Full evidence, source obligations, retention/costs and next annotation work:
 docs/real-pilot-report.md and docs/real-pilot-summary.json.
+
+## Frozen baseline calibration (2026-10-04)
+
+No optimizer construction, backward, training, GPU or competition submission.
+Only the existing CPU builder is authorized; preserve EBS and stop at completion.
+
+- [x] Start approved builder; verify v2 summary and immutable checkpoint hash.
+- [ ] Update builder to current Git main and verify full validation masks/counts.
+- [ ] Own exclusive threshold semantics in postprocessing; compressed cache and deterministic resumable sweep.
+- [ ] Test without optimizer construction; reproduce official baseline from one forward per sample.
+- [ ] Coarse thresholds, promising area/total area and finalist simplification; select three presets and ±0.05 robustness.
+- [ ] Per-sample changes, bounded six-column previews, exact metrics and limitations.
+- [ ] Publish code/configs/small report, flush EBS, stop and API-verify builder.

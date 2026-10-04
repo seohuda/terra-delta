@@ -63,7 +63,12 @@ def class_config(config, name):
 
 
 def probabilities_to_masks(probabilities, config=None):
-    """Return two HW bool masks; threshold mode can assign both classes a pixel."""
+    """Threshold-eligible positives compete with background by probability.
+
+    Background wins ties; building wins positive ties (argmax channel order).
+    Morphology conflicts are resolved by the original positive probabilities.
+    Argmax behavior, including its optional morphology, remains unchanged.
+    """
     p = np.asarray(probabilities)
     if p.ndim != 3 or p.shape[0] != 3 or not all(p.shape[1:]):
         raise ValueError("probabilities must have shape (3, H, W) with H,W > 0")
@@ -72,15 +77,27 @@ def probabilities_to_masks(probabilities, config=None):
     mode = _settings(config).get("mode", "argmax")
     if mode not in ("argmax", "threshold", "probability"):
         raise ValueError("mode must be 'argmax' or 'threshold'")
-    labels = p.argmax(axis=0) if mode == "argmax" else None
-    output = {}
-    for channel, name in enumerate(CLASSES, start=1):
-        options = class_config(config, name)
+    options_by_class = {name: class_config(config, name) for name in CLASSES}
+    for name, options in options_by_class.items():
         threshold = options["threshold"]
         if not np.isfinite(threshold) or not 0 <= threshold <= 1:
             raise ValueError(f"{name} threshold must be within [0, 1]")
-        mask = labels == channel if labels is not None else p[channel] >= threshold
+    if mode == "argmax":
+        labels = p.argmax(axis=0)
+    else:
+        eligible = p.astype(np.float64, copy=True)
+        for channel, name in enumerate(CLASSES, 1):
+            eligible[channel] = np.where(p[channel] >= options_by_class[name]["threshold"], p[channel], -1)
+        labels = eligible.argmax(axis=0)
+    output = {}
+    for channel, name in enumerate(CLASSES, start=1):
+        options = options_by_class[name]
+        mask = labels == channel
         output[name] = postprocess_mask(mask, options)
+    if mode != "argmax":
+        overlap = output[CLASSES[0]] & output[CLASSES[1]]
+        output[CLASSES[0]][overlap & (p[2] > p[1])] = False
+        output[CLASSES[1]][overlap & (p[1] >= p[2])] = False
     return output
 
 

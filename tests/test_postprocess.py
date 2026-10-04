@@ -32,7 +32,7 @@ def test_parent_inference_import_and_direct_postprocess_config():
     assert json.loads(serialize_polygons(expected["new_building"])) == expected["new_building"]
 
 
-def test_threshold_classes_can_overlap_and_have_independent_settings():
+def test_threshold_conflict_resolution_and_independent_settings():
     p = np.zeros((3, 12, 12), np.float32)
     p[0] = .1
     p[1] = .45
@@ -42,7 +42,8 @@ def test_threshold_classes_can_overlap_and_have_independent_settings():
     result = predictions_to_polygons(p, config)
     geometries = [unary_union([Polygon(polygon) for polygon in result[name]])
                   for name in ("new_building", "tree_removal")]
-    assert geometries[0].intersection(geometries[1]).area == 144
+    assert geometries[0].area == 144
+    assert geometries[1].area == 0
     config["postprocess"]["tree_removal"]["threshold"] = .5
     result = predictions_to_polygons(p, config)
     assert result["new_building"] and result["tree_removal"] == []
@@ -57,7 +58,7 @@ def test_threshold_inclusive_and_independent_morphology():
                           "tree_removal": {"threshold": .45}}}
     masks = probabilities_to_masks(p, config)
     assert masks["new_building"].sum() == 9
-    assert masks["tree_removal"].sum() == 1
+    assert masks["tree_removal"].sum() == 0
 
 
 def test_class_overrides_and_nested_morphology_merge_without_mutation():
@@ -171,3 +172,28 @@ def test_no_rasterio_or_scipy_needed_for_default_or_morphology(monkeypatch):
     p[1, 2:8, 2:8] = 1
     assert predictions_to_polygons(p)["new_building"]
     assert predictions_to_polygons(p, {"backend": "runs", "opening": 1})["new_building"]
+
+
+def test_background_competition_fallback_and_morphology_conflicts():
+    p = np.array([[[.6, .1, .1]], [[.3, .6, .4]], [[.1, .3, .5]]])
+    c = {"mode": "threshold", "classes": {"new_building": {"threshold": .7},
+                                              "tree_removal": {"threshold": .25}}}
+    m = probabilities_to_masks(p, c)
+    assert not m["new_building"].any()
+    assert m["tree_removal"].tolist() == [[False, True, True]]
+    c["classes"]["new_building"] = {"threshold": .2, "dilation": 1}
+    c["classes"]["tree_removal"]["dilation"] = 1
+    m = probabilities_to_masks(p, c)
+    assert not (m["new_building"] & m["tree_removal"]).any()
+
+
+def test_class_specific_reference_area_and_empty_prediction():
+    p = np.zeros((3, 20, 20))
+    p[0] = 1
+    p[:, 1:6, 1:6] = np.array([.1, .8, .1])[:, None, None]
+    p[:, 10:15, 10:15] = np.array([.1, .1, .8])[:, None, None]
+    c = {"mode": "threshold", "min_pos_area": 0,
+         "classes": {"new_building": {"min_area": 26}, "tree_removal": {"min_area": 25}}}
+    polygons = predictions_to_polygons(p, c)
+    assert not polygons["new_building"] and polygons["tree_removal"]
+    assert predictions_to_polygons(np.zeros((3, 4, 4)), c) == {"new_building": [], "tree_removal": []}
