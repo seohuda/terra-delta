@@ -1,0 +1,14 @@
+# Experimental overlay on exact configs/inference_v22_selected.yaml.
+# Matching is fixed in stability_v23.py and is never tuned on validation.
+# Rejected diagnostic plateau: building B, tree A. Current best stays v2.2.
+# Enable explicitly only to reproduce this experiment; no submission approval.
+stability:
+  enabled: false
+  appearance_consistency: false
+  classes:
+    new_building:
+      persistence_min: 4
+      mean_iou_min: 0.0
+    tree_removal:
+      persistence_min: 3
+      mean_iou_min: 0.0

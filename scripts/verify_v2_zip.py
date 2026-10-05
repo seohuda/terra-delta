@@ -139,6 +139,23 @@ def validate(path,ids):
     return rows
 ids=[r['id'] for r in csv.DictReader(open(INPUT_DIR/'pairs.csv'))]
 actual=validate(PREDICTION_PATH,ids)
+stability_proof={}
+if 'stability' in CONFIG:
+    from terradelta.inference.v2 import predict_directory as predict_identity
+    identity_path=ROOT.parent/'identity-reference.csv'
+    identity_config={key:value for key,value in CONFIG.items() if key!='stability'}
+    identity=predict_identity(INPUT_DIR,identity_path,ROOT/'assets/model/model.pt',identity_config,device='cpu')
+    assert [r['id'] for r in identity]==ids
+    for gated,original in zip(actual,identity):
+        for name in ('new_building','tree_removal'):
+            before=json.loads(original[name]) if original[name] else []
+            after=json.loads(gated[name]) if gated[name] else []
+            assert all(polygon in before for polygon in after)
+            assert after==[polygon for polygon in before if polygon in after]
+    if not CONFIG['stability'].get('enabled',False):
+        assert identity_path.read_bytes()==Path(PREDICTION_PATH).read_bytes()
+    stability_proof={'identity_polygon_subset':True,'retained_vertices_and_order_unchanged':True,
+                     'identity_prediction_is_only_shape_source':True}
 p=np.zeros((2,256,256),np.float32);q=np.ones(2,np.float32)
 accepted=np.ones(2,dtype=bool)
 empty=output_row('empty',p,q,CONFIG,accepted) if CONFIG.get('verifier') else output_row('empty',p,q,CONFIG)
@@ -158,6 +175,7 @@ report={'status':'passed','device':DEVICE,'rows':len(actual),'ids_preserved':Tru
         'independent_overlapping_heads':True,'presence_before_pixel':True,'network_blocked':True,
         'optimizer_and_backward_blocked':True,'repository_imports':False,'verifier_class_independence':bool(CONFIG.get('verifier')),
         'elapsed_seconds':time.monotonic()-started}
+report.update(stability_proof)
 print(json.dumps(report))
 """
     environment = dict(os.environ, PYTHONPATH="", CUDA_VISIBLE_DEVICES="", AIF_INPUT_DIR=str(input_dir))
