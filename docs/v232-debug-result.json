@@ -1,0 +1,42 @@
+{
+  "submitted_at_utc": "2026-10-05T15:39:50.667279+00:00",
+  "registered_at_utc": "2026-10-05T15:39:51.621327+00:00",
+  "mode": "DEBUG",
+  "competition_id": 9306,
+  "model_name": "DEBUG_TERRADELTA_V232_ALIGNMENT_CORE",
+  "api_calls": [
+    {
+      "method": "POST",
+      "endpoint": "upload-url",
+      "debug": true
+    },
+    {
+      "method": "POST",
+      "endpoint": "code-submissions",
+      "debug": true
+    }
+  ],
+  "response": {
+    "debugSubmissionId": 365654,
+    "codeRunId": 33151
+  },
+  "artifact_sha256": "5aad7e163285964ce1346d97a3f8596ef630604fd9dbeee3394804b83c461788",
+  "status": "completed",
+  "terminal_observed_at_utc": "2026-10-05T15:53:40Z",
+  "displayed_practice_score": 0.3331,
+  "displayed_practice_score_text": "0.3331",
+  "source": "Authenticated AIFactory competition 9306 submission-history row #11: DEBUG_TERRADELTA_V232_ALIGNMENT_CORE, 2026.10.06 00:39, 완료, 0.3331 연습용.",
+  "submission_ui": "https://aifactory.space/ko/competitions/9306/submission",
+  "main_submissions_this_task": 0,
+  "debug_submissions_this_task": 1,
+  "daily_main_remaining_observed": 3,
+  "daily_main_limit": 3,
+  "daily_debug_used_observed": 1,
+  "comparison": {
+    "reference_debug_score": 0.3331,
+    "displayed_score_change": 0.0,
+    "conclusion": "Matches reference debug score (0.3331, same as v2 and v2.2). Verified successful platform run with 0 runtime errors."
+  },
+  "verdict": "V2.3.2 DEBUG NEUTRAL/POSITIVE — MAIN DECISION PENDING",
+  "local_screenshot": "docs/v232-debug-completed.jpg"
+}
