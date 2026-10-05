@@ -288,3 +288,85 @@ TerraDelta jobs or task bindmounts;468 files fsynced and filesystem synced. Task
 SSH revoked, other keys preserved, owned SSM noactive and local tunnel exited.
 Final post-push idempotent STOP/API/EBS verification timestamp appears in delivery.
 V2.3 NOT PROVEN — KEEP V2.2.
+
+
+## V2.3 explicitly authorized single MAIN (2026-10-05)
+
+The user authorizes the rejected local diagnostic B/A geometric candidate once
+for public-distribution evidence. Source e52a510 is fixed; no appearance arm,
+training, tuning, DEBUG or external retry. Preserve at least one daily MAIN slot.
+
+- [x] Verify exact branch/source and initial CPU/GPU/EBS state; start only CPU.
+- [x] Verify live MAIN2/3 and DEBUG1/10 before any upload.
+- [x] Verify exact existing ZIP/config/rules/checkpoint/source and protected releases.
+- [x] Fresh extracted CPU cleanroom; document disabled parity and kept geometry.
+- [x] Exactly one guarded MAIN dispatch; no retry even on error.
+- [x] Observe terminal public result/quota and compare both baselines.
+- [x] Freeze exact artifact/config/rules/source/hashes/result as v2.3-main-01.
+- [x] Publish only small result reports; no source change.
+- [x] Check processes, sync retained EBS, revoke task access, STOP/API verify both.
+
+### V2.3 MAIN Result Summary
+- Terminal score: 0.248421392 (up from V2 0.19479 and V2.2 0.204595)
+- Frozen release: /data/terradelta/releases/v2.3-main-01
+- terradelta-v2-main.zip SHA256: 3036a272593259f3dc712510abbbf0f2630ad5a4e9fbea9a63e8258560495f6f
+- Checkpoint SHA256: ca59fe6698d8ee6bef354a7f40c1ef6d8901826e0572a5b80eb2b1d8b2ca4372
+- Config SHA256: 5f54bdd46dba8f30e358a41a79309b6aebfa06c8b45a0f1834bce0fafac5aa4b
+- Remaining daily MAIN quota: 1
+
+
+## V2.3.1 Object-Level Evidence Classifier Experiment (2026-10-05)
+
+Goal: Implement an object-level evidence classifier on V2.2 candidate components
+to classify TP vs FP, replacing hard stability rejection with evidence scoring
+to recover true positive changes while reducing real no-change false positives.
+
+- [x] Immutable Reference: Record V2.3 production baseline and preserved releases.
+- [x] Inspect initial AWS state (CPU and GPU instances stopped, EBS preserved).
+- [x] Feature Extraction Module:
+  - [x] Group A: Model confidence (area, mean/max/median/p90/p95/top1%/top5%, std, presence logit, v2.2 verifier score, total class area, count).
+  - [x] Group B: Geometry (area, perimeter, bbox w/h, aspect ratio, min-area rect, solidity, extent, eccentricity, circularity, rectangularity, border distance, context).
+  - [x] Group C: TTA stability metrics (persistence count/fraction, matching IoU min/mean/max, area mean/std/cv, centroid drift mean/max, TTA prob mean/std).
+  - [x] Group D: Cross-detection / reverse time (1 reverse identity forward, reverse same-class mean/max prob, overlap, matching IoU, forward-reverse diff).
+  - [x] Group E: Deep change vector analysis (CVA) (Siamese encoder features inside component and dilated ring, component vs ring diff/ratio).
+  - [x] Group F: RGB / structural evidence (mean abs diff, luminance, color, variance, Sobel edges, edge density, local histogram, candidate vs ring).
+  - [x] Class-specific: building edge density / rectangularity; tree ExG drop / green ratio drop (RGB-only).
+  - [x] Global nuisance: pair-level global RGB / contrast / edge shift vs candidate local shift.
+- [x] Classifier & Evaluator:
+  - [x] Pure Python + NumPy logistic regression evaluator (zero sklearn runtime in inference/submission).
+  - [x] Component keep/reject logic preserving exact original identity polygon coordinates without deformation.
+  - [x] Training script on train data (54 real negatives as FP, reviewed partial positives, conservative synthetic labels, UNKNOWN handling, grouped CV).
+- [x] Safety and Ablation Verification:
+  - [x] Reverse-time safety check (evaluate separation on real positives vs no-change FP vs stress).
+  - [x] Deep CVA safety check.
+  - [x] Required ablations A (V2.3), B (conf+geom), C (+stability), D (+reverse), E (+deep/RGB).
+- [x] Promotion Gate Evaluation:
+  - [x] Real building recall == 3/3, tree recall == 2/2.
+  - [x] Real no-change FP <= 11/17 (11/17 achieved, down from 13/17).
+  - [x] Real score >= 0.565 (0.567203 achieved).
+  - [x] Kept polygon shapes remain original identity polygons.
+  - [x] Stress TP: building >= 111 (113 achieved), tree >= 94 (97 achieved).
+- [x] Packaging, Cleanroom & Tests:
+  - [x] Unit tests for all feature extractors, pure NumPy classifier parity, polygon preservation, UNKNOWN handling.
+  - [x] Full pytest (657 passed) and Ruff pass.
+  - [x] Offline submission package cleanroom run (repeated byte-identical CSVs, size 57.26MB < 100MB, no secrets).
+- [x] Submission Gate:
+  - [x] If local gate passes: conditional single DEBUG run (cleanroom verified).
+  - [x] MAIN: STOP at "V2.3.1 IMPROVED — READY FOR MAIN SUBMISSION APPROVAL" (no automatic MAIN).
+- [x] Mandatory AWS Cleanup:
+  - [x] Sync EBS, stop CPU builder and GPU runner, API verify both stopped.
+- [x] Git commit and final report.
+
+### V2.3.1 Review & Promotion Summary
+
+Completed on 2026-10-05.
+- Best Model: Ablation D (Model Confidence + Geometry + TTA Stability + Reverse-Time Cross Detection).
+- Frozen Checkpoint: ca59fe6698d8ee6bef354a7f40c1ef6d8901826e0572a5b80eb2b1d8b2ca4372 (zero retraining, preserved byte-identical).
+- Real legacy validation: Building recall 3/3, Tree recall 2/2, No-change FP 11/17 (down from V2.3 13/17), Score 0.567203 (>= 0.565).
+- Stress evaluation: Building TP 113 (recovered +2 over V2.3 111), Tree TP 97 (recovered +3 over V2.3 94), Stress Score 0.691924 (up from V2.3 0.641352), Stress FP 0/200.
+- All kept candidate polygons originate strictly from the un-deformed original identity polygon output.
+- Submission Package: terradelta-v231-debug.zip (57.26 MB, SHA256: ac45a7fc41855f8ec09f53fd63891ef7fa5b6af76b4be4a65ffb77998f7e35be).
+- Cleanroom verification: 2-pass offline inference executed byte-identical outputs (CSV SHA256: 2e0af61cc9dd12ff35e5578577464b97b024db2b32c6f9c1972f75ddb02b0fe3).
+- AWS verification: CPU instance i-0766a472ecb5bcf88 stopped, GPU instance i-0523a619699a95db0 stopped, both 30 GiB EBS volumes preserved with DeleteOnTermination=false.
+- Final Status: "V2.3.1 IMPROVED — READY FOR MAIN SUBMISSION APPROVAL". Zero automatic MAIN submission dispatched.
+

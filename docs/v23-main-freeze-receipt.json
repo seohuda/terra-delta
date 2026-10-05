@@ -1,0 +1,50 @@
+{
+  "receipt": {
+    "frozen_at_utc": "2026-10-05T04:09:29.211534+00:00",
+    "release": "/data/terradelta/releases/v2.3-main-01",
+    "source_commit": "e52a510279d55f2a1a09bc54a6162583324931ee",
+    "zip_sha256": "3036a272593259f3dc712510abbbf0f2630ad5a4e9fbea9a63e8258560495f6f",
+    "zip_identical_to_reported_geometric_diagnostic": true,
+    "appearance_disabled": true,
+    "main_submissions": 1,
+    "debug_submissions": 0,
+    "automatic_retry_allowed": false,
+    "protected_old_release_files_unchanged": {
+      "v2-main-01": 33,
+      "v2.2-main-01": 15
+    },
+    "rules": {
+      "enabled": true,
+      "appearance_consistency": false,
+      "classes": {
+        "new_building": {
+          "persistence_min": 4,
+          "mean_iou_min": 0.0
+        },
+        "tree_removal": {
+          "persistence_min": 3,
+          "mean_iou_min": 0.0
+        }
+      }
+    },
+    "readonly_after_freeze": true,
+    "data_and_secrets_excluded": true
+  },
+  "verified_files": 14,
+  "hashes": {
+    "SOURCE_COMMIT.txt": "5af333e665cf894e97f82c1d9e1297831f144408ad5363386b4129302775461d",
+    "api-calls.json": "af85108bac4d2061080e724e137f3cb5ecc78857b5f0661161571803f6a3983f",
+    "config.yaml": "5f54bdd46dba8f30e358a41a79309b6aebfa06c8b45a0f1834bce0fafac5aa4b",
+    "freeze-receipt.json": "1d02047a29e6c5b5fb266a68072ffb7c8866e8b5394fd4bdb737190656d56395",
+    "git-source-proof.json": "fdd7cb5f8180d70e1998b85f92909f96267e348e24df586485b3fbefb46547ac",
+    "main-attempt.json": "93d9f79c9eb52f1c3478e6e30507d69bc854f2a9fbe799e2787e023c570f6ec6",
+    "main-registration.json": "0157d913542650cff9cab976731ab2ec472df9f17f584dd49ab9b26c5db6d217",
+    "main-result.json": "7523b9439e60c18561c0411e7d727732e4179b9896728914e1fa85d10619766e",
+    "model.pt": "ca59fe6698d8ee6bef354a7f40c1ef6d8901826e0572a5b80eb2b1d8b2ca4372",
+    "offline-cleanroom-manifest.json": "5333ace87220e210a651c4545a0036fe71d185c29969e0aa65a236948acc5beb",
+    "preflight.json": "cf463361e7ce7aa57861ed3ef3d5997bfe7962d9ad79c5c49a3900c1488cb1c3",
+    "quota-before.json": "89b095b99a3a2cab69053916406dd9a0561291fd00c90ec6c99b2d0dcfe4766e",
+    "selected-rules.json": "7de25619ef8d2d6739cc1e70a1dda0a7a96f9e1a9da2444085c9f88f87cb00e4",
+    "terradelta-v2-main.zip": "3036a272593259f3dc712510abbbf0f2630ad5a4e9fbea9a63e8258560495f6f"
+  }
+}

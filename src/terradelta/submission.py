@@ -15,11 +15,11 @@ PACKAGE_ROOT = Path(__file__).parent
 REPO_ROOT = PACKAGE_ROOT.parents[1]
 
 
-def make_notebook(architecture="baseline", *, stability=False):
+def make_notebook(architecture="baseline", *, stability=False, evidence_classifier=False):
     if architecture not in {"baseline", "siamese_v2"}:
         raise ValueError("Unknown submission architecture")
-    if stability and architecture != "siamese_v2":
-        raise ValueError("Component stability requires frozen Siamese v2")
+    if (stability or evidence_classifier) and architecture != "siamese_v2":
+        raise ValueError("Component filtering requires frozen Siamese v2")
     code = '''# Offline inference. All assets are bundled in this ZIP.
 import os
 import sys
@@ -64,7 +64,10 @@ print("Saved", len(rows), "pairs to", PREDICTION_PATH)
                               "from terradelta.models.siamese_v2 import TerraDeltaSiameseV2, load_v2_checkpoint\nfrom terradelta.inference.v2 import model_options")
         infer = infer.replace('build_model({"encoder_weights": None})', 'TerraDeltaSiameseV2(**model_options(CONFIG))')
         infer = infer.replace("load_checkpoint(", "load_v2_checkpoint(")
-        if stability:
+        if evidence_classifier:
+            code = code.replace("from terradelta.inference.v2 import predict_directory",
+                                "from terradelta.inference.v231_predictor import predict_directory")
+        elif stability:
             code = code.replace("from terradelta.inference.v2 import predict_directory",
                                 "from terradelta.inference.stability_v23 import predict_directory")
     def cell(kind, source):
@@ -88,7 +91,10 @@ def export_submission(checkpoint, config_path, destination, baseline_root=None):
     if architecture == "siamese_v2":
         from terradelta.inference.v2 import V2Predictor
         predictor_type = V2Predictor
-        if "stability" in config:
+        if "evidence_classifier" in config:
+            from terradelta.inference.v231_predictor import V231Predictor
+            predictor_type = V231Predictor
+        elif "stability" in config:
             from terradelta.inference.stability_v23 import V23Predictor
             predictor_type = V23Predictor
         predictor = predictor_type(checkpoint, config)
@@ -96,8 +102,9 @@ def export_submission(checkpoint, config_path, destination, baseline_root=None):
         if "optimizer" in metadata or "config" in metadata or "rng" in metadata:
             raise ValueError("V2 deployment checkpoint must contain weights and provenance only")
     elif architecture == "baseline":
-        if "stability" in config:
-            raise ValueError("Component stability requires frozen Siamese v2")
+        if "stability" in config or "evidence_classifier" in config:
+            raise ValueError("Component filtering requires frozen Siamese v2")
+
         validated_model = build_model()
         metadata = load_checkpoint(checkpoint, validated_model)
     else:
@@ -124,8 +131,18 @@ def export_submission(checkpoint, config_path, destination, baseline_root=None):
         else:
             shutil.copyfile(checkpoint, root / "assets/model/model.pt")
         (root / "assets/config.yaml").write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
-        (root / "predict.ipynb").write_text(json.dumps(make_notebook(architecture, stability="stability" in config),
-                                           ensure_ascii=False, indent=2), encoding="utf-8")
+        (root / "predict.ipynb").write_text(
+            json.dumps(
+                make_notebook(
+                    architecture,
+                    stability="stability" in config and "evidence_classifier" not in config,
+                    evidence_classifier="evidence_classifier" in config,
+                ),
+                ensure_ascii=False,
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
         dependencies = ["torch>=2.5", "segmentation-models-pytorch==0.5.0", "numpy>=2.0",
                         "pillow>=10.0", "shapely>=2.0", "pyyaml>=6"]
         post = config.get("postprocess", {})
@@ -149,7 +166,12 @@ def export_submission(checkpoint, config_path, destination, baseline_root=None):
                 if sub == "inference" and source.name in {"calibration.py", "v2_calibration.py", "v2_evaluation.py"}:
                     # Offline deployment needs inference only, not pilot cache/search.
                     continue
-                if sub == "inference" and source.name == "stability_v23.py" and "stability" not in config:
+                if (
+                    sub == "inference"
+                    and source.name == "stability_v23.py"
+                    and "stability" not in config
+                    and "evidence_classifier" not in config
+                ):
                     continue
                 target = code / sub / source.name
                 target.parent.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,41 @@
+{
+  "status": "passed",
+  "source_commit": "e52a510279d55f2a1a09bc54a6162583324931ee",
+  "branch": "v2.3-stability-v22-20261005",
+  "zip_sha256": "3036a272593259f3dc712510abbbf0f2630ad5a4e9fbea9a63e8258560495f6f",
+  "checkpoint_sha256": "ca59fe6698d8ee6bef354a7f40c1ef6d8901826e0572a5b80eb2b1d8b2ca4372",
+  "config_sha256": "5f54bdd46dba8f30e358a41a79309b6aebfa06c8b45a0f1834bce0fafac5aa4b",
+  "zip_entries": 26,
+  "same_as_reported_diagnostic_zip": true,
+  "same_as_selected_rules": true,
+  "appearance_disabled": true,
+  "v22_verifier_and_base_config_unchanged": true,
+  "packaged_code_matches_exact_git_source": true,
+  "protected_release_files_unchanged": {
+    "v2-main-01": 33,
+    "v2.2-main-01": 15
+  },
+  "prior_offline_repeat_passed": true,
+  "kept_polygon_vertices_and_order_unchanged": true,
+  "disabled_equals_v22_bytes_previously_proven": true,
+  "main_authorization": "Explicit 2026-10-05 user instruction overrides failed local promotion only for one MAIN.",
+  "local_promotion_passed": false,
+  "debug_authorization": false,
+  "rules": {
+    "enabled": true,
+    "appearance_consistency": false,
+    "classes": {
+      "new_building": {
+        "persistence_min": 4,
+        "mean_iou_min": 0.0
+      },
+      "tree_removal": {
+        "persistence_min": 3,
+        "mean_iou_min": 0.0
+      }
+    }
+  },
+  "training_steps": 0,
+  "secrets_excluded": true,
+  "fresh_cleanroom_csv_equals_reported_diagnostic": true
+}
