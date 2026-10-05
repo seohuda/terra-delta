@@ -599,6 +599,23 @@ def compute_deep_cva_features(
     }
 
 
+def cva_and_cosine_from_stage2(
+    f_pre: torch.Tensor,
+    f_post: torch.Tensor,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Compute 256x256 change magnitude and cosine distance maps from stage 2 feature tensors."""
+    diff = torch.norm(f_post - f_pre, p=2, dim=1, keepdim=True)
+    cva_map = F.interpolate(diff, size=(256, 256), mode="bilinear", align_corners=False)
+
+    f_pre_n = F.normalize(f_pre, p=2, dim=1)
+    f_post_n = F.normalize(f_post, p=2, dim=1)
+    cos_sim = (f_pre_n * f_post_n).sum(dim=1, keepdim=True)
+    cos_dist = (1.0 - cos_sim).clamp(0.0, 2.0)
+    cos_map = F.interpolate(cos_dist, size=(256, 256), mode="bilinear", align_corners=False)
+
+    return cva_map.squeeze(1).cpu().numpy(), cos_map.squeeze(1).cpu().numpy()
+
+
 @torch.inference_mode()
 def extract_deep_cva_maps(
     model: torch.nn.Module,
@@ -612,26 +629,30 @@ def extract_deep_cva_maps(
     """
     pre = pre_tensor.to(device)
     post = post_tensor.to(device)
-    # ResNet18 encoder returns [feat0, feat1, feat2, feat3, feat4, feat5]
-    # feat2 is stage 2: (B, 64, 64, 64)
     pre_feats = model.encoder(pre)
     post_feats = model.encoder(post)
+    return cva_and_cosine_from_stage2(pre_feats[2], post_feats[2])
 
-    f_pre = pre_feats[2]
-    f_post = post_feats[2]
 
-    # L2 difference magnitude
-    diff = torch.norm(f_post - f_pre, p=2, dim=1, keepdim=True)
-    cva_map = F.interpolate(diff, size=(256, 256), mode="bilinear", align_corners=False)
+@torch.inference_mode()
+def extract_deep_cva_and_scales(
+    model: torch.nn.Module,
+    pre_tensor: torch.Tensor,
+    post_tensor: torch.Tensor,
+    device: torch.device,
+    compute_cva: bool,
+    scales: Sequence[int],
+) -> tuple[tuple[np.ndarray, np.ndarray] | None, dict[int, np.ndarray], dict[int, np.ndarray]]:
+    """Extract CVA maps and/or specified feature scale maps from Siamese encoder in a single forward pass."""
+    pre = pre_tensor.to(device)
+    post = post_tensor.to(device)
+    pre_feats = model.encoder(pre)
+    post_feats = model.encoder(post)
+    cva_res = cva_and_cosine_from_stage2(pre_feats[2], post_feats[2]) if compute_cva else None
+    pre_dict = {s: pre_feats[s].float().cpu().numpy() for s in scales}
+    post_dict = {s: post_feats[s].float().cpu().numpy() for s in scales}
+    return cva_res, pre_dict, post_dict
 
-    # Cosine distance: 1 - cos(f_pre, f_post)
-    f_pre_n = F.normalize(f_pre, p=2, dim=1)
-    f_post_n = F.normalize(post_feats[2], p=2, dim=1)
-    cos_sim = (f_pre_n * f_post_n).sum(dim=1, keepdim=True)
-    cos_dist = (1.0 - cos_sim).clamp(0.0, 2.0)
-    cos_map = F.interpolate(cos_dist, size=(256, 256), mode="bilinear", align_corners=False)
-
-    return cva_map.squeeze(1).cpu().numpy(), cos_map.squeeze(1).cpu().numpy()
 
 
 def extract_candidate_evidence_record(

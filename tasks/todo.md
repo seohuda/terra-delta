@@ -370,3 +370,38 @@ Completed on 2026-10-05.
 - AWS verification: CPU instance i-0766a472ecb5bcf88 stopped, GPU instance i-0523a619699a95db0 stopped, both 30 GiB EBS volumes preserved with DeleteOnTermination=false.
 - Final Status: "V2.3.1 IMPROVED — READY FOR MAIN SUBMISSION APPROVAL". Zero automatic MAIN submission dispatched.
 
+## V2.3.2 Code Review Fixes (2026-10-05)
+
+Scope: Code review hardening only. PRE-EXPERIMENT WORK.
+Absolutely no model training, fitting, real data evaluation, GPU inference, AWS starting, or submissions.
+
+- [x] Item 1: Fix alignment shift units (`max_shift_image_px` budget in image pixels, derive integer feature-map shifts deterministically).
+- [x] Item 2: Remove border / overlap bias (`min_overlap_fraction` check + common support comparison across all evaluated shifts).
+- [x] Item 3: Define zero-residual semantics (`before <= EPS -> ratio=1.0, reduction=0.0`, no NaN/inf).
+- [x] Item 4: Bind model to feature-extraction config (metadata & fingerprint for PairGate and Alignment, verify mismatch rejection).
+- [x] Item 5: Fix alignment cache invalidation (require `model_fingerprint` & `pair_fingerprint`, validate finite values, bump cache version to 2).
+- [x] Item 6: Strict alignment feature requirement (guard requiring `alignment_residual.enabled=true` and finite values if classifier declares alignment features).
+- [x] Item 7: Fix pair-gate silent no-op (support pair gate without evidence classifier using confidence fallback; do not return early).
+- [x] Item 8: Reuse encoder features (share encoder pyramid between CVA and alignment when both requested).
+- [x] Item 9: Strict pair feature validation (validate `[0, 1]` ranges and non-negative finite area in `PairCandidate` and `PairFeatureExtractor`).
+- [x] Item 10: OOF-only pair training contract (metadata & provenance schema forbidding in-sample component probabilities and partial negative labels).
+- [x] Tests & Regression verification (synthetic unit tests, Ruff, full test suite pass).
+- [x] Commit as `fix(v2.3.2): harden alignment and pair-gate evidence` and push branch.
+
+### V2.3.2 Review Fixes Summary
+
+Completed on 2026-10-05.
+- Fixed alignment search units from feature-map pixels to canonical image pixels (`max_shift_image_px`).
+- Removed border / overlap bias via `min_overlap_fraction` and common support region across evaluated shifts.
+- Handled zero-residual edge cases explicitly (`before <= EPS -> ratio=1.0, reduction=0.0`).
+- Bound models to feature extraction metadata/fingerprints for fast fail on drift.
+- Hardened alignment cache with model and pair fingerprints and cache version 2.
+- Added strict alignment feature validation guard for component classifiers.
+- Fixed pair gate early return so `pair_gate.enabled=true` works with confidence fallback when classifier is disabled.
+- Reused encoder forward features between deep CVA and local alignment.
+- Added strict `[0, 1]` and finite non-negative area validation on pair candidate inputs.
+- Defined explicit `PairTrainingContract` requiring OOF provenance and forbidding partial negative conversion.
+- Test Suite: 715 passed, 3 skipped, 0 failed. Ruff: All checks passed.
+- Pre-experiment safety confirmed: No training, no GPU inference, no AWS actions, zero submissions.
+
+

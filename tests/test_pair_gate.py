@@ -7,6 +7,7 @@ import pytest
 from terradelta.inference.pair_gate import (
     CROSS_CLASS_FEATURES,
     PAIR_GATE_CLASSES,
+    PAIR_GATE_VERSION,
     SCOPE_STEMS,
     SCOPES,
     V232_PAIR_FEATURES,
@@ -15,6 +16,7 @@ from terradelta.inference.pair_gate import (
     PairChangeGate,
     PairFeatureExtractor,
     PairGateConfig,
+    PairTrainingContract,
     apply_pair_gate,
 )
 from terradelta.inference.v2 import CLASSES
@@ -99,13 +101,48 @@ def test_class_separation_and_cross_class():
     assert feats["building_vs_tree_score_margin"] == pytest.approx(0.5)
 
 
+def test_strict_pair_candidate_validation():
+    """Item 9: PairCandidate must reject invalid probabilities and negative areas."""
+    # Out of [0, 1] bounds
+    with pytest.raises(ValueError, match="score"):
+        PairCandidate(score=-0.1, kept=True, area=10.0, tta_stability=1.0, reverse_support=0.5, confidence=0.5)
+    with pytest.raises(ValueError, match="score"):
+        PairCandidate(score=1.1, kept=True, area=10.0, tta_stability=1.0, reverse_support=0.5, confidence=0.5)
+    with pytest.raises(ValueError, match="confidence"):
+        PairCandidate(score=0.5, kept=True, area=10.0, tta_stability=1.0, reverse_support=0.5, confidence=-0.01)
+    with pytest.raises(ValueError, match="confidence"):
+        PairCandidate(score=0.5, kept=True, area=10.0, tta_stability=1.0, reverse_support=0.5, confidence=1.5)
+    with pytest.raises(ValueError, match="tta_stability"):
+        PairCandidate(score=0.5, kept=True, area=10.0, tta_stability=-0.1, reverse_support=0.5, confidence=0.5)
+    with pytest.raises(ValueError, match="reverse_support"):
+        PairCandidate(score=0.5, kept=True, area=10.0, tta_stability=0.5, reverse_support=1.2, confidence=0.5)
+
+    # Negative area or non-finite area
+    with pytest.raises(ValueError, match="area"):
+        PairCandidate(score=0.5, kept=True, area=-1.0, tta_stability=0.5, reverse_support=0.5, confidence=0.5)
+    with pytest.raises(ValueError, match="area"):
+        PairCandidate(score=0.5, kept=True, area=float("nan"), tta_stability=0.5, reverse_support=0.5, confidence=0.5)
+    with pytest.raises(ValueError, match="area"):
+        PairCandidate(score=0.5, kept=True, area=float("inf"), tta_stability=0.5, reverse_support=0.5, confidence=0.5)
+
+    # kept must be boolean
+    with pytest.raises(ValueError, match="kept"):
+        PairCandidate(score=0.5, kept="yes", area=10.0, tta_stability=0.5, reverse_support=0.5, confidence=0.5)
+
+
+def test_strict_pair_presence_validation():
+    """Item 9: PairFeatureExtractor must reject invalid presence probabilities."""
+    with pytest.raises(ValueError, match="presence probability"):
+        extractor().extract({}, {"new_building": -0.1})
+    with pytest.raises(ValueError, match="presence probability"):
+        extractor().extract({}, {"new_building": 1.2})
+    with pytest.raises(ValueError, match="presence probability"):
+        extractor().extract({}, {"new_building": float("nan")})
+
+
 def test_unknown_class_and_nonfinite_candidate_rejected():
     with pytest.raises(ValueError, match="Unknown classes"):
         extractor().extract({"road": [cand()]}, {})
-    with pytest.raises(ValueError, match="Non-finite"):
-        extractor().extract({"new_building": [cand(score=float("nan"))]}, {})
-    with pytest.raises(ValueError, match="Non-finite"):
-        extractor().extract({}, {"new_building": float("inf")})
 
 
 def test_model_validation_errors():
@@ -167,6 +204,64 @@ def test_enabled_requires_model_and_config_validation():
     with pytest.raises(ValueError, match="top_k"):
         PairGateConfig(top_k=0)
     assert PairGateConfig.from_mapping(None).enabled is False
+
+
+def test_pair_gate_config_metadata_and_fingerprint():
+    """Item 4: PairGateConfig metadata and fingerprint determinism."""
+    cfg = PairGateConfig(top_k=5, high_confidence_threshold=0.6, image_size=256)
+    meta = cfg.metadata()
+    assert meta["schema_version"] == PAIR_GATE_VERSION
+    assert meta["top_k"] == 5
+    assert meta["high_confidence_threshold"] == 0.6
+    assert meta["image_size"] == 256
+    assert meta["feature_names"] == list(V232_PAIR_FEATURES)
+
+    fp = cfg.fingerprint()
+    assert isinstance(fp, str) and len(fp) == 16
+    assert fp == PairGateConfig(top_k=5, high_confidence_threshold=0.6, image_size=256).fingerprint()
+    assert fp != PairGateConfig(top_k=3).fingerprint()
+
+
+def test_model_fingerprint_binding_and_mismatch_rejection():
+    """Item 4: serialized model expected fingerprint must match runtime config."""
+    cfg = PairGateConfig(top_k=3, high_confidence_threshold=0.5, image_size=256)
+    valid_fp = cfg.fingerprint()
+
+    # Model carrying matching fingerprint succeeds
+    m_ok = model_dict(expected_fingerprint=valid_fp)
+    gate_ok = PairChangeGate(cfg, LinearPairGateModel.from_dict(m_ok))
+    assert gate_ok.model.expected_fingerprint == valid_fp
+
+    # Model carrying mismatching fingerprint raises clear ValueError
+    m_bad = model_dict(expected_fingerprint="mismatched_hash_999")
+    with pytest.raises(ValueError, match="expected fingerprint 'mismatched_hash_999' does not match"):
+        PairChangeGate(cfg, LinearPairGateModel.from_dict(m_bad))
+
+
+def test_pair_training_contract():
+    """Item 10: OOF-only pair training contract verification."""
+    # Valid contract
+    c = PairTrainingContract(
+        source_type="oof",
+        evidence_classifier_source="v231_ablation_d_cv5",
+        notes="5-fold OOF predictions on train set",
+    )
+    assert c.source_type == "oof"
+    assert c.allow_partial_labels is False
+    d = c.to_dict()
+    assert d["source_type"] == "oof"
+
+    # In-sample source is strictly forbidden
+    with pytest.raises(ValueError, match="Invalid pair training source_type: 'in_sample'"):
+        PairTrainingContract(source_type="in_sample", evidence_classifier_source="ablation_d")
+
+    # Partial labels as pair negatives is forbidden
+    with pytest.raises(ValueError, match="allow_partial_labels=True is prohibited"):
+        PairTrainingContract(source_type="oof", evidence_classifier_source="ablation_d", allow_partial_labels=True)
+
+    # Missing evidence classifier source is forbidden
+    with pytest.raises(ValueError, match="evidence_classifier_source"):
+        PairTrainingContract(source_type="oof", evidence_classifier_source="")
 
 
 def test_disabled_gate_preserves_output_object():

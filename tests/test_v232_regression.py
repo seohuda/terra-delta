@@ -3,6 +3,7 @@ import json
 
 import numpy as np
 import pytest
+import torch
 
 import terradelta.inference.v231_predictor as v231
 from terradelta.inference.evidence_classifier import (
@@ -10,10 +11,16 @@ from terradelta.inference.evidence_classifier import (
     LinearComponentClassifier,
     apply_evidence_filtering,
 )
-from terradelta.inference.evidence_features import ABLATION_SCHEMAS
+from terradelta.inference.evidence_features import (
+    ABLATION_SCHEMAS,
+    extract_deep_cva_and_scales,
+)
 from terradelta.inference.experimental import ExperimentalConfig
-from terradelta.inference.local_alignment import V232_ALIGNMENT_FEATURES, LocalAlignmentConfig
-from terradelta.inference.local_alignment import LocalAlignmentFeatureExtractor
+from terradelta.inference.local_alignment import (
+    V232_ALIGNMENT_FEATURES,
+    LocalAlignmentConfig,
+    LocalAlignmentFeatureExtractor,
+)
 from terradelta.inference.pair_gate import (
     V232_PAIR_FEATURES,
     PairChangeGate,
@@ -21,7 +28,11 @@ from terradelta.inference.pair_gate import (
     PairGateConfig,
 )
 from terradelta.inference.v2 import V2Predictor
-from terradelta.inference.v232_hooks import attach_alignment_features, gate_filtered_row
+from terradelta.inference.v232_hooks import (
+    attach_alignment_features,
+    gate_filtered_row,
+    validate_classifier_alignment_requirements,
+)
 from terradelta.inference.v232_schema import V232_CANDIDATE_SCHEMA_D_ALIGN
 from terradelta.postprocess.polygons import serialize_polygons
 
@@ -43,7 +54,7 @@ def make_rows_and_records():
     return row, records
 
 
-def fake_predictor(monkeypatch, experimental=None):
+def fake_predictor(monkeypatch, experimental=None, classifier_enabled=True):
     cfg = dict(CONFIG)
     if experimental is not None:
         cfg["experimental"] = experimental
@@ -53,7 +64,8 @@ def fake_predictor(monkeypatch, experimental=None):
     pred = object.__new__(v231.V231Predictor)
     pred.config = cfg
     pred.classifier = EvidenceClassifier(
-        {"new_building": LinearComponentClassifier(["score"], [0.0], [1.0], [1.0], 0.0, threshold=0.5)}
+        {"new_building": LinearComponentClassifier(["score"], [0.0], [1.0], [1.0], 0.0, threshold=0.5)},
+        enabled=classifier_enabled,
     )
     pred.experimental = ExperimentalConfig.from_config(cfg)
     pred.pair_gate = PairChangeGate(pred.experimental.pair_gate)
@@ -81,9 +93,9 @@ def test_experimental_config_validation():
     with pytest.raises(ValueError, match="mapping"):
         ExperimentalConfig.from_config({"experimental": [1]})
     exp = ExperimentalConfig.from_config(
-        {"experimental": {"alignment_residual": {"enabled": True, "max_shift": 2, "feature_scales": [2]}}}
+        {"experimental": {"alignment_residual": {"enabled": True, "max_shift_image_px": 8, "feature_scales": [2]}}}
     )
-    assert exp.any_enabled and exp.alignment_residual.max_shift == 2
+    assert exp.any_enabled and exp.alignment_residual.max_shift_image_px == 8
 
 
 def test_old_classifier_model_data_loads_unchanged():
@@ -143,6 +155,69 @@ def test_gate_accept_preserves_v231_output_and_reject_clears(monkeypatch):
     pred, _, _ = fake_predictor(monkeypatch, {"pair_gate": {"enabled": True, "model": model}})
     out = run(pred)[0]
     assert out["new_building"] == "" and out["tree_removal"] == ""
+
+
+def test_pair_gate_runs_when_classifier_disabled(monkeypatch):
+    """Item 7: pair gate must not be silently bypassed when classifier is disabled."""
+    model = {"feature_names": ["pair_max_candidate_score"], "mean": [0.0], "scale": [1.0],
+             "weights": [1.0], "bias": -50.0, "threshold": 0.5}
+    # classifier_enabled=False, pair_gate.enabled=True
+    pred, row, records = fake_predictor(
+        monkeypatch,
+        experimental={"pair_gate": {"enabled": True, "model": model}},
+        classifier_enabled=False,
+    )
+    # Must NOT silently return un-gated row; pair gate veto must apply
+    out = run(pred)[0]
+    assert out["new_building"] == "" and out["tree_removal"] == ""
+
+
+def test_strict_alignment_feature_guard():
+    """Item 6: active classifier declaring alignment features requires alignment_residual.enabled=True."""
+    model = LinearComponentClassifier(["align_residual_reduction"], [0.0], [1.0], [1.0], 0.0)
+    clf = EvidenceClassifier({"new_building": model}, enabled=True)
+
+    # Alignment disabled -> raises ValueError
+    cfg_off = LocalAlignmentConfig(enabled=False)
+    with pytest.raises(ValueError, match="declares experimental alignment features.*enabled is False"):
+        validate_classifier_alignment_requirements(clf, cfg_off)
+
+    # Alignment enabled -> passes
+    cfg_on = LocalAlignmentConfig(enabled=True)
+    validate_classifier_alignment_requirements(clf, cfg_on)
+
+
+def test_encoder_features_reused_between_cva_and_alignment():
+    """Item 8: shared forward pass gives identical CVA and extracts only configured scales."""
+    class FakeEncoder(torch.nn.Module):
+        def forward(self, x):
+            return [
+                torch.zeros((1, 16, 64, 64)),
+                torch.zeros((1, 32, 64, 64)),
+                torch.ones((1, 64, 64, 64)) * 2.0,  # stage 2
+                torch.ones((1, 128, 32, 32)) * 3.0,  # stage 3
+            ]
+
+    class FakeModel(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.encoder = FakeEncoder()
+
+    model = FakeModel()
+    pre = torch.zeros((1, 3, 256, 256))
+    post = torch.ones((1, 3, 256, 256))
+
+    cva_res, pre_dict, post_dict = extract_deep_cva_and_scales(
+        model, pre, post, torch.device("cpu"), compute_cva=True, scales=[2, 3]
+    )
+    assert cva_res is not None
+    cva_map, cos_map = cva_res
+    assert cva_map.shape == (1, 256, 256)
+    assert cos_map.shape == (1, 256, 256)
+    assert set(pre_dict) == {2, 3}
+    assert set(post_dict) == {2, 3}
+    assert pre_dict[2].shape == (1, 64, 64, 64)
+    assert pre_dict[3].shape == (1, 128, 32, 32)
 
 
 def test_alignment_enabled_does_not_change_kept_polygons(monkeypatch):

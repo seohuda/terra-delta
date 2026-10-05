@@ -1,17 +1,20 @@
 """Cache scaffolding for alignment features (mechanism only; nothing populates it in bulk).
 
 Keys carry everything that defines a value so stale entries cannot be reused silently:
-pair/class/component identity, bbox, candidate mask fingerprint, feature scales and the
-alignment config fingerprint (which embeds the algorithm version).
+pair/class/component identity, bbox, candidate mask fingerprint, feature scales,
+alignment config fingerprint, model/checkpoint fingerprint, and pair/input fingerprint.
 """
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Mapping
 
 from .local_alignment import V232_ALIGNMENT_FEATURES, LocalAlignmentConfig
+
+CACHE_VERSION = 2
 
 
 @dataclass(frozen=True)
@@ -23,6 +26,8 @@ class AlignmentCacheKey:
     candidate_fingerprint: str
     feature_scales: tuple[int, ...]
     config_fingerprint: str
+    model_fingerprint: str
+    pair_fingerprint: str
 
     @classmethod
     def build(
@@ -33,7 +38,13 @@ class AlignmentCacheKey:
         bbox: tuple[int, int, int, int],
         candidate_fingerprint: str,
         config: LocalAlignmentConfig,
+        model_fingerprint: str,
+        pair_fingerprint: str,
     ) -> AlignmentCacheKey:
+        if not model_fingerprint or not isinstance(model_fingerprint, str):
+            raise ValueError("AlignmentCacheKey requires a non-empty string model_fingerprint")
+        if not pair_fingerprint or not isinstance(pair_fingerprint, str):
+            raise ValueError("AlignmentCacheKey requires a non-empty string pair_fingerprint")
         return cls(
             pair_id=str(pair_id),
             class_name=class_name,
@@ -42,6 +53,8 @@ class AlignmentCacheKey:
             candidate_fingerprint=candidate_fingerprint,
             feature_scales=tuple(config.feature_scales),
             config_fingerprint=config.fingerprint(),
+            model_fingerprint=str(model_fingerprint),
+            pair_fingerprint=str(pair_fingerprint),
         )
 
     def as_string(self) -> str:
@@ -54,6 +67,8 @@ class AlignmentCacheKey:
                 self.candidate_fingerprint,
                 list(self.feature_scales),
                 self.config_fingerprint,
+                self.model_fingerprint,
+                self.pair_fingerprint,
             ]
         )
 
@@ -75,20 +90,32 @@ class AlignmentFeatureCache:
         missing = [n for n in V232_ALIGNMENT_FEATURES if n not in features]
         if missing:
             raise ValueError(f"Cannot cache incomplete alignment features, missing: {missing}")
-        self._entries[key.as_string()] = {n: float(features[n]) for n in V232_ALIGNMENT_FEATURES}
+        cleaned: dict[str, float] = {}
+        for n in V232_ALIGNMENT_FEATURES:
+            val = float(features[n])
+            if not math.isfinite(val):
+                raise ValueError(f"Cannot cache non-finite alignment feature '{n}': {val}")
+            cleaned[n] = val
+        self._entries[key.as_string()] = cleaned
 
     def save(self, path: str | Path) -> None:
-        payload = {"version": 1, "entries": self._entries}
+        payload = {"version": CACHE_VERSION, "entries": self._entries}
         Path(path).write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
 
     @classmethod
     def load(cls, path: str | Path) -> AlignmentFeatureCache:
         data = json.loads(Path(path).read_text(encoding="utf-8"))
-        if data.get("version") != 1 or not isinstance(data.get("entries"), dict):
-            raise ValueError("Malformed alignment cache file")
+        if data.get("version") != CACHE_VERSION or not isinstance(data.get("entries"), dict):
+            raise ValueError(f"Malformed or outdated alignment cache file (expected version {CACHE_VERSION})")
         cache = cls()
         for key, values in data["entries"].items():
             if set(values) != set(V232_ALIGNMENT_FEATURES):
                 raise ValueError("Alignment cache entry has unexpected feature names")
-            cache._entries[key] = {n: float(values[n]) for n in V232_ALIGNMENT_FEATURES}
+            entry: dict[str, float] = {}
+            for n in V232_ALIGNMENT_FEATURES:
+                val = float(values[n])
+                if not math.isfinite(val):
+                    raise ValueError(f"Cached feature '{n}' is non-finite: {val}")
+                entry[n] = val
+            cache._entries[key] = entry
         return cache

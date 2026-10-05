@@ -19,12 +19,12 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from typing import Any, Mapping, Sequence
 
 import numpy as np
 
-ALIGNMENT_VERSION = "v232-align-1"
+ALIGNMENT_VERSION = "v232-align-2"
 EPS = 1e-8
 METRICS = ("l1", "l2")
 
@@ -56,16 +56,17 @@ class LocalAlignmentConfig:
     """Configuration; ``enabled`` defaults to False so the V2.3.1 path is untouched."""
 
     enabled: bool = False
-    max_shift: int = 3  # feature-map pixels, search window is [-max_shift, max_shift]^2
+    max_shift_image_px: int = 12  # search budget in original image pixels
     bbox_padding: int = 8  # image pixels added around the candidate bbox
     feature_scales: tuple[int, ...] = (2, 3)  # indices into the encoder feature pyramid
     metric: str = "l2"  # residual used to pick the best shift: "l1" or "l2"
     ring_radius: int = 5  # image pixels of surrounding context included in the comparison
     image_size: int = 256
     min_valid_pixels: int = 4
+    min_overlap_fraction: float = 0.75  # minimum fraction of ROI pixels overlapping POST
 
     def __post_init__(self) -> None:
-        for name in ("max_shift", "bbox_padding", "ring_radius", "min_valid_pixels"):
+        for name in ("max_shift_image_px", "bbox_padding", "ring_radius", "min_valid_pixels"):
             value = getattr(self, name)
             if isinstance(value, bool) or not isinstance(value, int) or value < 0:
                 raise ValueError(f"alignment_residual.{name} must be a non-negative integer")
@@ -75,6 +76,9 @@ class LocalAlignmentConfig:
             raise ValueError("alignment_residual.image_size must be a positive integer")
         if not isinstance(self.enabled, bool):
             raise ValueError("alignment_residual.enabled must be a boolean")
+        ov = self.min_overlap_fraction
+        if isinstance(ov, bool) or not isinstance(ov, (int, float)) or not 0.0 < ov <= 1.0:
+            raise ValueError("alignment_residual.min_overlap_fraction must be a number in (0, 1]")
         if self.metric not in METRICS:
             raise ValueError(f"alignment_residual.metric must be one of {METRICS}")
         scales = tuple(self.feature_scales)
@@ -100,12 +104,24 @@ class LocalAlignmentConfig:
             kwargs["feature_scales"] = tuple(kwargs["feature_scales"])
         return cls(**kwargs)
 
+    def metadata(self) -> dict[str, Any]:
+        """Deterministic metadata dictionary defining this extractor's configuration."""
+        return {
+            "algorithm_version": ALIGNMENT_VERSION,
+            "feature_schema": list(V232_ALIGNMENT_FEATURES),
+            "max_shift_image_px": self.max_shift_image_px,
+            "bbox_padding": self.bbox_padding,
+            "feature_scales": list(self.feature_scales),
+            "metric": self.metric,
+            "ring_radius": self.ring_radius,
+            "image_size": self.image_size,
+            "min_valid_pixels": self.min_valid_pixels,
+            "min_overlap_fraction": float(self.min_overlap_fraction),
+        }
+
     def fingerprint(self) -> str:
         """Stable hash of everything that changes feature values (cache invalidation key)."""
-        payload = asdict(self)
-        payload.pop("enabled")
-        payload["version"] = ALIGNMENT_VERSION
-        text = json.dumps(payload, sort_keys=True, default=list)
+        text = json.dumps(self.metadata(), sort_keys=True)
         return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
 
 
@@ -176,10 +192,29 @@ def _dilate(mask: np.ndarray, radius: int) -> np.ndarray:
     return out
 
 
-def _shift_offsets(max_shift: int) -> list[tuple[int, int]]:
-    """Search offsets ordered by distance then (dy, dx): ties resolve to the smaller shift."""
-    offsets = [(dy, dx) for dy in range(-max_shift, max_shift + 1) for dx in range(-max_shift, max_shift + 1)]
-    return sorted(offsets, key=lambda o: (o[0] ** 2 + o[1] ** 2, o[0], o[1]))
+def scale_offsets(
+    max_shift_image_px: int,
+    image_size: int,
+    fh: int,
+    fw: int,
+) -> list[tuple[int, int]]:
+    """Derive integer feature-map shifts (dy, dx) within the image-space budget."""
+    if max_shift_image_px <= 0:
+        return [(0, 0)]
+    stride_y = image_size / fh
+    stride_x = image_size / fw
+    max_fy = int(math.floor(max_shift_image_px / stride_y))
+    max_fx = int(math.floor(max_shift_image_px / stride_x))
+    if max_fy == 0 and max_fx == 0:
+        return [(0, 0)]
+    budget_sq = float(max_shift_image_px**2)
+    offsets = []
+    for dy in range(-max_fy, max_fy + 1):
+        for dx in range(-max_fx, max_fx + 1):
+            disp_sq = (dy * stride_y) ** 2 + (dx * stride_x) ** 2
+            if disp_sq <= budget_sq + 1e-9:
+                offsets.append((dy, dx))
+    return sorted(offsets, key=lambda o: ((o[0] * stride_y) ** 2 + (o[1] * stride_x) ** 2, o[0], o[1]))
 
 
 @dataclass(frozen=True)
@@ -281,21 +316,69 @@ class LocalAlignmentFeatureExtractor:
             return LocalAlignmentResult(scale=scale, valid=False)
         region, interior = roi
         ys, xs = np.nonzero(region)
+        n_total = len(ys)
+        if n_total < self.config.min_valid_pixels:
+            return LocalAlignmentResult(scale=scale, valid=False)
         inner = interior[ys, xs]
-        base = _stats_at_shift(pre, post, ys, xs, inner, 0, 0, self.config.metric)
-        if base is None or base.n_valid < self.config.min_valid_pixels:
+
+        candidate_shifts = scale_offsets(
+            self.config.max_shift_image_px, self.config.image_size, fh, fw
+        )
+
+        # 1. Filter shifts by minimum overlap fraction
+        min_overlap = self.config.min_overlap_fraction
+        eligible_shifts: list[tuple[int, int]] = []
+        for dy, dx in candidate_shifts:
+            ok = (ys + dy >= 0) & (ys + dy < fh) & (xs + dx >= 0) & (xs + dx < fw)
+            if ok.sum() / n_total >= min_overlap:
+                eligible_shifts.append((dy, dx))
+
+        if (0, 0) not in eligible_shifts:
+            eligible_shifts.insert(0, (0, 0))
+
+        # 2. Derive common valid support region shared by all evaluated shifts
+        def compute_common_mask(shifts: list[tuple[int, int]]) -> np.ndarray:
+            cmask = np.ones(n_total, dtype=bool)
+            for dy, dx in shifts:
+                cmask &= (ys + dy >= 0) & (ys + dy < fh) & (xs + dx >= 0) & (xs + dx < fw)
+            return cmask
+
+        common_mask = compute_common_mask(eligible_shifts)
+        while common_mask.sum() < self.config.min_valid_pixels and len(eligible_shifts) > 1:
+            eligible_shifts.pop()
+            common_mask = compute_common_mask(eligible_shifts)
+
+        n_common = int(common_mask.sum())
+        if n_common < self.config.min_valid_pixels:
+            return LocalAlignmentResult(scale=scale, valid=False)
+
+        ys_c = ys[common_mask]
+        xs_c = xs[common_mask]
+        inner_c = inner[common_mask]
+        valid_frac = float(n_common / n_total)
+
+        base = _stats_at_shift(pre, post, ys_c, xs_c, inner_c, 0, 0, self.config.metric)
+        if base is None:
             return LocalAlignmentResult(scale=scale, valid=False)
 
         best, best_off = base, (0, 0)
-        for dy, dx in _shift_offsets(self.config.max_shift):
+        for dy, dx in eligible_shifts:
             if (dy, dx) == (0, 0):
                 continue
-            stats = _stats_at_shift(pre, post, ys, xs, inner, dy, dx, self.config.metric)
-            if stats is None or stats.n_valid < self.config.min_valid_pixels:
+            stats = _stats_at_shift(pre, post, ys_c, xs_c, inner_c, dy, dx, self.config.metric)
+            if stats is None:
                 continue
             if stats.residual < best.residual - 1e-12:  # strict: earlier (smaller) shift wins ties
                 best, best_off = stats, (dy, dx)
+
         before, after = base.residual, best.residual
+        if before <= EPS:
+            residual_ratio = 1.0
+            residual_reduction = 0.0
+        else:
+            residual_ratio = float(after / before)
+            residual_reduction = float((before - after) / before)
+
         return LocalAlignmentResult(
             scale=scale,
             valid=True,
@@ -304,8 +387,8 @@ class LocalAlignmentFeatureExtractor:
             best_shift_distance=math.hypot(*best_off),
             residual_before=before,
             residual_after=after,
-            residual_ratio=after / max(before, EPS),
-            residual_reduction=(before - after) / max(before, EPS),
+            residual_ratio=residual_ratio,
+            residual_reduction=residual_reduction,
             cosine_before=base.cosine,
             cosine_after=best.cosine,
             cosine_gain=best.cosine - base.cosine,
@@ -315,7 +398,7 @@ class LocalAlignmentFeatureExtractor:
             normalized_l2_after=best.norm_l2,
             interior_residual_after=best.interior,
             ring_residual_after=best.ring,
-            valid_fraction=best.valid_fraction,
+            valid_fraction=valid_frac,
         )
 
     def aggregate(
