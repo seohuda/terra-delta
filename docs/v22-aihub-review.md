@@ -26,9 +26,30 @@ Any eventual change examples must either be real aligned temporal pairs with rev
 
 ## Observed access and bounded acquisition
 
-The user logged into AIHub on October5. Browser login does not authenticate the separate EC2 download. The official API guide requires an AIHub API key and dataset-specific approval. The user has been asked to issue the key and save it locally with mode600; that credential is still pending. An unauthenticated, bounded EC2 sample request returned a login page, not an image archive. No AIHub data is present on retained EBS. The public policy says manuals do not require login, but the two direct manual links returned a79-byte access-error page in this session. No PDF was obtained. Public description/policy/FAQ/organizer HTML were preserved and hashed on EBS; see `v22-aihub-evidence.json`. No original image download or AIHub training use is claimed.
+The user supplied an API key and authorized the application and the mandatory
+terms. On October 5, the application was submitted with purpose “인공지능
+경진대회 참가”. The portal confirmed automatic approval and its three-month
+validity; the authenticated application-history row independently showed
+“자동승인” for dataset71363. The approval screenshot remains a small local
+artifact, not part of the dataset or submission.
 
-The official AIHub shell was inspected on EC2 (version0.6, SHA256 `3475a89b89ca10cdebfd7ef0542ec54650759bd5c15491e4dc0da6c15d93390e`). It uses the API-key header and selected `fileSn` download endpoint. Prepared acquisition restricts dataset71363 and explicit file keys, bounds payload bytes/free space, and keeps provider payloads entirely on Seoul EC2. The live public file list reports98.68GB total. The retained30GiB disk has about17GiB free, so downloading all data or the full42.91GB SkySat training ZIP is unsuitable. If approved access becomes available, first inspect a bounded sample/metadata, then acquire only a fitting subset. Relevant listed files:
+After approval, a bounded request from the existing Seoul EC2 in
+ap-northeast-2c to the official version 0.6 endpoint for file 533615 returned
+HTTP 502 with an 82-byte text response: “AI 허브는 해외에서의 데이터 다운로드를
+제한하고 있습니다.” No proxy environment variables are configured. The actual
+instance region is verified, but the provider's geographic-IP classification
+still denies access; its internal reason is unknown. No archive or original
+imagery was obtained, and no AIHub example entered training. This is an access
+blocker, not a suitability experiment result. See
+[v22-aihub-access-final.json](v22-aihub-access-final.json).
+
+Only official access was attempted. Dataset payload never traversed the user's
+hotspot PC. Resolving this blocker requires provider approval/correction for
+Seoul-cloud access or a separately authorized domestic download route. No support
+message was sent. The selected verifier02 therefore uses the existing audited
+training population only; AIHub-assisted fitting remains unfinished.
+
+The official AIHub shell was inspected on EC2 (version 0.6, SHA256 `3475a89b89ca10cdebfd7ef0542ec54650759bd5c15491e4dc0da6c15d93390e`). It uses the API-key header and selected `fileSn` download endpoint. Prepared acquisition restricts dataset71363 and explicit file keys, bounds payload bytes/free space, and keeps provider payloads entirely on Seoul EC2. The live public file list reports98.68GB total. The retained30GiB disk has about17GiB free, so downloading all data or the full42.91GB SkySat training ZIP is unsuitable. If approved access becomes available, first inspect a bounded sample/metadata, then acquire only a fitting subset. Relevant listed files:
 
 | File | Key | Reported size |
 | --- | --- | --- |

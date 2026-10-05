@@ -208,11 +208,11 @@ V2 MAIN review: exactly one unchanged ZIP, public 364647/private 364648/run 3138
 ## V2.2 frozen class-wise verifier and AIHub 71363 (2026-10-05)
 
 - [x] Start existing CPU builder and create v2.2-verifier-aihub-20261005.
-- [ ] Check AIHub 71363 provider terms, organizer guidance and authenticated availability.
+- [x] Check AIHub 71363 terms/organizer guidance; submit authorized application and verify automatic approval. EC2 API access remains denied by provider GeoIP.
 - [x] Reuse audited 54 real negatives; fit only class-wise verifier on detached frozen-v2 outputs.
 - [x] Keep backbone/decoder bytes and inference thresholds/geometry fixed; compare actual polygons.
 - [x] Preserve building3/3, tree2/2 and stress recall/shape; reduce real no-change FP.
-- [ ] If eligible, reproducible offline ZIP/cleanroom then exactly one DEBUG. MAIN forbidden.
+- [x] Eligible unchanged verifier02 ZIP/cleanroom; exactly one DEBUG completed. MAIN forbidden.
 - [x] Verify tests, record outcomes and stop CPU; preserve EBS and existing stopped GPU.
 
 V2.2 candidate review: verifier02 local gate passed; realFP17/17→16/17,
@@ -228,3 +228,24 @@ AWS final: CPU/GPU API stopped at2026-10-04T16:26:59.842329+00:00; both
 encrypted30GiB EBS preserved with DeleteOnTermination=false. Task SSH key
 revoked and SSM tunnel terminated. API credential remains the blocking input;
 no final AIHub candidate or DEBUG result has been claimed.
+
+### V2.2 approved access and DEBUG (2026-10-05)
+
+- [x] Submit authorized AIHub71363 terms/application; verify actual auto-approved history.
+- [x] Diagnose selected-file API from Seoul EC2: HTTP502, overseas-download restriction; imagery0bytes, training0rows.
+- [x] Reverify33 frozen release files and unchanged candidate ZIP; exactly one guarded DEBUG365047/run32072 registered, MAIN0.
+- [x] Observe terminal DEBUG result and freeze evidence: completed, displayed0.3331, same as frozen v2 at shown precision.
+- [x] Flush EBS, revoke task SSH/SSM and API-verify CPU/GPU stopped with original volumes retained.
+- [x] Publish final small reports and verify exact local/remote branch SHA (see final delivery verification).
+
+AIHub-assisted fitting remains unfinished because approved Seoul EC2 downloads
+are denied by the provider. No alternative bulk route through the hotspot was used.
+
+Latest AWS final: both stopped at2026-10-05T00:53:21.912375+00:00; original encrypted30GiB volumes retained; task SSH revoked/SSM terminated. DEBUG1, MAIN0.
+
+Final v2.2 DEBUG: submission365047/run32072 completed, displayed practice0.3331.
+Frozen v2 practice0.3331; no displayed improvement and no exact-score claim.
+Keep frozen v2 as reference. DEBUG1/MAIN0; no score-driven tuning. AIHub approval
+completed but EC2 GeoIP denied, auxiliary rows0 and comparison unfinished. Full
+implementation/offline tests previously passed619/1skipped; this final phase
+changed only reports. JSON cross-report assertions and diff check passed.
