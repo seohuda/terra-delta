@@ -8,8 +8,10 @@ experimental:
     high_confidence_threshold: 0.5   # feature definition only
   alignment_residual:
     enabled: false
-    max_shift: 3          # feature-map pixels
+    max_shift_image_px: 12 # search budget in original image pixels
     bbox_padding: 8       # image pixels
     feature_scales: [2, 3]  # encoder pyramid indices
     metric: l2            # l1 | l2
     ring_radius: 5        # image pixels
+    min_overlap_fraction: 0.75  # minimum fraction of ROI pixels overlapping POST
+

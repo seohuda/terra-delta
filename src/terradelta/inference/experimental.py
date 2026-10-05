@@ -5,7 +5,7 @@
         enabled: false
       alignment_residual:
         enabled: false
-        max_shift: 3
+        max_shift_image_px: 12
         bbox_padding: 8
         feature_scales: [2, 3]
         metric: l2

@@ -9,11 +9,15 @@ threshold has a default: a model config must supply its own threshold explicitly
 """
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 from dataclasses import dataclass, field
 from typing import Any, Mapping, Sequence
 
 import numpy as np
+
+PAIR_GATE_VERSION = "v232-pair-1"
 
 # Must equal terradelta.inference.v2.CLASSES (asserted in tests); duplicated to stay torch-free.
 PAIR_GATE_CLASSES: tuple[str, ...] = ("new_building", "tree_removal")
@@ -67,6 +71,16 @@ class PairCandidate:
     reverse_support: float  # reverse-time same-class mean probability
     confidence: float  # forward mean segmentation probability
 
+    def __post_init__(self) -> None:
+        if not isinstance(self.kept, bool):
+            raise ValueError("PairCandidate.kept must be a boolean")
+        for name in ("score", "confidence", "tta_stability", "reverse_support"):
+            val = getattr(self, name)
+            if isinstance(val, bool) or not isinstance(val, (int, float)) or not math.isfinite(val) or not 0.0 <= val <= 1.0:
+                raise ValueError(f"PairCandidate.{name} must be a finite number in [0, 1], got {val}")
+        if isinstance(self.area, bool) or not isinstance(self.area, (int, float)) or not math.isfinite(self.area) or self.area < 0:
+            raise ValueError(f"PairCandidate.area must be a non-negative finite number, got {self.area}")
+
 
 def candidate_from_record(record: Mapping[str, Any], score: float, kept: bool) -> PairCandidate:
     """Build a :class:`PairCandidate` from a V2.3.1 evidence record's feature dict."""
@@ -114,6 +128,21 @@ class PairGateConfig:
         if unknown:
             raise ValueError(f"Unknown pair_gate keys: {sorted(unknown)}")
         return cls(**dict(data))
+
+    def metadata(self) -> dict[str, Any]:
+        """Deterministic metadata dictionary defining this extractor's configuration."""
+        return {
+            "schema_version": PAIR_GATE_VERSION,
+            "feature_names": list(V232_PAIR_FEATURES),
+            "top_k": self.top_k,
+            "high_confidence_threshold": float(self.high_confidence_threshold),
+            "image_size": self.image_size,
+        }
+
+    def fingerprint(self) -> str:
+        """Stable hash of everything that changes pair feature extraction semantics."""
+        text = json.dumps(self.metadata(), sort_keys=True)
+        return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
 
 
 class PairFeatureExtractor:
@@ -174,8 +203,9 @@ class PairFeatureExtractor:
                 vals = (c.score, c.area, c.tta_stability, c.reverse_support, c.confidence)
                 if not all(math.isfinite(v) for v in vals):
                     raise ValueError("Non-finite candidate evidence")
-        if not all(math.isfinite(v) for v in pres.values()):
-            raise ValueError("Non-finite presence probability")
+        for name, p in pres.items():
+            if isinstance(p, bool) or not isinstance(p, (int, float)) or not math.isfinite(p) or not 0.0 <= p <= 1.0:
+                raise ValueError(f"Pair presence probability for '{name}' must be in [0, 1], got {p}")
 
         pooled = [c for name in PAIR_GATE_CLASSES for c in per_class[name]]
         scopes = {
@@ -216,6 +246,7 @@ class LinearPairGateModel:
     """Standardized logistic model: sigmoid(((x - mean) / scale) . weights + bias)."""
 
     REQUIRED = ("feature_names", "mean", "scale", "weights", "bias", "threshold")
+    OPTIONAL = ("expected_fingerprint",)
 
     def __init__(
         self,
@@ -225,6 +256,7 @@ class LinearPairGateModel:
         weights: Sequence[float],
         bias: float,
         threshold: float,
+        expected_fingerprint: str | None = None,
     ):
         names = tuple(feature_names)
         if not names:
@@ -248,6 +280,7 @@ class LinearPairGateModel:
             raise ValueError("pair gate threshold must be a number in [0, 1]")
         self.bias = float(bias)
         self.threshold = float(threshold)
+        self.expected_fingerprint = str(expected_fingerprint) if expected_fingerprint is not None else None
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> LinearPairGateModel:
@@ -256,13 +289,17 @@ class LinearPairGateModel:
         missing = [k for k in cls.REQUIRED if k not in data]
         if missing:
             raise ValueError(f"pair gate model missing keys: {missing}")
-        unknown = set(data) - set(cls.REQUIRED)
+        allowed = set(cls.REQUIRED) | set(cls.OPTIONAL)
+        unknown = set(data) - allowed
         if unknown:
             raise ValueError(f"pair gate model has unknown keys: {sorted(unknown)}")
-        return cls(**{k: data[k] for k in cls.REQUIRED})
+        kwargs = {k: data[k] for k in cls.REQUIRED}
+        if "expected_fingerprint" in data:
+            kwargs["expected_fingerprint"] = data["expected_fingerprint"]
+        return cls(**kwargs)
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        d = {
             "feature_names": list(self.feature_names),
             "mean": self.mean.tolist(),
             "scale": self.scale.tolist(),
@@ -270,6 +307,9 @@ class LinearPairGateModel:
             "bias": self.bias,
             "threshold": self.threshold,
         }
+        if self.expected_fingerprint is not None:
+            d["expected_fingerprint"] = self.expected_fingerprint
+        return d
 
     def vector(self, features: Mapping[str, float]) -> np.ndarray:
         """Feature vector in model order. Missing or non-finite features raise."""
@@ -311,6 +351,14 @@ class PairChangeGate:
             model = LinearPairGateModel.from_dict(config.model)
         if config.enabled and model is None:
             raise ValueError("pair_gate.enabled requires a model")
+        if model is not None and model.expected_fingerprint is not None:
+            expected_fp = model.expected_fingerprint
+            runtime_fp = config.fingerprint()
+            if expected_fp != runtime_fp:
+                raise ValueError(
+                    f"Pair gate model expected fingerprint '{expected_fp}' does not match "
+                    f"runtime configuration fingerprint '{runtime_fp}'"
+                )
         self.model = model
 
     @property
@@ -336,3 +384,47 @@ def apply_pair_gate(row: Mapping[str, Any], result: PairGateResult) -> Mapping[s
         if name in cleared:
             cleared[name] = ""
     return cleared
+
+
+VALID_PAIR_TRAINING_SOURCES = ("oof", "frozen_heldout", "cross_validation")
+
+
+@dataclass(frozen=True)
+class PairTrainingContract:
+    """Explicit safety and provenance contract for future pair-gate training.
+
+    Requirements:
+    1. Object evidence probabilities used to train the pair gate MUST be Out-Of-Fold (OOF)
+       or from a frozen model that did not train on the same sample. In-sample probabilities
+       are strictly prohibited because overfitting would destroy pair-gate calibration.
+    2. Partial labels must NOT be silently converted into pair-level negatives.
+    3. Provenance identifying the evidence classifier source must be recorded.
+    """
+
+    source_type: str
+    evidence_classifier_source: str
+    allow_partial_labels: bool = False
+    notes: str = ""
+
+    def __post_init__(self) -> None:
+        if self.source_type not in VALID_PAIR_TRAINING_SOURCES:
+            raise ValueError(
+                f"Invalid pair training source_type: '{self.source_type}'. "
+                f"Must be one of {VALID_PAIR_TRAINING_SOURCES}. In-sample training is prohibited."
+            )
+        if self.allow_partial_labels:
+            raise ValueError(
+                "allow_partial_labels=True is prohibited: partial labels must not be silently "
+                "converted into pair-level negatives."
+            )
+        if not self.evidence_classifier_source or not isinstance(self.evidence_classifier_source, str):
+            raise ValueError("PairTrainingContract requires a non-empty string evidence_classifier_source")
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "source_type": self.source_type,
+            "allow_partial_labels": self.allow_partial_labels,
+            "evidence_classifier_source": self.evidence_classifier_source,
+            "notes": self.notes,
+        }
+

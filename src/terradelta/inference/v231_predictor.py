@@ -22,6 +22,7 @@ from .evidence_features import (
     compute_global_metrics,
     compute_reverse_features,
     extract_candidate_evidence_record,
+    extract_deep_cva_and_scales,
     extract_deep_cva_maps,
     get_component_pixels,
 )
@@ -34,7 +35,11 @@ from .stability_v23 import (
     tta_probabilities,
 )
 from .v2 import CLASSES, V2Predictor, class_options, prepare_v2_pair
-from .v232_hooks import attach_alignment_features, gate_filtered_row
+from .v232_hooks import (
+    attach_alignment_features,
+    gate_filtered_row,
+    validate_classifier_alignment_requirements,
+)
 
 
 def reverse_pair_tensor(image: torch.Tensor) -> torch.Tensor:
@@ -63,6 +68,8 @@ def extract_pair_evidence_records(
     include_reverse: bool = True,
     include_cva: bool = True,
     include_rgb: bool = True,
+    alignment_scales: Sequence[int] = (),
+    cached_encoder_features: dict[str, Any] | None = None,
 ) -> list[dict[str, list[dict[str, Any]]]]:
     """Extract candidate records with evidence features for each pair in batch."""
     b = len(image_batch)
@@ -82,7 +89,20 @@ def extract_pair_evidence_records(
         rev_pixels = rev_heads = None
 
     # 3. Deep CVA maps from Siamese encoder
-    if include_cva:
+    if alignment_scales:
+        cva_res, pre_align, post_align = extract_deep_cva_and_scales(
+            predictor.model,
+            image_batch[:, :3],
+            image_batch[:, 3:],
+            predictor.device,
+            compute_cva=include_cva,
+            scales=alignment_scales,
+        )
+        cva_maps, cos_maps = cva_res if cva_res is not None else (None, None)
+        if cached_encoder_features is not None:
+            cached_encoder_features["pre"] = pre_align
+            cached_encoder_features["post"] = post_align
+    elif include_cva:
         cva_maps, cos_maps = extract_deep_cva_maps(
             predictor.model, image_batch[:, :3], image_batch[:, 3:], predictor.device
         )
@@ -229,6 +249,7 @@ class V231Predictor(V2Predictor):
         self.pair_gate = PairChangeGate(self.experimental.pair_gate)
         self.pair_features = PairFeatureExtractor(self.experimental.pair_gate)
         self.alignment = LocalAlignmentFeatureExtractor(self.experimental.alignment_residual)
+        validate_classifier_alignment_requirements(self.classifier, self.experimental.alignment_residual)
 
     @torch.inference_mode()
     def output_rows(
@@ -241,16 +262,37 @@ class V231Predictor(V2Predictor):
         # 1. Base v2.2 predictions
         v22_rows = super().output_rows(identifiers, image, pixels, presence)
 
-        if not self.classifier.enabled or not any(row[c] for row in v22_rows for c in CLASSES):
+        if not (self.classifier.enabled or self.experimental.any_enabled) or not any(row[c] for row in v22_rows for c in CLASSES):
             return v22_rows
 
         # 2. Extract evidence features
+        align_scales = (
+            self.experimental.alignment_residual.feature_scales
+            if self.experimental.alignment_residual.enabled
+            else ()
+        )
+        cached_encoder: dict[str, Any] = {}
         evidence_records = extract_pair_evidence_records(
-            self, image, pixels, presence, v22_rows, self.config
+            self,
+            image,
+            pixels,
+            presence,
+            v22_rows,
+            self.config,
+            alignment_scales=align_scales,
+            cached_encoder_features=cached_encoder,
         )
 
         if self.experimental.any_enabled:
-            return self._experimental_rows(identifiers, image, pixels, presence, v22_rows, evidence_records)
+            return self._experimental_rows(
+                identifiers,
+                image,
+                pixels,
+                presence,
+                v22_rows,
+                evidence_records,
+                cached_encoder_features=cached_encoder,
+            )
 
         # 3. Apply object evidence classifier
         return [
@@ -266,11 +308,16 @@ class V231Predictor(V2Predictor):
         presence: np.ndarray,
         v22_rows: Sequence[Mapping[str, Any]],
         evidence_records: Sequence[dict[str, list[dict[str, Any]]]],
+        cached_encoder_features: Mapping[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
         """Optional v2.3.2 stages around the unchanged V2.3.1 object evidence filtering."""
         align_cfg = self.experimental.alignment_residual
         if align_cfg.enabled:
-            pre_f, post_f = encoder_feature_maps(self, image, align_cfg.feature_scales)
+            if cached_encoder_features and "pre" in cached_encoder_features:
+                pre_f = cached_encoder_features["pre"]
+                post_f = cached_encoder_features["post"]
+            else:
+                pre_f, post_f = encoder_feature_maps(self, image, align_cfg.feature_scales)
             for i, records in enumerate(evidence_records):
                 masks = {
                     name: candidate_masks(pixels[i, channel], self.config, name)

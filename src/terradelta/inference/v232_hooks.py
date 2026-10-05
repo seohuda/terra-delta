@@ -4,12 +4,19 @@ Everything here is pure (no model access) so it can be unit-tested with syntheti
 """
 from __future__ import annotations
 
+import math
 from typing import Any, Mapping, Sequence
 
 import numpy as np
 
 from .alignment_cache import AlignmentCacheKey, AlignmentFeatureCache
-from .local_alignment import LocalAlignmentFeatureExtractor, mask_bbox, mask_fingerprint
+from .local_alignment import (
+    V232_ALIGNMENT_FEATURES,
+    LocalAlignmentConfig,
+    LocalAlignmentFeatureExtractor,
+    mask_bbox,
+    mask_fingerprint,
+)
 from .pair_gate import (
     PAIR_GATE_CLASSES,
     PairChangeGate,
@@ -20,6 +27,48 @@ from .pair_gate import (
 )
 
 
+def validate_classifier_alignment_requirements(
+    classifier: Any,
+    alignment_config: LocalAlignmentConfig,
+) -> None:
+    """Ensure that if the active classifier declares any alignment feature, alignment is enabled."""
+    if classifier is None or not getattr(classifier, "enabled", False):
+        return
+    models = getattr(classifier, "models", {})
+    alignment_feature_set = frozenset(V232_ALIGNMENT_FEATURES)
+    for class_name, model in models.items():
+        declared = set(getattr(model, "feature_names", ()))
+        req_align = declared & alignment_feature_set
+        if req_align and not alignment_config.enabled:
+            raise ValueError(
+                f"Classifier model for '{class_name}' declares experimental alignment features {sorted(req_align)}, "
+                "but experimental.alignment_residual.enabled is False. Alignment features cannot be silently defaulted to zero."
+            )
+
+
+def check_candidate_alignment_features(
+    features: Mapping[str, float],
+    model: Any,
+    class_name: str,
+) -> None:
+    """Verify that every alignment feature declared by the model is present and finite."""
+    if model is None:
+        return
+    declared = set(getattr(model, "feature_names", ()))
+    req_align = declared & frozenset(V232_ALIGNMENT_FEATURES)
+    for name in req_align:
+        if name not in features:
+            raise ValueError(
+                f"Candidate for '{class_name}' is missing required alignment feature '{name}'. "
+                "Missing alignment features cannot be silently replaced with zero."
+            )
+        val = features[name]
+        if not math.isfinite(val):
+            raise ValueError(
+                f"Candidate for '{class_name}' has non-finite alignment feature '{name}': {val}"
+            )
+
+
 def attach_alignment_features(
     records: Mapping[str, Sequence[dict[str, Any]]],
     masks: Mapping[str, Sequence[np.ndarray]],
@@ -28,6 +77,8 @@ def attach_alignment_features(
     extractor: LocalAlignmentFeatureExtractor,
     pair_id: str = "",
     cache: AlignmentFeatureCache | None = None,
+    model_fingerprint: str = "",
+    pair_fingerprint: str = "",
 ) -> None:
     """Add alignment features to ``rec["features"]`` in place; existing keys are never altered.
 
@@ -45,8 +96,19 @@ def attach_alignment_features(
             key = None
             bbox = mask_bbox(mask)
             if cache is not None and bbox is not None:
+                if not model_fingerprint or not pair_fingerprint:
+                    raise ValueError(
+                        "Persistent cache reuse requires non-empty model_fingerprint and pair_fingerprint"
+                    )
                 key = AlignmentCacheKey.build(
-                    pair_id, name, rec["component_index"], bbox, mask_fingerprint(mask), extractor.config
+                    pair_id,
+                    name,
+                    rec["component_index"],
+                    bbox,
+                    mask_fingerprint(mask),
+                    extractor.config,
+                    model_fingerprint=model_fingerprint,
+                    pair_fingerprint=pair_fingerprint,
                 )
             values = extractor.extract(mask, pre_feats, post_feats, cache=cache, cache_key=key)
             clash = set(values) & set(rec["features"])
@@ -57,9 +119,10 @@ def attach_alignment_features(
 
 def candidate_score(classifier: Any, class_name: str, features: Mapping[str, float]) -> float:
     """Object evidence probability; falls back to mean segmentation probability w/o a model."""
-    model = classifier.models.get(class_name) if classifier.enabled else None
+    model = classifier.models.get(class_name) if getattr(classifier, "enabled", False) else None
     if model is None:
         return float(features.get("mean_probability", 0.0))
+    check_candidate_alignment_features(features, model, class_name)
     return float(model.predict_proba(model.extract_vector(features)))
 
 
@@ -79,14 +142,20 @@ def gate_filtered_row(
     candidates = {}
     for name in PAIR_GATE_CLASSES:
         class_alive = bool(filtered_row.get(name))
-        candidates[name] = [
-            candidate_from_record(
-                rec,
-                candidate_score(classifier, name, rec["features"]),
-                class_alive and classifier.predict_keep(rec["features"], name),
+        model = classifier.models.get(name) if getattr(classifier, "enabled", False) else None
+        class_candidates = []
+        for rec in records.get(name, []):
+            feats = rec["features"]
+            if model is not None:
+                check_candidate_alignment_features(feats, model, name)
+            class_candidates.append(
+                candidate_from_record(
+                    rec,
+                    candidate_score(classifier, name, feats),
+                    class_alive and classifier.predict_keep(feats, name),
+                )
             )
-            for rec in records.get(name, [])
-        ]
+        candidates[name] = class_candidates
     features = pair_features.extract(candidates, presence)
     result = gate.evaluate(features)
     return apply_pair_gate(filtered_row, result), result
