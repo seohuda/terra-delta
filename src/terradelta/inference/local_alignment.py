@@ -336,6 +336,13 @@ class LocalAlignmentFeatureExtractor:
         if (0, 0) not in eligible_shifts:
             eligible_shifts.insert(0, (0, 0))
 
+        stride_y = self.config.image_size / fh
+        stride_x = self.config.image_size / fw
+        eligible_shifts = sorted(
+            eligible_shifts,
+            key=lambda o: ((o[0] * stride_y) ** 2 + (o[1] * stride_x) ** 2, abs(o[0]), abs(o[1]), o[0], o[1]),
+        )
+
         # 2. Derive common valid support region shared by all evaluated shifts
         def compute_common_mask(shifts: list[tuple[int, int]]) -> np.ndarray:
             cmask = np.ones(n_total, dtype=bool)
@@ -344,12 +351,15 @@ class LocalAlignmentFeatureExtractor:
             return cmask
 
         common_mask = compute_common_mask(eligible_shifts)
-        while common_mask.sum() < self.config.min_valid_pixels and len(eligible_shifts) > 1:
+        while (
+            common_mask.sum() < self.config.min_valid_pixels
+            or (common_mask.sum() / n_total) < self.config.min_overlap_fraction
+        ) and len(eligible_shifts) > 1:
             eligible_shifts.pop()
             common_mask = compute_common_mask(eligible_shifts)
 
         n_common = int(common_mask.sum())
-        if n_common < self.config.min_valid_pixels:
+        if n_common < self.config.min_valid_pixels or (n_common / n_total) < self.config.min_overlap_fraction:
             return LocalAlignmentResult(scale=scale, valid=False)
 
         ys_c = ys[common_mask]

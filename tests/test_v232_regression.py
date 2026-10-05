@@ -145,8 +145,9 @@ def test_explicit_disabled_flags_match_absent_flags(monkeypatch):
 
 
 def test_gate_accept_preserves_v231_output_and_reject_clears(monkeypatch):
+    fp = PairGateConfig().fingerprint()
     model = {"feature_names": ["pair_max_candidate_score"], "mean": [0.0], "scale": [1.0],
-             "weights": [1.0], "bias": 0.0, "threshold": 0.5}
+             "weights": [1.0], "bias": 0.0, "threshold": 0.5, "expected_fingerprint": fp}
     pred, row, records = fake_predictor(monkeypatch, {"pair_gate": {"enabled": True, "model": model}})
     baseline = apply_evidence_filtering(row, records, pred.classifier, CONFIG)
     assert run(pred) == [baseline]  # score sigmoid(1)=0.73 > 0 -> logit>0 -> keep
@@ -159,8 +160,9 @@ def test_gate_accept_preserves_v231_output_and_reject_clears(monkeypatch):
 
 def test_pair_gate_runs_when_classifier_disabled(monkeypatch):
     """Item 7: pair gate must not be silently bypassed when classifier is disabled."""
+    fp = PairGateConfig().fingerprint()
     model = {"feature_names": ["pair_max_candidate_score"], "mean": [0.0], "scale": [1.0],
-             "weights": [1.0], "bias": -50.0, "threshold": 0.5}
+             "weights": [1.0], "bias": -50.0, "threshold": 0.5, "expected_fingerprint": fp}
     # classifier_enabled=False, pair_gate.enabled=True
     pred, row, records = fake_predictor(
         monkeypatch,
@@ -173,18 +175,42 @@ def test_pair_gate_runs_when_classifier_disabled(monkeypatch):
 
 
 def test_strict_alignment_feature_guard():
-    """Item 6: active classifier declaring alignment features requires alignment_residual.enabled=True."""
-    model = LinearComponentClassifier(["align_residual_reduction"], [0.0], [1.0], [1.0], 0.0)
-    clf = EvidenceClassifier({"new_building": model}, enabled=True)
+    """Item 6 & Phase 1: active classifier declaring alignment features requires alignment_residual.enabled=True and matching fingerprint."""
+    cfg_on = LocalAlignmentConfig(enabled=True)
+    align_fp = cfg_on.fingerprint()
 
-    # Alignment disabled -> raises ValueError
+    # 1. Ablation D (no alignment features) remains fully backward-compatible regardless of alignment config
+    model_d = LinearComponentClassifier(["score"], [0.0], [1.0], [1.0], 0.0)
+    clf_d = EvidenceClassifier({"new_building": model_d}, enabled=True)
+    validate_classifier_alignment_requirements(clf_d, LocalAlignmentConfig(enabled=False))
+    validate_classifier_alignment_requirements(clf_d, cfg_on)
+
+    # 2. Classifier with alignment features + alignment disabled -> raises ValueError
+    model_align = LinearComponentClassifier(["align_residual_reduction"], [0.0], [1.0], [1.0], 0.0)
+    clf_align_nofp = EvidenceClassifier({"new_building": model_align}, enabled=True)
     cfg_off = LocalAlignmentConfig(enabled=False)
     with pytest.raises(ValueError, match="declares experimental alignment features.*enabled is False"):
-        validate_classifier_alignment_requirements(clf, cfg_off)
+        validate_classifier_alignment_requirements(clf_align_nofp, cfg_off)
 
-    # Alignment enabled -> passes
-    cfg_on = LocalAlignmentConfig(enabled=True)
-    validate_classifier_alignment_requirements(clf, cfg_on)
+    # 3. Classifier with alignment features + missing expected_alignment_fingerprint -> raises ValueError
+    with pytest.raises(ValueError, match="expected_alignment_fingerprint is missing or empty"):
+        validate_classifier_alignment_requirements(clf_align_nofp, cfg_on)
+
+    # 4. Classifier with alignment features + wrong expected_alignment_fingerprint -> raises ValueError
+    clf_align_bad = EvidenceClassifier({"new_building": model_align}, enabled=True, expected_alignment_fingerprint="wrong_fp_123")
+    with pytest.raises(ValueError, match="expected alignment fingerprint 'wrong_fp_123' does not match"):
+        validate_classifier_alignment_requirements(clf_align_bad, cfg_on)
+
+    # 5. Classifier with alignment features + matching expected_alignment_fingerprint -> passes
+    clf_align_ok = EvidenceClassifier({"new_building": model_align}, enabled=True, expected_alignment_fingerprint=align_fp)
+    validate_classifier_alignment_requirements(clf_align_ok, cfg_on)
+
+    # 6. Component model level expected_alignment_fingerprint also supported
+    model_align_with_fp = LinearComponentClassifier(
+        ["align_residual_reduction"], [0.0], [1.0], [1.0], 0.0, expected_alignment_fingerprint=align_fp
+    )
+    clf_model_fp = EvidenceClassifier({"new_building": model_align_with_fp}, enabled=True)
+    validate_classifier_alignment_requirements(clf_model_fp, cfg_on)
 
 
 def test_encoder_features_reused_between_cva_and_alignment():
