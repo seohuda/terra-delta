@@ -1,0 +1,62 @@
+{
+  "submitted_at_utc": "2026-10-05T03:34:15.343370+00:00",
+  "registered_at_utc": "2026-10-05T03:34:16.188263+00:00",
+  "mode": "MAIN",
+  "competition_id": 9306,
+  "model_name": "MAIN_TERRADELTA_V23_STABILITY_B4_T3_01",
+  "api_calls": [
+    {
+      "method": "POST",
+      "endpoint": "upload-url",
+      "debug": false
+    },
+    {
+      "method": "POST",
+      "endpoint": "code-submissions",
+      "debug": false
+    }
+  ],
+  "response": {
+    "publicSubmissionId": 365101,
+    "privateSubmissionId": 365102,
+    "codeRunId": 32168
+  },
+  "zip_sha256": "3036a272593259f3dc712510abbbf0f2630ad5a4e9fbea9a63e8258560495f6f",
+  "checkpoint_sha256": "ca59fe6698d8ee6bef354a7f40c1ef6d8901826e0572a5b80eb2b1d8b2ca4372",
+  "config_sha256": "5f54bdd46dba8f30e358a41a79309b6aebfa06c8b45a0f1834bce0fafac5aa4b",
+  "source_commit": "e52a510279d55f2a1a09bc54a6162583324931ee",
+  "status": "completed",
+  "main_submissions_this_task": 1,
+  "debug_submissions_this_task": 0,
+  "automatic_retry_allowed": false,
+  "public_score": 0.248421392,
+  "public_score_decimal": "0.2484213920",
+  "public_score_display": "0.2484",
+  "rank_observed": 128,
+  "terminal_observed_at_utc": "2026-10-05T04:06:44.737Z",
+  "leaderboard_observed_at_utc": "2026-10-05T04:07:19.504Z",
+  "server_submission_time_ui": "2026/10/05 12:34:16 KST",
+  "server_completed_at_utc": null,
+  "server_execution_seconds": null,
+  "runtime_availability": "Not exposed in observed submission or leaderboard UI",
+  "daily_main_remaining_observed": 1,
+  "daily_main_limit": 3,
+  "total_submission_history_observed": 7,
+  "debug_used_total_observed": 1,
+  "frozen_v2_main": 0.1947902971,
+  "v22_main": 0.2045954238,
+  "delta_vs_v2": "+0.0536310949",
+  "delta_vs_v22": "+0.0438259682",
+  "relative_delta_vs_v22_percent": 21.42079592300246,
+  "score_source": "Authenticated Public leaderboard shows 0.248421392; history displays 0.2484",
+  "public_score_source_url": "https://aifactory.space/ko/competitions/9306/leaderboard",
+  "private_score": null,
+  "private_score_availability": "Not exposed",
+  "rules": {
+    "building_persistence": 4,
+    "tree_persistence_min": 3,
+    "appearance_consistency": false
+  },
+  "frozen_release": "/data/terradelta/releases/v2.3-main-01/",
+  "conclusion": "V2.3 MAIN IMPROVED \u2014 KEEP STABILITY"
+}

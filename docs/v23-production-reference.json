@@ -1,0 +1,64 @@
+{
+  "reference_created_at_utc": "2026-10-05T05:06:00Z",
+  "model_name": "MAIN_TERRADELTA_V23_STABILITY_B4_T3_01",
+  "mode": "MAIN",
+  "public_score": 0.248421392,
+  "rank_observed": 128,
+  "source_branch": "v2.3-stability-v22-20261005",
+  "source_commit": "e52a510279d55f2a1a09bc54a6162583324931ee",
+  "frozen_release_directory": "/data/terradelta/releases/v2.3-main-01",
+  "zip_sha256": "3036a272593259f3dc712510abbbf0f2630ad5a4e9fbea9a63e8258560495f6f",
+  "checkpoint_sha256": "ca59fe6698d8ee6bef354a7f40c1ef6d8901826e0572a5b80eb2b1d8b2ca4372",
+  "config_sha256": "5f54bdd46dba8f30e358a41a79309b6aebfa06c8b45a0f1834bce0fafac5aa4b",
+  "rules": {
+    "enabled": true,
+    "appearance_consistency": false,
+    "classes": {
+      "new_building": {
+        "persistence_min": 4,
+        "mean_iou_min": 0.0
+      },
+      "tree_removal": {
+        "persistence_min": 3,
+        "mean_iou_min": 0.0
+      }
+    }
+  },
+  "scores": {
+    "v2_frozen_main": 0.1947902971,
+    "v22_main": 0.2045954238,
+    "v23_main": 0.248421392,
+    "delta_vs_v2": "+0.0536310949",
+    "delta_vs_v22": "+0.0438259682",
+    "relative_gain_vs_v22_percent": 21.42
+  },
+  "validation_metrics": {
+    "real_legacy": {
+      "building_recall": "3/3",
+      "tree_recall": "2/2",
+      "no_change_fp": "13/17",
+      "real_score": 0.5675355539
+    },
+    "synthetic_stress": {
+      "building_tp": 111,
+      "tree_tp": 94,
+      "stress_score": 0.6413517666
+    }
+  },
+  "quota_observed": {
+    "daily_main_remaining": 1,
+    "daily_main_limit": 3,
+    "debug_used_total": 1,
+    "total_submission_history": 7
+  },
+  "aws_preserved_state": {
+    "cpu_instance": "i-0766a472ecb5bcf88",
+    "cpu_state": "stopped",
+    "cpu_volume": "vol-0070845086ec08190",
+    "gpu_instance": "i-0523a619699a95db0",
+    "gpu_state": "stopped",
+    "gpu_volume": "vol-084ec2fa143c670d6",
+    "delete_on_termination": false
+  },
+  "protection_policy": "NEVER modify or overwrite /data/terradelta/releases/v2.3-main-01 or v2.3 branch/tags."
+}
