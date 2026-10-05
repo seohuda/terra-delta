@@ -249,3 +249,42 @@ Keep frozen v2 as reference. DEBUG1/MAIN0; no score-driven tuning. AIHub approva
 completed but EC2 GeoIP denied, auxiliary rows0 and comparison unfinished. Full
 implementation/offline tests previously passed619/1skipped; this final phase
 changed only reports. JSON cross-report assertions and diff check passed.
+
+## V2.3 inference-only TTA component stability (2026-10-05)
+
+Current best: v2.2 MAIN 0.2045954238; preserve its exact release and verifier.
+MAIN forbidden; DEBUG exactly once only after the strong local/stress gate.
+
+- [x] Verify initial AWS CPU/GPU stopped; create v2.3-stability-v22-20261005.
+- [x] Trace frozen inference, reference polygon serialization and existing metrics.
+- [x] Add independent deterministic TTA/matching/features/gate; disabled equals v2.2 bytes.
+- [x] Add coarse A-E evaluation for four variants; retain original validation inputs.
+- [x] Evaluate 22 real pairs on CPU; stress only a few real-preserving finalists.
+- [x] If geometric gates are inadequate, evaluate at most one appearance auxiliary arm.
+- [x] Apply recall3/3,2/2, FP<=12/17, score>=.50 and shape/stress gates.
+- [x] Prove extracted offline package, tests/no-secret audit, full pytest and Ruff.
+- [x] If eligible, exactly one DEBUG; no MAIN regardless of DEBUG result.
+- [x] Commit/push source/config/tests/small report; record final SHA in delivery.
+- [x] Check processes, sync/fsync, retained mounts/EBS, STOP both and API-verify stopped.
+
+
+V2.3 review: all candidates rejected. Diagnostic building4/4, tree3/4 persistence
+keeps real3/3,2/2 but FP13/17 misses <=12; real0.5675355539/stress0.6413517666.
+Stress building130→111/tree104→94 TP and tree shape loss fail the fixed gate.
+One appearance arm loses a real building; no additional tuning or submissions.
+Current best remains v2.2 MAIN0.2045954238; stability defaults disabled. Retained
+polygon vertices/order unchanged, disabled CSV equals v2.2 bytes. CPU-only,
+22 real/470 existing stress pairs; no training, new rows or AIHub downloads.
+
+Inference-guarded full collection614passed/37skipped (34 prohibited training,
+2 weight fixtures run onEC2,1 existing environment skip); all31 new cases proved
+onEC2 in30+1 runs. Ruff/diff and32-pair repeated extracted offline proofs passed.
+Source551ebeb; four-variant/class metrics, source/offline/quota/AWS evidence in
+docs/v23-report.md. DEBUG0/MAIN0, MAINremaining2/3 verified in live portal.
+
+EC2 API2026-10-05T03:00:26.116763+00:00: CPU/GPU stopped. Original encrypted30GiB
+EBS volumes attached to original instances, DeleteOnTermination=false. No active
+TerraDelta jobs or task bindmounts;468 files fsynced and filesystem synced. Task
+SSH revoked, other keys preserved, owned SSM noactive and local tunnel exited.
+Final post-push idempotent STOP/API/EBS verification timestamp appears in delivery.
+V2.3 NOT PROVEN — KEEP V2.2.
