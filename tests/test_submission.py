@@ -185,3 +185,35 @@ torch.cuda.is_available = lambda: False
         row = next(csv.DictReader(f))
     assert row["id"] == "0001"
     assert row["new_building"] == row["tree_removal"] != ""
+
+
+@pytest.mark.parametrize("anchor", ["file", "argv", "module_path", "environment"])
+def test_notebook_assets_from_unrelated_cwd(tmp_path, anchor):
+    """Notebook/script runners must resolve all assets outside their CWD."""
+    from terradelta.submission import make_notebook
+
+    root = tmp_path / "extracted"
+    for name in ("predict.ipynb", "assets/config.yaml", "assets/model/model.pt",
+                 "assets/code/terradelta/__init__.py"):
+        path = root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.touch()
+    source = "".join(make_notebook("siamese_v2", evidence_classifier=True)["cells"][1]["source"])
+    bootstrap = source.split("import torch", 1)[0]
+    prelude = {
+        "file": f"__file__ = {str(root / 'predict.py')!r}\n",
+        "argv": f"import sys\nsys.argv = [{str(root / 'predict.ipynb')!r}]\n",
+        "module_path": f"import sys\nsys.path.insert(0, {str(root / 'assets/code')!r})\n",
+        "environment": "",
+    }[anchor]
+    environment = dict(os.environ)
+    environment.pop("AIF_SUBMISSION_DIR", None)
+    environment.pop("AIF_NOTEBOOK_PATH", None)
+    if anchor == "environment":
+        environment["AIF_SUBMISSION_DIR"] = str(root)
+    run = subprocess.run(
+        [os.sys.executable, "-c", prelude + bootstrap + "\nprint(ROOT)"],
+        cwd="/", env=environment, capture_output=True, text=True, timeout=10,
+    )
+    assert run.returncode == 0, run.stderr
+    assert run.stdout.strip() == str(root)

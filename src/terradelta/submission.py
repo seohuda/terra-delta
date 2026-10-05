@@ -11,7 +11,7 @@ from terradelta.models.checkpoint import load_checkpoint
 from terradelta.models.factory import build_model
 from terradelta.utils.io import load_config
 
-PACKAGE_ROOT = Path(__file__).parent
+PACKAGE_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = PACKAGE_ROOT.parents[1]
 
 
@@ -25,9 +25,42 @@ import os
 import sys
 from pathlib import Path
 
-ROOT = Path.cwd()
-if not (ROOT / "assets/config.yaml").is_file():
-    raise FileNotFoundError("Run predict.ipynb from the extracted submission root")
+# Locate bundled resources using execution/package anchors, never a CWD assumption.
+def _submission_root():
+    anchors = []
+    for name in ("__file__", "__vsc_ipynb_file__", "__notebook_path__"):
+        value = globals().get(name)
+        if value:
+            anchors.append(Path(value).resolve().parent)
+    for name in ("AIF_SUBMISSION_DIR", "AIF_NOTEBOOK_PATH"):
+        value = os.environ.get(name)
+        if value:
+            path = Path(value).resolve()
+            anchors.append(path.parent if path.suffix in {".ipynb", ".py"} else path)
+    for value in sys.argv:
+        if value.endswith((".ipynb", ".py")) and Path(value).is_file():
+            anchors.append(Path(value).resolve().parent)
+    module = sys.modules.get("terradelta")
+    if module is not None and getattr(module, "__file__", None):
+        anchors.append(Path(module.__file__).resolve().parent)
+    anchors.extend(Path(value).resolve() for value in sys.path[:32] if value)
+    # The official runner extracts here; root execution remains supported too.
+    anchors.extend((Path("/aif/submission"), Path.cwd()))
+    checked = []
+    for anchor in anchors:
+        for candidate in (anchor, *list(anchor.parents)[:4]):
+            if candidate in checked:
+                continue
+            checked.append(candidate)
+            required = ("assets/config.yaml", "assets/model/model.pt",
+                        "assets/code/terradelta/__init__.py")
+            if all((candidate / name).is_file() for name in required):
+                return candidate
+    raise FileNotFoundError("Submission assets not found; supply the notebook path "
+                            "or AIF_SUBMISSION_DIR. Checked: " +
+                            ", ".join(map(str, checked)))
+
+ROOT = _submission_root()
 sys.path.insert(0, str(ROOT / "assets/code"))
 import torch
 from terradelta.utils.io import load_config
@@ -145,6 +178,8 @@ def export_submission(checkpoint, config_path, destination, baseline_root=None):
         )
         dependencies = ["torch>=2.5", "segmentation-models-pytorch==0.5.0", "numpy>=2.0",
                         "pillow>=10.0", "shapely>=2.0", "pyyaml>=6"]
+        if "evidence_classifier" in config:
+            dependencies.append("scipy>=1.13")
         post = config.get("postprocess", {})
         settings = [post, *(post.get("classes") or {}).values(),
                     *(post.get(name, {}) for name in ("new_building", "tree_removal"))]
