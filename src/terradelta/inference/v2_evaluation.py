@@ -28,19 +28,27 @@ def evaluate_model(model, manifest, config, device, prediction_path=None):
                 for i, c in enumerate(CLASSES)
             },
         } for s in samples)
+    result = prediction_metrics(predictions, truth)
+    if prediction_path:
+        write_prediction_csv(prediction_path, predictions)
+    return result
+
+
+def prediction_metrics(predictions, truth):
+    """Published polygon score plus real no-change counts for fixed row sets."""
     result = evaluate_predictions(predictions, truth)
-    negatives = [i for i, row in enumerate(truth) if all(not row[c] for c in CLASSES)]
+    predicted = {row["id"]: row for row in predictions}
+    negatives = [row["id"] for row in truth
+                 if all(_polygon_union(row[c], "ground truth").is_empty for c in CLASSES)]
     result["no_change_count"] = len(negatives)
     result["no_change_fp_any"] = sum(
-        any(_polygon_union(predictions[i][c], "prediction").area >= 20 for c in CLASSES)
+        any(_polygon_union(predicted[i][c], "prediction").area >= 20 for c in CLASSES)
         for i in negatives
     )
     for c in CLASSES:
         result["classes"][c]["no_change_fp_count"] = sum(
-            _polygon_union(predictions[i][c], "prediction").area >= 20 for i in negatives
+            _polygon_union(predicted[i][c], "prediction").area >= 20 for i in negatives
         )
-    if prediction_path:
-        write_prediction_csv(prediction_path, predictions)
     return result
 
 
