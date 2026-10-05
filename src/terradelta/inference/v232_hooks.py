@@ -31,19 +31,47 @@ def validate_classifier_alignment_requirements(
     classifier: Any,
     alignment_config: LocalAlignmentConfig,
 ) -> None:
-    """Ensure that if the active classifier declares any alignment feature, alignment is enabled."""
+    """Ensure that if the active classifier declares any alignment feature, alignment is enabled and fingerprint matches."""
     if classifier is None or not getattr(classifier, "enabled", False):
         return
     models = getattr(classifier, "models", {})
     alignment_feature_set = frozenset(V232_ALIGNMENT_FEATURES)
+    active_alignment_models = []
     for class_name, model in models.items():
         declared = set(getattr(model, "feature_names", ()))
         req_align = declared & alignment_feature_set
-        if req_align and not alignment_config.enabled:
-            raise ValueError(
-                f"Classifier model for '{class_name}' declares experimental alignment features {sorted(req_align)}, "
-                "but experimental.alignment_residual.enabled is False. Alignment features cannot be silently defaulted to zero."
-            )
+        if req_align:
+            active_alignment_models.append((class_name, sorted(req_align), model))
+
+    if not active_alignment_models:
+        return
+
+    if not alignment_config.enabled:
+        first_cls, first_feats, _ = active_alignment_models[0]
+        raise ValueError(
+            f"Classifier model for '{first_cls}' declares experimental alignment features {first_feats}, "
+            "but experimental.alignment_residual.enabled is False. Alignment features cannot be silently defaulted to zero."
+        )
+
+    expected_fp = getattr(classifier, "expected_alignment_fingerprint", None)
+    if not expected_fp:
+        for _, _, mod in active_alignment_models:
+            mod_fp = getattr(mod, "expected_alignment_fingerprint", None)
+            if mod_fp:
+                expected_fp = mod_fp
+                break
+
+    if not expected_fp or not isinstance(expected_fp, str) or not expected_fp.strip():
+        raise ValueError(
+            "Classifier uses alignment features but expected_alignment_fingerprint is missing or empty."
+        )
+
+    runtime_fp = alignment_config.fingerprint()
+    if expected_fp != runtime_fp:
+        raise ValueError(
+            f"Classifier expected alignment fingerprint '{expected_fp}' does not match "
+            f"runtime configuration fingerprint '{runtime_fp}'"
+        )
 
 
 def check_candidate_alignment_features(

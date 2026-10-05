@@ -302,3 +302,37 @@ def test_cache_roundtrip_and_fingerprints(tmp_path):
     bad_features["align_residual_before"] = float("nan")
     with pytest.raises(ValueError, match="non-finite"):
         cache.put(key, bad_features)
+
+
+def test_minimum_common_alignment_support_fraction_corner_pruning():
+    """Item 3 / Phase 1: common support region must satisfy min_overlap_fraction, pruning shifts deterministically."""
+    # 10x10 top-left corner mask: n_total = 100
+    mask = square_mask(0, 0, 10, 10, size=32)
+    pre = textured(c=2, h=32, w=32, seed=10)
+    post = textured(c=2, h=32, w=32, seed=11)
+
+    extractor = ext(
+        image_size=32,
+        bbox_padding=0,
+        ring_radius=0,
+        max_shift_image_px=2,
+        min_overlap_fraction=0.75,
+        min_valid_pixels=4,
+    )
+    res = extractor.extract_scale(mask, pre, post, 0)
+    assert res.valid
+    assert res.valid_fraction >= 0.75
+
+    # Stricter overlap fraction forces deterministic pruning to (0, 0)
+    strict_ext = ext(
+        image_size=32,
+        bbox_padding=0,
+        ring_radius=0,
+        max_shift_image_px=2,
+        min_overlap_fraction=0.85,
+        min_valid_pixels=4,
+    )
+    res_strict = strict_ext.extract_scale(mask, pre, post, 0)
+    assert res_strict.valid
+    assert res_strict.valid_fraction >= 0.85
+    assert (res_strict.best_dx, res_strict.best_dy) == (0, 0)

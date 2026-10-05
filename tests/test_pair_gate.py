@@ -38,6 +38,7 @@ def model_dict(**over):
         "weights": [2.0, 0.0],
         "bias": -1.0,
         "threshold": 0.5,
+        "expected_fingerprint": PairGateConfig().fingerprint(),
     }
     data.update(over)
     return data
@@ -223,11 +224,11 @@ def test_pair_gate_config_metadata_and_fingerprint():
 
 
 def test_model_fingerprint_binding_and_mismatch_rejection():
-    """Item 4: serialized model expected fingerprint must match runtime config."""
-    cfg = PairGateConfig(top_k=3, high_confidence_threshold=0.5, image_size=256)
+    """Item 4 & Phase 1: serialized model expected fingerprint must match runtime config and is mandatory when enabled."""
+    cfg = PairGateConfig(enabled=True, top_k=3, high_confidence_threshold=0.5, image_size=256)
     valid_fp = cfg.fingerprint()
 
-    # Model carrying matching fingerprint succeeds
+    # Model carrying matching fingerprint succeeds when enabled
     m_ok = model_dict(expected_fingerprint=valid_fp)
     gate_ok = PairChangeGate(cfg, LinearPairGateModel.from_dict(m_ok))
     assert gate_ok.model.expected_fingerprint == valid_fp
@@ -236,6 +237,23 @@ def test_model_fingerprint_binding_and_mismatch_rejection():
     m_bad = model_dict(expected_fingerprint="mismatched_hash_999")
     with pytest.raises(ValueError, match="expected fingerprint 'mismatched_hash_999' does not match"):
         PairChangeGate(cfg, LinearPairGateModel.from_dict(m_bad))
+
+    # Enabled gate with missing expected_fingerprint raises ValueError
+    m_missing = model_dict(expected_fingerprint=None)
+    with pytest.raises(ValueError, match="pair_gate.enabled requires model.expected_fingerprint to be a non-empty string"):
+        PairChangeGate(cfg, LinearPairGateModel.from_dict(m_missing))
+
+    # Enabled gate with empty/whitespace expected_fingerprint raises ValueError
+    m_empty = model_dict(expected_fingerprint="   ")
+    with pytest.raises(ValueError, match="pair_gate.enabled requires model.expected_fingerprint to be a non-empty string"):
+        PairChangeGate(cfg, LinearPairGateModel.from_dict(m_empty))
+
+    # Disabled gate may load model without fingerprint and never becomes active
+    cfg_disabled = PairGateConfig(enabled=False, top_k=3, high_confidence_threshold=0.5, image_size=256)
+    gate_disabled = PairChangeGate(cfg_disabled, LinearPairGateModel.from_dict(m_missing))
+    assert not gate_disabled.enabled
+    res = gate_disabled.evaluate({})
+    assert res.keep_pair and res.reason == "gate_disabled"
 
 
 def test_pair_training_contract():

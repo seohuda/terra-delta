@@ -13,6 +13,7 @@ from typing import Any, Mapping, Sequence
 import numpy as np
 
 from terradelta.postprocess.polygons import serialize_polygons
+from .local_alignment import V232_ALIGNMENT_FEATURES
 from .v2 import CLASSES, class_options
 
 
@@ -27,6 +28,7 @@ class LinearComponentClassifier:
         weights: Sequence[float],
         intercept: float,
         threshold: float = 0.5,
+        expected_alignment_fingerprint: str | None = None,
     ):
         self.feature_names = tuple(feature_names)
         self.mean = np.asarray(mean, dtype=np.float64)
@@ -34,6 +36,9 @@ class LinearComponentClassifier:
         self.weights = np.asarray(weights, dtype=np.float64)
         self.intercept = float(intercept)
         self.threshold = float(threshold)
+        self.expected_alignment_fingerprint = (
+            str(expected_alignment_fingerprint) if expected_alignment_fingerprint is not None else None
+        )
 
         if len(self.mean) != len(self.feature_names) or len(self.scale) != len(self.feature_names):
             raise ValueError("Mean and scale shapes must match feature_names length")
@@ -66,7 +71,7 @@ class LinearComponentClassifier:
         return proba >= self.threshold
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        d = {
             "model_type": "logistic_regression",
             "feature_names": list(self.feature_names),
             "mean": self.mean.tolist(),
@@ -75,6 +80,9 @@ class LinearComponentClassifier:
             "intercept": self.intercept,
             "threshold": self.threshold,
         }
+        if self.expected_alignment_fingerprint is not None:
+            d["expected_alignment_fingerprint"] = self.expected_alignment_fingerprint
+        return d
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> LinearComponentClassifier:
@@ -85,6 +93,7 @@ class LinearComponentClassifier:
             weights=data["weights"],
             intercept=data["intercept"],
             threshold=data.get("threshold", 0.5),
+            expected_alignment_fingerprint=data.get("expected_alignment_fingerprint"),
         )
 
 
@@ -100,9 +109,17 @@ def math_exp(x: float) -> float:
 class EvidenceClassifier:
     """Multi-class object evidence classifier container."""
 
-    def __init__(self, models: Mapping[str, LinearComponentClassifier], enabled: bool = True):
+    def __init__(
+        self,
+        models: Mapping[str, LinearComponentClassifier],
+        enabled: bool = True,
+        expected_alignment_fingerprint: str | None = None,
+    ):
         self.models = dict(models)
         self.enabled = bool(enabled)
+        self.expected_alignment_fingerprint = (
+            str(expected_alignment_fingerprint) if expected_alignment_fingerprint is not None else None
+        )
         for name in self.models:
             if name not in CLASSES:
                 raise ValueError(f"Unknown class name: {name}")
@@ -110,19 +127,40 @@ class EvidenceClassifier:
     def predict_keep(self, features: Mapping[str, float], class_name: str) -> bool:
         if not self.enabled or class_name not in self.models:
             return True
-        return self.models[class_name].predict_keep(features)
+        model = self.models[class_name]
+        declared = set(getattr(model, "feature_names", ()))
+        req_align = declared & frozenset(V232_ALIGNMENT_FEATURES)
+        for name in req_align:
+            if name not in features:
+                raise ValueError(
+                    f"Candidate for '{class_name}' is missing required alignment feature '{name}'. "
+                    "Missing alignment features cannot be silently replaced with zero."
+                )
+            val = features[name]
+            if not np.isfinite(val):
+                raise ValueError(
+                    f"Candidate for '{class_name}' has non-finite alignment feature '{name}': {val}"
+                )
+        return model.predict_keep(features)
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        d = {
             "version": 1,
             "enabled": self.enabled,
             "classes": {k: v.to_dict() for k, v in self.models.items()},
         }
+        if self.expected_alignment_fingerprint is not None:
+            d["expected_alignment_fingerprint"] = self.expected_alignment_fingerprint
+        return d
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> EvidenceClassifier:
         models = {k: LinearComponentClassifier.from_dict(v) for k, v in data.get("classes", {}).items()}
-        return cls(models=models, enabled=data.get("enabled", True))
+        return cls(
+            models=models,
+            enabled=data.get("enabled", True),
+            expected_alignment_fingerprint=data.get("expected_alignment_fingerprint"),
+        )
 
     @classmethod
     def from_file(cls, path: str | Path) -> EvidenceClassifier:

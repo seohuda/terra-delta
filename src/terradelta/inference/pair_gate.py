@@ -349,9 +349,19 @@ class PairChangeGate:
         self.config = config
         if model is None and config.model is not None:
             model = LinearPairGateModel.from_dict(config.model)
-        if config.enabled and model is None:
-            raise ValueError("pair_gate.enabled requires a model")
-        if model is not None and model.expected_fingerprint is not None:
+        if config.enabled:
+            if model is None:
+                raise ValueError("pair_gate.enabled requires a model")
+            if not model.expected_fingerprint or not isinstance(model.expected_fingerprint, str) or not model.expected_fingerprint.strip():
+                raise ValueError("pair_gate.enabled requires model.expected_fingerprint to be a non-empty string")
+            expected_fp = model.expected_fingerprint
+            runtime_fp = config.fingerprint()
+            if expected_fp != runtime_fp:
+                raise ValueError(
+                    f"Pair gate model expected fingerprint '{expected_fp}' does not match "
+                    f"runtime configuration fingerprint '{runtime_fp}'"
+                )
+        elif model is not None and model.expected_fingerprint is not None:
             expected_fp = model.expected_fingerprint
             runtime_fp = config.fingerprint()
             if expected_fp != runtime_fp:
