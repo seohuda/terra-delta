@@ -25,12 +25,16 @@ from .evidence_features import (
     extract_deep_cva_maps,
     get_component_pixels,
 )
+from .experimental import ExperimentalConfig
+from .local_alignment import LocalAlignmentFeatureExtractor
+from .pair_gate import PAIR_GATE_CLASSES, PairChangeGate, PairFeatureExtractor
 from .predictor import discover_pairs, read_image
 from .stability_v23 import (
     component_features as stability_component_features,
     tta_probabilities,
 )
 from .v2 import CLASSES, V2Predictor, class_options, prepare_v2_pair
+from .v232_hooks import attach_alignment_features, gate_filtered_row
 
 
 def reverse_pair_tensor(image: torch.Tensor) -> torch.Tensor:
@@ -171,6 +175,33 @@ def extract_pair_evidence_records(
     return results
 
 
+@torch.inference_mode()
+def encoder_feature_maps(
+    predictor: V2Predictor, image: torch.Tensor, scales: Sequence[int]
+) -> tuple[dict[int, np.ndarray], dict[int, np.ndarray]]:
+    """Frozen shared-weight encoder pyramid levels for PRE and POST, as (B, C, H, W) arrays."""
+    pre = predictor.model.encoder(image[:, :3].to(predictor.device))
+    post = predictor.model.encoder(image[:, 3:].to(predictor.device))
+    return (
+        {s: pre[s].float().cpu().numpy() for s in scales},
+        {s: post[s].float().cpu().numpy() for s in scales},
+    )
+
+
+def candidate_masks(pixels: np.ndarray, config: Mapping[str, Any], class_name: str) -> list[np.ndarray]:
+    """Boolean masks of the original candidate components, in extract_pair_evidence_records order."""
+    options = class_options(config, class_name)
+    masks = []
+    for part in reference_components(pixels >= options["pixel_threshold"]):
+        if part.area < options["min_area"]:
+            continue
+        mask = np.zeros(pixels.shape, dtype=bool)
+        y, x = get_component_pixels(part)
+        mask[y, x] = True
+        masks.append(mask)
+    return masks
+
+
 class V231Predictor(V2Predictor):
     """V2.3.1 predictor: V2.2 pipeline with object-level evidence classifier."""
 
@@ -193,6 +224,11 @@ class V231Predictor(V2Predictor):
             self.classifier = EvidenceClassifier.from_dict(self.evidence_config["model_data"])
         else:
             self.classifier = EvidenceClassifier({}, enabled=False)
+        # Experimental v2.3.2 features: all disabled unless configured explicitly.
+        self.experimental = ExperimentalConfig.from_config(config)
+        self.pair_gate = PairChangeGate(self.experimental.pair_gate)
+        self.pair_features = PairFeatureExtractor(self.experimental.pair_gate)
+        self.alignment = LocalAlignmentFeatureExtractor(self.experimental.alignment_residual)
 
     @torch.inference_mode()
     def output_rows(
@@ -213,11 +249,58 @@ class V231Predictor(V2Predictor):
             self, image, pixels, presence, v22_rows, self.config
         )
 
+        if self.experimental.any_enabled:
+            return self._experimental_rows(identifiers, image, pixels, presence, v22_rows, evidence_records)
+
         # 3. Apply object evidence classifier
         return [
             apply_evidence_filtering(row, recs, self.classifier, self.config)
             for row, recs in zip(v22_rows, evidence_records)
         ]
+
+    def _experimental_rows(
+        self,
+        identifiers: Sequence[str],
+        image: torch.Tensor,
+        pixels: np.ndarray,
+        presence: np.ndarray,
+        v22_rows: Sequence[Mapping[str, Any]],
+        evidence_records: Sequence[dict[str, list[dict[str, Any]]]],
+    ) -> list[dict[str, Any]]:
+        """Optional v2.3.2 stages around the unchanged V2.3.1 object evidence filtering."""
+        align_cfg = self.experimental.alignment_residual
+        if align_cfg.enabled:
+            pre_f, post_f = encoder_feature_maps(self, image, align_cfg.feature_scales)
+            for i, records in enumerate(evidence_records):
+                masks = {
+                    name: candidate_masks(pixels[i, channel], self.config, name)
+                    for channel, name in enumerate(CLASSES)
+                    if records.get(name)
+                }
+                attach_alignment_features(
+                    {name: records[name] for name in masks},
+                    masks,
+                    {s: a[i] for s, a in pre_f.items()},
+                    {s: a[i] for s, a in post_f.items()},
+                    self.alignment,
+                    pair_id=str(identifiers[i]),
+                )
+        rows = [
+            apply_evidence_filtering(row, recs, self.classifier, self.config)
+            for row, recs in zip(v22_rows, evidence_records)
+        ]
+        if not self.pair_gate.enabled:
+            return rows
+        gated = []
+        for i, (row, recs) in enumerate(zip(rows, evidence_records)):
+            pair_presence = {
+                name: float(presence[i, CLASSES.index(name)]) for name in PAIR_GATE_CLASSES
+            }
+            gated_row, _ = gate_filtered_row(
+                row, recs, pair_presence, self.classifier, self.pair_features, self.pair_gate
+            )
+            gated.append(dict(gated_row))
+        return gated
 
 
 def predict_directory(input_dir, output_path, checkpoint, config, device="cpu"):
