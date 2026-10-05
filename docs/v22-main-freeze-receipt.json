@@ -1,0 +1,35 @@
+{
+  "receipt": {
+    "frozen_at_utc": "2026-10-05T01:46:14.738057+00:00",
+    "release": "/data/terradelta/releases/v2.2-main-01",
+    "source_commit": "099c1e968d9faaf2c33894ad55da32667d16092a",
+    "zip_identical_to_debug": true,
+    "main_submissions": 1,
+    "old_v2_release_files_verified_unchanged": 33,
+    "data_and_secrets_and_logs_excluded": true,
+    "pre_network_guard_failure": {
+      "api_calls": 0,
+      "cause": "SDK MAIN omits debug flag; initial explicit-false assertion blocked before network."
+    }
+  },
+  "verified_files": 15,
+  "hashes": {
+    "SOURCE_COMMIT.txt": "956a82257e58b1bab964243a5decb0be1363e99bb22a9126a78774b9f4393af0",
+    "config.yaml": "0e0fd4bf695af2ef7c2b2aff9c5dc3b91babb1d4569f54b6ac416122ef9a1f77",
+    "debug-manifest.json": "55a22ae5c0bbbe4ef93491322ecb5fc859cd4e452d62ef504a1b5b3a6d408767",
+    "debug-result.json": "bea8624b9ee8784e984957cf1a19ac6ee71996ea1426ff78e3704a8b502c7b20",
+    "final-v2-selection.json": "e9214fbaca63eb75d254c28d1c3b4d4e698cf2e5fa0e91c51477b2482c93a07e",
+    "freeze-receipt.json": "4317b9ac15e7cb264b2f18faf9431534eae91cd96d9ff85b96b6eccc85fd670f",
+    "git-source-proof.json": "a1c12e00340fb6846a369e045db47500fbcc54b43f6e2268c2cf9f8e51454752",
+    "main-registration.json": "e396c080f9b34905d6fc0c85ffcc46fd5ea00256a551c2eda062c86b178969a5",
+    "main-result.json": "1ccf7b368b009143b8ea2b7b33ca50e3f701474aab64c96abad063916354453d",
+    "model.pt": "ca59fe6698d8ee6bef354a7f40c1ef6d8901826e0572a5b80eb2b1d8b2ca4372",
+    "offline-cleanroom-manifest.json": "9b5e0ddec20cbaa13bb229cebf797f2df4b5a794b0de5934a90bc32ddefc76e5",
+    "preflight.json": "1719538e23e0ae58065d0a7936a584c20336a66917568b08c3223fb424dfe77e",
+    "quota-before.json": "f1c83dade048c4ca77ca0613be7567cc89b4c307c70cd346abd457828ecdc2b3",
+    "terradelta-v2-debug.zip": "f4bcaa54157fe077318f9c0bef43d764bab3c14daa86c52a1f566213169d79c2",
+    "verifier.json": "2b7a0a1727d7bc30a6944b2d49f20252adf038118ad217d626c6fc3d117ad97a"
+  },
+  "directory_mode": "0o555",
+  "all_files_readonly": true
+}

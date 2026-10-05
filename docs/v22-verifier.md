@@ -1,5 +1,8 @@
 # Frozen v2.2 verifier result
 
+This is the historical DEBUG report. The subsequent authorized single MAIN
+completed at 0.2045954238; see the [latest MAIN result](v22-main-report.md).
+
 The class-wise verifier preserves the exact frozen v2 backbone, decoder, pixel
 thresholds and polygon geometry. It independently suppresses a class candidate
 when a regularized linear model rejects it. A feature outside the observed
