@@ -28,3 +28,29 @@
 
 7. **Reuse Shared Encoder Representations**:
    - When multiple feature extractors (e.g. deep CVA and local alignment) require frozen encoder representations, compute the encoder pyramid once and retain only the requested scale slices on CPU, freeing GPU tensors immediately.
+
+8. **Mandatory Fingerprint Binding for Enabled Gates**:
+   - Optional fingerprint validation leaves a loophole where a gate model can run without verifying runtime feature semantics. Enforce non-empty fingerprint equality strictly when enabled.
+
+9. **Dual Alignment Support Requirements**:
+   - Both absolute pixel count (`min_valid_pixels`) and relative component coverage (`min_overlap_fraction`) must be satisfied on the common intersection of evaluated shifts.
+   - Deterministically prune the farthest displacement shifts while strictly preserving `(0, 0)`.
+
+10. **Classifier Fingerprint Binding for Auxiliary Features**:
+   - When object classifiers consume auxiliary feature groups (like local alignment), validate that both the feature extractor is enabled and its configuration fingerprint matches the serialized model metadata.
+
+
+## 2026-10-06: V2.3.2 Experiment Execution Lessons
+
+11. **Physical Registration vs Genuine Structural Change**:
+    - Sensor misregistration, perspective shift, and building lean produce apparent differences that drop sharply under small integer feature-map shifts (e.g. 1–2 image px). Genuine changes (new building) do not align away (0.10% reduction vs 3.11% for artifacts).
+    - Local registration residual is therefore a powerful physical discriminator for rigid objects.
+
+12. **Non-Rigid Canopy Non-Stationarity and Synthetic Confounders**:
+    - Trees are non-rigid; wind sway, seasonal foliage, and shadow movement cause natural sub-pixel shifts even in deforestation boundaries.
+    - Training tree models unconstrained on synthetic cuts with alignment features can overfit to clean artificial boundaries and penalize genuine forest cuts.
+    - Class-specific hybrid architectures (applying alignment features to `new_building` while keeping robust proven baselines for `tree_removal`) preserve perfect recall across all classes.
+
+13. **Pair-Level Gate vs Object-Level Physical Testing**:
+    - Pair-level aggregators (e.g. candidate count, total area, presence max) lack localized spatial resolution. When FP scenes contain realistic artifact components that already passed multi-view TTA stability, a pair-level gate cannot veto them without cutting into true positive recall.
+    - Object-level physical registration tests provide the necessary resolution to reject the specific artifact components directly.

@@ -1,0 +1,29 @@
+{
+  "submitted_at_utc": "2026-10-05T07:47:23.965237+00:00",
+  "registered_at_utc": "2026-10-05T07:47:24.909173+00:00",
+  "mode": "DEBUG",
+  "competition_id": 9306,
+  "model_name": "DEBUG_TERRADELTA_V231_ABLATION_D",
+  "api_calls": [
+    {
+      "method": "POST",
+      "endpoint": "upload-url",
+      "debug": true
+    },
+    {
+      "method": "POST",
+      "endpoint": "code-submissions",
+      "debug": true
+    }
+  ],
+  "response": {
+    "debugSubmissionId": 365234,
+    "codeRunId": 32424
+  },
+  "zip_sha256": "ac45a7fc41855f8ec09f53fd63891ef7fa5b6af76b4be4a65ffb77998f7e35be",
+  "checkpoint_sha256": "ca59fe6698d8ee6bef354a7f40c1ef6d8901826e0572a5b80eb2b1d8b2ca4372",
+  "status": "registered",
+  "main_submissions_this_task": 0,
+  "debug_submissions_this_task": 1,
+  "automatic_retry_allowed": false
+}

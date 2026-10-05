@@ -405,3 +405,59 @@ Completed on 2026-10-05.
 - Pre-experiment safety confirmed: No training, no GPU inference, no AWS actions, zero submissions.
 
 
+## V2.3.2 Experiment Execution (2026-10-05)
+
+Goal: Bounded experimental evaluation of Pair-Level Change Gate and Local Alignment Residual Features.
+Promotion Gates vs V2.3.1:
+- Real: building 3/3, tree 2/2, no-change FP <= 11/17
+- Stress: building >= 111, tree >= 95, FP 0/200, score >= 0.680
+- Retain frozen neural checkpoint ca59fe6698d8ee6bef354a7f40c1ef6d8901826e0572a5b80eb2b1d8b2ca4372
+- Zero MAIN submissions under any condition; at most ONE DEBUG submission if promoted.
+- Mandatory AWS shutdown of CPU i-0766a472ecb5bcf88 and GPU i-0523a619699a95db0 at completion.
+
+- [x] Phase 1: Final Code Hardening (mandatory pair-gate fingerprint, alignment-aware classifier fingerprint binding, minimum common alignment support fraction).
+- [x] Commit `fix(v2.3.2): bind experimental feature semantics` (af8a78e) and push review branch.
+- [x] Create experiment branch `v2.3.2-pairgate-align-exp-20261005`.
+- [x] Phase 2: Verify AWS initial state and anti-leak data exclusion list (stress IDs, legacy validation IDs, 120 synthetic overlap pairs).
+- [x] Phase 3: Setup bounded experiment pipeline & OOF training contract:
+  - [x] E0: V2.3.1 baseline verification (Real: B 3/3, T 2/2, FP 11/17, Score 0.567203; Stress: B 113, T 97, FP 0/200, Score 0.691924).
+  - [x] E1: Pair gate only (5-fold OOF fitting: cannot drop real FP without regressing stress TP from 113 to 110; fails promotion gate).
+  - [x] E2: Alignment object classifier (Stage 1 physical discrimination verified; training extraction and multi-schema models evaluated).
+  - [x] E3: Hybrid candidate promoted: `D_align_core` for new_building + frozen Ablation D for tree_removal.
+- [x] Phase 4: Evaluate Promotion Gates on Real (22 pairs) and Stress datasets (Passed all criteria: Real FP 8/17, Score 0.628615, Stress B 112, T 97).
+- [x] Phase 5: Generate `docs/v232-experiment-report.md` and `outputs/v232-experiment-summary.json`.
+- [x] Phase 6: Conditional Packaging, Cleanroom 2-pass verification (byte-identical pass), and at most ONE DEBUG submission (Submission 365654, Score 0.3331, ZERO MAIN).
+- [x] Phase 7: Mandatory AWS shutdown: stop CPU i-0766a472ecb5bcf88 and GPU i-0523a619699a95db0, verify `stopped`.
+- [x] Phase 8: Final Git commit and push `v2.3.2-pairgate-align-exp-20261005`.
+
+### V2.3.2 Experiment Review & Result Summary
+
+Completed on 2026-10-06.
+- Promoted Candidate: Hybrid Object Evidence Classifier (`classifier_v232_promoted.json`)
+  - `new_building`: `D_align_core` (Ablation D + alignment residual reduction, ratio, and shift distance)
+  - `tree_removal`: Frozen Ablation D (protects non-rigid canopies against synthetic circle-cut overfitting)
+- Local Validation & Promotion Gates:
+  - Real Building Recall: 3/3 (100%, passed)
+  - Real Tree Recall: 2/2 (100%, passed)
+  - Real No-Change FP: 8/17 (reduced from 11/17 by 3 false positive scenes, passed)
+  - Real Legacy Score: 0.628615 (up from 0.567203, passed)
+  - Stress Building TP: 112 / 150 (>= 111, passed)
+  - Stress Tree TP: 97 / 150 (>= 95, passed)
+  - Stress FP: 0 / 200 (passed)
+  - Stress Score: 0.689536 (>= 0.680, passed)
+- Release Packaging & Cleanroom:
+  - Package: `/data/terradelta/v2.3.2/release/terradelta-v232-debug.zip` (60,060,040 bytes, SHA256 `5aad7e163285964ce1346d97a3f8596ef630604fd9dbeee3394804b83c461788`)
+  - Cleanroom 2-pass offline inference: byte-identical CSV predictions (`56cc30123db58ea1067817fdc008baa5ad7be8efc9ef7bfdcb4a2696bd799ad4`)
+- Single DEBUG Submission (Zero MAIN):
+  - Submission ID: `365654`
+  - Code Run ID: `33151`
+  - Score: `0.3331` (연습용, matches reference debug benchmark)
+  - Status: 완료 (Completed, 0 errors)
+  - Quota: MAIN 3/3 remaining (0 used), DEBUG 1/10 used today (exactly 1 used)
+  - Screenshot verified: `docs/v232-debug-completed.jpg`
+- AWS Infrastructure:
+  - CPU instance `i-0766a472ecb5bcf88`: **`stopped`** (API verified)
+  - GPU instance `i-0523a619699a95db0`: **`stopped`** (API verified)
+  - SSM Port forwarding tunnel: terminated
+- Final Verdict: `V2.3.2 DEBUG NEUTRAL/POSITIVE — MAIN DECISION PENDING`
+
