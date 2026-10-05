@@ -1,5 +1,5 @@
 {
-  "status": "cleanroom_passed",
+  "status": "debug_completed",
   "artifact": "terradelta-v2-debug.zip",
   "artifact_bytes": 60019810,
   "artifact_sha256": "f4bcaa54157fe077318f9c0bef43d764bab3c14daa86c52a1f566213169d79c2",
@@ -177,7 +177,7 @@
     "shapely>=2.0",
     "pyyaml>=6"
   ],
-  "submission_count": 0,
+  "submission_count": 1,
   "main_count": 0,
   "training_steps_executed": 0,
   "version": "v2.2",
@@ -188,6 +188,60 @@
   },
   "backbone_decoder_optimizer_steps": 0,
   "aihub_rows": 0,
-  "aihub_status": "awaiting_approved_access_and_sample_audit",
-  "main_submissions": 0
+  "aihub_status": "approved_but_provider_geoip_denied",
+  "main_submissions": 0,
+  "aihub_access_evidence": {
+    "verified_at_utc": "2026-10-05T00:49:11.416761+00:00",
+    "dataset": 71363,
+    "application_status": "auto_approved",
+    "application_purpose": "AI competition participation",
+    "approval_validity_months": 3,
+    "instance_id": "i-0766a472ecb5bcf88",
+    "region": "ap-northeast-2",
+    "availability_zone": "ap-northeast-2c",
+    "http_status": 502,
+    "provider_message": "AI 허브는 해외에서의 데이터 다운로드를 제한하고 있습니다.",
+    "response_bytes": 82,
+    "selected_file_key": "533615",
+    "imagery_download_bytes": 0,
+    "auxiliary_training_rows": 0,
+    "proxy_environment_present": false,
+    "status": "approved_but_provider_geoip_denied",
+    "candidate_disposition": "Use unchanged verifier02 after existing local/offline gate; auxiliary data experiment remains incomplete."
+  },
+  "submission": {
+    "submitted_at_utc": "2026-10-05T00:49:26.546621+00:00",
+    "mode": "DEBUG",
+    "competition_id_user_confirmed": 9306,
+    "api_calls": [
+      {
+        "method": "POST",
+        "endpoint": "upload-url",
+        "debug": true
+      },
+      {
+        "method": "POST",
+        "endpoint": "code-submissions",
+        "debug": true
+      }
+    ],
+    "response": {
+      "debugSubmissionId": 365047,
+      "codeRunId": 32072
+    },
+    "artifact_sha256": "f4bcaa54157fe077318f9c0bef43d764bab3c14daa86c52a1f566213169d79c2"
+  },
+  "debug_result": {
+    "status": "completed",
+    "terminal_observed_at_utc": "2026-10-05T01:00:03.619502+00:00",
+    "displayed_practice_score": 0.3331,
+    "exact_unrounded_score": null,
+    "submission_ui": "https://aifactory.space/ko/competitions/9306/submission",
+    "comparison": {
+      "frozen_v2_displayed_debug_score": 0.3331,
+      "displayed_score_change": 0.0,
+      "conclusion": "No improvement at displayed precision; no claim of equal unrounded scores or MAIN improvement."
+    }
+  },
+  "terminal_evidence_location": "docs/v22-debug-result.json; archive and original registration manifest preserved on retained EBS"
 }

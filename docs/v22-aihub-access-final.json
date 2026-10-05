@@ -1,0 +1,19 @@
+{
+  "verified_at_utc": "2026-10-05T00:49:11.416761+00:00",
+  "dataset": 71363,
+  "application_status": "auto_approved",
+  "application_purpose": "AI competition participation",
+  "approval_validity_months": 3,
+  "instance_id": "i-0766a472ecb5bcf88",
+  "region": "ap-northeast-2",
+  "availability_zone": "ap-northeast-2c",
+  "http_status": 502,
+  "provider_message": "AI 허브는 해외에서의 데이터 다운로드를 제한하고 있습니다.",
+  "response_bytes": 82,
+  "selected_file_key": "533615",
+  "imagery_download_bytes": 0,
+  "auxiliary_training_rows": 0,
+  "proxy_environment_present": false,
+  "status": "approved_but_provider_geoip_denied",
+  "candidate_disposition": "Use unchanged verifier02 after existing local/offline gate; auxiliary data experiment remains incomplete."
+}

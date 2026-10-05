@@ -1,5 +1,5 @@
 {
-  "verified_at_utc": "2026-10-04T16:26:59.842329+00:00",
+  "verified_at_utc": "2026-10-05T00:53:21.912375+00:00",
   "region": "ap-northeast-2",
   "instances": [
     {
@@ -41,11 +41,23 @@
       "encrypted": true
     }
   ],
-  "task_ssh_key_revoked": true,
   "task_ssm_session_terminated": true,
-  "frozen_release_files_unchanged": 33,
-  "debug_submissions": 0,
+  "preservation": {
+    "verified_at_utc": "2026-10-05T00:52:32.412473+00:00",
+    "frozen_release_files_unchanged": 33,
+    "artifact_sha256": "f4bcaa54157fe077318f9c0bef43d764bab3c14daa86c52a1f566213169d79c2",
+    "debug_submissions": 1,
+    "main_submissions": 0,
+    "aihub_imagery_bytes": 0,
+    "aihub_training_rows": 0,
+    "original_data_and_caches_retained": true,
+    "checkpoint_and_debug_artifact_retained": true,
+    "task_ssh_key_revoked": true
+  },
+  "debug_submissions": 1,
   "main_submissions": 0,
   "aihub_download_bytes": 0,
-  "status": "awaiting_aihub_api_key"
+  "aihub_training_rows": 0,
+  "aihub_status": "approved_but_provider_geoip_denied",
+  "status": "stopped_data_preserved"
 }

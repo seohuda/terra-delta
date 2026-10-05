@@ -1,4 +1,4 @@
-# Frozen v2.2 verifier candidate
+# Frozen v2.2 verifier result
 
 The class-wise verifier preserves the exact frozen v2 backbone, decoder, pixel
 thresholds and polygon geometry. It independently suppresses a class candidate
@@ -26,7 +26,7 @@ is an adaptive local diagnostic, not independent generalization evidence.
 
 Real building recall remains 3/3 and tree recall 2/2. Synthetic building TP stays
 130/150 and tree TP 104/150. Shapes of retained predictions remain unchanged.
-Selected verifier thresholds: building0.015, tree0.05. This fixes only one real
+Selected verifier thresholds: building 0.015, tree 0.05. This fixes only one real
 no-change pair; it does not establish competitive generalization.
 
 ## Artifact and proof
@@ -48,32 +48,46 @@ API calls, MAIN/wrong endpoints/duplicate registration blocked.
 ## AIHub and submission status
 
 [AIHub review](v22-aihub-review.md) records organizer guidance, provider terms,
-file inventory and the required label/split treatment. The user logged in; the
-separate AIHub API key for direct provider-to-EC2 acquisition remains pending.
-AIHub imagery downloaded: 0 bytes. AIHub training rows: 0. No static segmentation
-label has been relabeled as temporal change. The final auxiliary-data comparison
-is therefore unfinished.
+file inventory and label/split requirements. The application is now automatically
+approved with the user's explicit terms authorization. Direct selected-file API
+requests from Seoul EC2 are nevertheless denied with the provider's overseas
+IP restriction message. [Access evidence](v22-aihub-access-final.json) records
+that response. Original imagery downloaded: 0 bytes; auxiliary training rows: 0.
+Actual band/label/geography suitability and AIHub-assisted fitting could not be
+completed. No static segmentation label became temporal change ground truth.
 
-DEBUG submissions: 0. MAIN submissions: 0. The authorized single DEBUG is reserved
-until AIHub access and sample suitability are resolved. No server score is claimed
-for v2.2. Frozen v2 remains the reference (DEBUG0.3331; MAIN0.1947902971).
+The unchanged verifier02 package was selected because its existing local gate
+and offline cleanroom passed. Exactly one DEBUG was registered on
+2026-10-05T00:49:26.546621+00:00: submission 365047, run 32072.
+Both SDK calls explicitly carried debug=true. MAIN submissions for v2.2: 0.
+The portal confirms one daily DEBUG used and all 3/3 daily MAIN slots remaining.
+The DEBUG completed with displayed practice score **0.3331**, equal to frozen
+v2 at the displayed precision. The unrounded score, detailed server logs,
+prediction CSV and execution duration are not exposed in the observed UI.
+The local no-change reduction did not produce a displayed DEBUG improvement.
+See [v22-debug-result.json](v22-debug-result.json) and the updated
+[v22-debug-manifest.json](v22-debug-manifest.json). Frozen v2 remains the
+reference (DEBUG 0.3331; MAIN 0.1947902971). The adaptive local improvement alone
+does not justify a MAIN submission.
 
 ## AWS state
 
-The CPU and GPU were both API-verified stopped at
-2026-10-04T16:26:59.842329+00:00 (October5 KST). Both encrypted30GiB root
-volumes remain attached with DeleteOnTermination=false. The task SSH key was
-removed and the task SSM forwarding session terminated. Source, feature caches,
-original data, frozen weights and the candidate ZIP are preserved. See
-[v22-aws-final.json](v22-aws-final.json).
+At 2026-10-05T00:53:21.912375+00:00, AWS APIs confirmed the CPU and GPU both stopped.
+The task SSH key was revoked and the task SSM forwarding session terminated.
+The two original encrypted 30 GiB volumes remain attached and retained with
+DeleteOnTermination=false. Before shutdown, all 33 frozen release files and the
+registered DEBUG archive hash were verified unchanged; original data, weights,
+features and package remain on EBS. See [v22-aws-final.json](v22-aws-final.json).
+The initial shutdown and subsequent CPU restart are historical; this is the
+latest verified final state. No GPU start, new instance, new volume, resize or
+snapshot occurred in v2.2.
 
-## Resume
+## Decision and remaining limitation
 
-Read small reports/config/source already committed on
-`v2.2-verifier-aihub-20261005`. Start only the existing CPU builder
-`i-0766a472ecb5bcf88` when the pending AIHub credential is available. Download
-selected files directly on Seoul EC2 with explicit byte/disk limits, inspect
-actual imagery/labels/provenance, and fit only the verifier on compatible audited
-auxiliary examples. Keep candidate02 as a fallback if auxiliary data fails the
-local gate. Finalize once, execute exactly one guarded DEBUG, inspect its terminal
-result, and stop CPU while retaining EBS. MAIN remains prohibited.
+Keep frozen v2 as the reference. Verifier02 remains a reproducible local-gate
+candidate with a completed single DEBUG and no displayed practice improvement.
+No tuning was performed using DEBUG feedback. No MAIN was submitted for v2.2.
+All executable work is complete; AIHub-assisted fitting and comparison remain
+unfinished because approved Seoul EC2 downloads are denied by the provider.
+Resolving provider access is required before an actual auxiliary-data experiment.
+The frozen model and the submitted candidate are both retained for later review.
