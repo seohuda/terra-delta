@@ -571,6 +571,52 @@ Completed on 2026-10-06.
    - SSM Port forwarding tunnel: terminated.
    - Zero MAIN submissions used.
 
+## TerraDelta V3 FINAL MAIN #1 SUBMISSION (2026-10-06)
+
+Goal: Execute exactly ONE authorized MAIN submission of pure Satlas V3 candidate (S2 Step 800), monitor to completion, verify score, freeze anchor, and report.
+
+- [x] Step 1: Pre-flight verification & quota check
+  - [x] 1.1: Verify local archive existence, size (337,467,378 bytes) and SHA256 (`db1ffe574cf757804a9f8308facaa6649fd4814d4fbabd52897b71e486af6fc0`).
+  - [x] 1.2: Verify stripped model weights SHA256 (`d9813ee9fc26dd5cf941fd7a61077af4815ce366104831e2ce5af77e0f723b1b`).
+  - [x] 1.3: Record baseline public leaderboard status (Rank: 113, Score: 0.2899243555, Total submissions: 4, Daily MAIN remaining: 3/3).
+  - [x] 1.4: Create directory `outputs/v3-main` and write preflight receipt.
+- [x] Step 2: Implement and validate guarded submission script
+  - [x] 2.1: Write `outputs/v3-main/submit_v3_main.py` with strict assertions (single dispatch, `debug=False`, exact endpoints, secret redaction, zero automatic retry).
+  - [x] 2.2: Validate dispatch guards using mock transport.
+- [x] Step 3: Execute single MAIN submission
+  - [x] 3.1: Pass authorized API key via stdin to `submit_v3_main.py`.
+  - [x] 3.2: Capture submission response (`publicSubmissionId: 366045`, `privateSubmissionId: 366046`, `codeRunId: 33855`).
+  - [x] 3.3: Verify durable attempt marker and response receipt.
+- [x] Step 4: Monitor platform execution to completion
+  - [x] 4.1: Poll leaderboard and platform status until terminal state (`completed`).
+  - [x] 4.2: Retrieve public score (full precision 0.3567265623, display 0.3567), rank 85, and remaining quota (2/3).
+- [x] Step 5: Score analysis & artifact freeze
+  - [x] 5.1: Calculate absolute delta (+0.066802) and relative improvement % (+23.04%) vs V2.3.1 baseline (0.2899243555).
+  - [x] 5.2: Freeze `V3_MAIN1_ANCHOR` and write `docs/v3-main-result.json` and `docs/v3-main-report.md`.
+  - [x] 5.3: Commit sanitized reports to `v3-satlas-aihub-deadline-20261006` and push to origin.
+- [x] Step 6: Final reporting
+  - [x] 6.1: Present 20 required response fields.
+  - [x] 6.2: Conclude with protocol: `V3 MAIN #1 COMPLETE — WAITING FOR V3.1 DECISION`.
+
+## TerraDelta V3 FINAL MAIN #1 Review
+
+Completed on 2026-10-06.
+1. Execution:
+   - Single authorized MAIN dispatch executed via stdin secret pipe with zero leaks.
+   - Public submission ID: 366045, Private submission ID: 366046, Code run ID: 33855.
+   - Terminal status: `완료` (completed) in ~8.5 minutes.
+2. Outcome:
+   - Official public score: **`0.3567265623`** (display: **`0.3567`**).
+   - Baseline score (V2.3.1): `0.2899243555`.
+   - Absolute gain: **`+0.0668022068`** | Relative improvement: **`+23.0413%`**.
+   - Leaderboard position: Jumped from **113위** to **85위** (+28 positions).
+3. Quota:
+   - 1 / 3 MAIN consumed today. Exactly **2 / 3** daily submissions remaining.
+4. Infrastructure:
+   - GPU `i-0523a619699a95db0` and CPU `i-0766a472ecb5bcf88` remain safely `stopped`.
+
+
+
 
 
 
