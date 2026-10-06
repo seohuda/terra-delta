@@ -1,0 +1,28 @@
+{
+  "retrieval_timestamp_utc": "2026-10-06T00:41:17Z",
+  "license": "Apache-2.0",
+  "attribution": "SatlasPretrain (Allen Institute for AI, ICCV 2023)",
+  "source_repository": "https://huggingface.co/allenai/satlas-pretrain",
+  "checkpoints": {
+    "Aerial_SwinB_SI": {
+      "filename": "aerial_swinb_si.pth",
+      "path": "models/satlas/aerial_swinb_si.pth",
+      "size_bytes": 504439674,
+      "sha256": "f8abf21cadaab2a71859e9d172bec4e5d6b7cc9710882a2f6a4d8aae826db036",
+      "arch": "swin_v2_b",
+      "resolution_range": "0.5-2.0m/px",
+      "input_channels": 3,
+      "role": "PRIMARY"
+    },
+    "Aerial_SwinB_MI": {
+      "filename": "aerial_swinb_mi.pth",
+      "path": "models/satlas/aerial_swinb_mi.pth",
+      "size_bytes": 503495370,
+      "sha256": "9c524bb5719401bd4d1b165fa198f6baac3006c53071185f2c2638424a933dba",
+      "arch": "swin_v2_b",
+      "resolution_range": "0.5-2.0m/px",
+      "input_channels": 3,
+      "role": "SECONDARY"
+    }
+  }
+}
