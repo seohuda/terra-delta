@@ -1,0 +1,82 @@
+{
+  "submitted_at_utc": "2026-10-06T01:56:53.674104+00:00",
+  "registered_at_utc": "2026-10-06T01:57:28.098687+00:00",
+  "completed_at_utc": "2026-10-06T02:06:28Z",
+  "server_submission_time_kst": "2026.10.06 10:57",
+  "mode": "MAIN",
+  "competition_id": 9306,
+  "model_name": "TerraDelta_V3_Satlas_S2_800",
+  "api_calls": [
+    {
+      "method": "POST",
+      "endpoint": "upload-url",
+      "debug": false
+    },
+    {
+      "method": "POST",
+      "endpoint": "code-submissions",
+      "debug": false
+    }
+  ],
+  "response": {
+    "publicSubmissionId": 366045,
+    "privateSubmissionId": 366046,
+    "codeRunId": 33855
+  },
+  "status": "completed",
+  "exit_code": 0,
+  "execution_duration_approx_seconds": 540,
+  "zip_path": "release/terradelta-v3-satlas.zip",
+  "zip_bytes": 337467378,
+  "zip_size_mb": 321.83,
+  "zip_sha256": "db1ffe574cf757804a9f8308facaa6649fd4814d4fbabd52897b71e486af6fc0",
+  "checkpoint_path": "assets/model/model.pt",
+  "checkpoint_sha256": "d9813ee9fc26dd5cf941fd7a61077af4815ce366104831e2ce5af77e0f723b1b",
+  "cleanroom_output_sha256": "b0352ad8ed6eb33ade0e287cbbbf2a196c8072f0dfa75576a5914dda73286aeb",
+  "cleanroom_status": "passed_byte_identical",
+  "source_branch": "v3-satlas-aihub-deadline-20261006",
+  "source_commit": "336ac0a",
+  "main_submissions_this_task": 1,
+  "debug_submissions_this_task": 0,
+  "automatic_retry_allowed": false,
+  "public_score": 0.3567265623,
+  "public_score_decimal": "0.3567265623",
+  "public_score_display": "0.3567",
+  "rank_observed": 85,
+  "rank_prior": 113,
+  "rank_delta": "+28 positions",
+  "baseline_v231_main": 0.2899243555,
+  "delta_vs_v231": "+0.0668022068",
+  "relative_delta_vs_v231_percent": 23.04125399479364,
+  "score_status": "IMPROVEMENT",
+  "daily_main_used_today": 1,
+  "daily_main_remaining": 2,
+  "daily_main_limit": 3,
+  "total_scored_submissions_observed": 5,
+  "total_submission_history_observed": 12,
+  "score_source": "Authenticated Public Leaderboard API & Submission History UI",
+  "public_score_source_url": "https://aifactory.space/ko/competitions/9306/leaderboard",
+  "private_score": null,
+  "private_score_availability": "Not exposed during active competition phase",
+  "aws_state": {
+    "gpu_instance_id": "i-0523a619699a95db0",
+    "gpu_state": "stopped",
+    "cpu_instance_id": "i-0766a472ecb5bcf88",
+    "cpu_state": "stopped",
+    "data_volume_id": "vol-0070845086ec08190",
+    "active_compute": 0
+  },
+  "V3_MAIN1_ANCHOR": {
+    "publicSubmissionId": 366045,
+    "privateSubmissionId": 366046,
+    "codeRunId": 33855,
+    "score": 0.3567265623,
+    "score_display": "0.3567",
+    "rank": 85,
+    "package_sha256": "db1ffe574cf757804a9f8308facaa6649fd4814d4fbabd52897b71e486af6fc0",
+    "checkpoint_sha256": "d9813ee9fc26dd5cf941fd7a61077af4815ce366104831e2ce5af77e0f723b1b",
+    "commit": "336ac0a",
+    "registered_at_utc": "2026-10-06T01:57:28.098687+00:00"
+  },
+  "conclusion": "V3 MAIN #1 SUBMISSION SUCCESSFUL — NEW LEADERBOARD RECORD (0.3567265623, RANK 85)"
+}
