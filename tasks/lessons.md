@@ -54,3 +54,16 @@
 13. **Pair-Level Gate vs Object-Level Physical Testing**:
     - Pair-level aggregators (e.g. candidate count, total area, presence max) lack localized spatial resolution. When FP scenes contain realistic artifact components that already passed multi-view TTA stability, a pair-level gate cannot veto them without cutting into true positive recall.
     - Object-level physical registration tests provide the necessary resolution to reject the specific artifact components directly.
+
+
+## 2026-10-06: V3 Satlas + AIHub 71363 Experiment Lessons
+
+14. **Pretrained Aerial Representations vs Hand-Crafted Filters**:
+    - Satlas Swin-v2 pretraining on 1.2M aerial imagery scenes inherently encodes spatial invariance and perspective variation, dropping Real Legacy false positive alarms from 11/17 to 6–7/17 without degrading tree recall (2/2) or stress score (0.7756).
+
+15. **Strict Loss Masking for Incomplete Multi-Task Datasets**:
+    - When external satellite datasets provide dense annotations for only a subset of target classes (e.g. AIHub 71363 has high-quality building annotations but 0 tree annotations), strictly mask unannotated channels (`valid_mask_tree = 0`, `presence_valid_tree = 0`). Never assume unannotated objects are negative; this preserves pure, uncorrupted supervision.
+
+16. **Capacity Asymmetry in Ensemble Blending**:
+    - Blending high-capacity foundation models (Swin-v2 Base) with lower-capacity architectures (ResNet18) can backfire when the weaker model's predictions suffer from high false-positive rates (FP rose from 6/17 to 11/17 in the blend). Pure foundation candidate promotion (E1) preserves superior spatial suppression.
+

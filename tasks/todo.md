@@ -512,4 +512,66 @@ Completed on 2026-10-06.
    - SSM Port forwarding tunnel: terminated.
 
 
+## TerraDelta V3 SATLAS + AIHub 71363 Deadline Experiment (2026-10-06)
+
+Goal: Build, train, and validate TerraDelta V3 end-to-end Siamese Satlas Swin-v2 model using AIHub 71363 data and existing TerraDelta training data to achieve a substantial leaderboard jump over V2.3.2 baseline while strictly safeguarding fallback stability.
+
+- [x] Step 1: Crop preparation & training manifests generation (`scripts/prepare_v3_datasets.py`)
+  - [x] 1.1: Extract 256x256 event-centered crops from 75 positive AIHub SkySat pairs (building changes: 201 crops extracted).
+  - [x] 1.2: Extract 100 diverse no-change crops from 767 AIHub SkySat negatives (roofs, roads, soil boundaries; 100 crops extracted).
+  - [x] 1.3: Generate manifests `train_S0.csv` (Control: 2,816 clean), `train_S1.csv` (S0 + 201 AIHub pos = 3,017), `train_S2.csv` (S1 + 100 AIHub neg = 3,117).
+  - [x] 1.4: Verify tree loss masking policy: all AIHub samples have `valid_mask_tree = 0`, `presence_valid_tree = 0`.
+- [x] Step 2: V3 Satlas training engine implementation (`scripts/train_satlas_v3.py`)
+  - [x] 2.1: Implement dataset loader for Satlas input conventions (`[0, 1]` float RGB, no ImageNet normalization).
+  - [x] 2.2: Implement class-masked BCE + Dice segmentation loss and BCE presence loss with tree masking.
+  - [x] 2.3: Implement training loop with BF16/FP16 AMP, differential LR (1e-5 backbone, 1e-4 heads), cosine decay, gradient clipping.
+  - [x] 2.4: Sync scripts and verify on remote A10G NVMe (5-step smoke test passed in 5.8s).
+- [x] Step 3: Fast experimental execution on A10G (S0, S1, S2)
+  - [x] 3.1: Train S0 (Control: TerraDelta clean train data only, 1000 steps completed in 4.4 min, loss converged to 0.72-1.09).
+  - [x] 3.2: Train S1 (S0 + AIHub positive crops, 1000 steps completed in 4.6 min, loss converged to 0.71-0.99).
+  - [x] 3.3: Train S2 (S1 + diverse AIHub negative crops, 1000 steps completed in 4.8 min, loss converged to 0.64-0.97).
+- [x] Step 4: Multi-checkpoint evaluation & promotion gate validation (`scripts/evaluate_satlas_v3.py`)
+  - [x] 4.1: Evaluate Real Legacy (22 pairs) and Stress (470 pairs) across S0, S1, S2 checkpoints.
+  - [x] 4.2: Check promotion gates: S1 model.pt (Real 0.6249, FP 6/17, Stress 0.7763) and S2 step 800 (Real 0.6318, FP 7/17, Stress 0.7756) BOTH PASS ALL GATES.
+- [x] Step 5: Ensemble analysis (E0: V2.3.2, E1: Best Satlas, E2: V2.3.2 + Best Satlas)
+  - [x] 5.1: Evaluate ensemble combinations: E1 Satlas V3 strictly outperforms E0 and E2 (E1: 0.6249 Real / 0.7763 Stress vs E0: 0.5471 / 0.5059 vs E2: 0.6193 / 0.7602).
+  - [x] 5.2: Select optimal final deployment candidate: Pure Satlas V3 candidate promoted.
+- [x] Step 6: A10G Benchmark & Offline Packaging
+  - [x] 6.1: Measure peak VRAM and execution time on A10G (Peak VRAM: 6.45GB, inference time: 20.42s).
+  - [x] 6.2: Package deployment zip (offline weights bundled, cleanroom validated: `release/terradelta-v3-satlas.zip`, 321.83MB, SHA256: `db1ffe574cf757804a9f8308facaa6649fd4814d4fbabd52897b71e486af6fc0`, 2-pass byte-identical).
+- [x] Step 7: Mandatory AWS Shutdown & Final Reporting
+  - [x] 7.1: Unmount `/mnt/data_disk`, detach EBS `vol-0070845086ec08190`, reattach to CPU `i-0766a472ecb5bcf88` (`/dev/sdf`).
+  - [x] 7.2: Stop GPU instance `i-0523a619699a95db0` and verify stopped (`stopped`). Kill background tunnel (terminated).
+  - [x] 7.3: Generate final report (`docs/v3-satlas-experiment-report.md`) and conclude with protocol phrase.
+
+
+## TerraDelta V3 SATLAS + AIHub 71363 Experiment Review
+
+Completed on 2026-10-06.
+1. Dataset Preparation:
+   - Extracted 201 positive 256x256 building change crops from 75 AIHub SkySat pairs.
+   - Extracted 100 diverse no-change crops from 767 AIHub SkySat negative pairs.
+   - Enforced strict tree loss masking: all AIHub crops have `valid_mask_tree = 0`, `presence_valid_tree = 0`.
+2. Model Training & Ablations:
+   - S0 Control (TD clean only): 1,000 steps on A10G in 4.4 min. Real 0.4724, Stress 0.8057.
+   - S1 (+ AIHub pos): 1,000 steps on A10G in 4.6 min. Real 0.6249, Stress 0.7763, Real FP 6/17. Passed all gates!
+   - S2 (+ AIHub neg): 1,000 steps on A10G in 4.8 min. Step 800: Real 0.6318, Stress 0.7756, Real FP 7/17, Stress Bldg 110, Tree 119, Stress FP 0/200. Passed all gates (Peak Candidate)!
+3. Ensemble Comparison:
+   - E0 (V2.3.2): Real 0.5471, Stress 0.5059, FP 14/17.
+   - E1 (Satlas V3): Real 0.6249–0.6318, Stress 0.7756–0.7763, FP 6–7/17, Stress FP 0/200.
+   - E2 (Hybrid): Real 0.6193, Stress 0.7602, FP 11/17.
+   - E1 strictly dominates across all dimensions.
+4. Release Artifacts & Verification:
+   - Promoted release: `release/terradelta-v3-satlas.zip` (321.83 MB, SHA256: `db1ffe574cf757804a9f8308facaa6649fd4814d4fbabd52897b71e486af6fc0`).
+   - Cleanroom 2-pass byte-identical verified (`b0352ad8ed6eb33ade0e287cbbbf2a196c8072f0dfa75576a5914dda73286aeb`).
+   - Immutable fallback release preserved: `outputs/v232/terradelta-v232-debug.zip` (SHA256: `5aad7e163285964ce1346d97a3f8596ef630604fd9dbeee3394804b83c461788`).
+5. Mandatory AWS Shutdown:
+   - CPU `i-0766a472ecb5bcf88`: `stopped` (verified, data volume reattached).
+   - GPU `i-0523a619699a95db0`: `stopped` (verified).
+   - SSM Port forwarding tunnel: terminated.
+   - Zero MAIN submissions used.
+
+
+
+
 
