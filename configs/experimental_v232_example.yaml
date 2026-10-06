@@ -1,0 +1,17 @@
+# v2.3.2 experimental block (fragment). Merge under the top level of an inference config.
+# Everything is OFF by default; omitting this block keeps exact V2.3.1 behavior.
+# No model or threshold is provided: pair_gate.enabled=true requires a trained, reviewed model.
+experimental:
+  pair_gate:
+    enabled: false
+    top_k: 3
+    high_confidence_threshold: 0.5   # feature definition only
+  alignment_residual:
+    enabled: false
+    max_shift_image_px: 12 # search budget in original image pixels
+    bbox_padding: 8       # image pixels
+    feature_scales: [2, 3]  # encoder pyramid indices
+    metric: l2            # l1 | l2
+    ring_radius: 5        # image pixels
+    min_overlap_fraction: 0.75  # minimum fraction of ROI pixels overlapping POST
+

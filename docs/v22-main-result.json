@@ -1,0 +1,89 @@
+{
+  "submitted_at_utc": "2026-10-05T01:37:07.583011+00:00",
+  "mode": "MAIN",
+  "competition_id": 9306,
+  "api_calls": [
+    {
+      "method": "POST",
+      "endpoint": "upload-url",
+      "debug": false
+    },
+    {
+      "method": "POST",
+      "endpoint": "code-submissions",
+      "debug": false
+    }
+  ],
+  "response": {
+    "publicSubmissionId": 365058,
+    "privateSubmissionId": 365059,
+    "codeRunId": 32093
+  },
+  "zip_sha256": "f4bcaa54157fe077318f9c0bef43d764bab3c14daa86c52a1f566213169d79c2",
+  "checkpoint_sha256": "ca59fe6698d8ee6bef354a7f40c1ef6d8901826e0572a5b80eb2b1d8b2ca4372",
+  "config_sha256": "0e0fd4bf695af2ef7c2b2aff9c5dc3b91babb1d4569f54b6ac416122ef9a1f77",
+  "verifier_sha256": "2b7a0a1727d7bc30a6944b2d49f20252adf038118ad217d626c6fc3d117ad97a",
+  "source_commit": "099c1e968d9faaf2c33894ad55da32667d16092a",
+  "status": "completed",
+  "main_submissions_this_task": 1,
+  "automatic_retry_allowed": false,
+  "pre_network_guard_failure": {
+    "api_calls": 0,
+    "cause": "SDK MAIN omits debug flag; initial explicit-false assertion blocked before network."
+  },
+  "terminal_observed_at_utc": "2026-10-05T01:44:42.692Z",
+  "server_completed_at_utc": null,
+  "server_execution_duration_seconds": null,
+  "server_detailed_logs": null,
+  "server_prediction_csv": null,
+  "public_score": 0.2045954238,
+  "public_score_text": "0.2045954238",
+  "public_score_display": "0.2046",
+  "private_score": null,
+  "rank_at_observation": 129,
+  "rank_before_submission": 130,
+  "rank_observed_at_utc": "2026-10-05T01:45:12.967Z",
+  "submitted_at_server_display_kst": "2026/10/05 10:37:08",
+  "daily_main_used_observed": 1,
+  "daily_main_remaining_observed": 2,
+  "daily_main_limit": 3,
+  "quota_observation_date_kst": "2026-10-05",
+  "remaining_main_authorization": 0,
+  "main_retries": 0,
+  "comparison": {
+    "frozen_v2_public_score": 0.1947902971,
+    "frozen_v2_public_score_text": "0.1947902971",
+    "absolute_delta": 0.0098051267,
+    "absolute_delta_text": "0.0098051267",
+    "relative_improvement_percent": 5.033683323028312,
+    "verdict": "KEEP",
+    "scope": "Public MAIN improvement only; private score unavailable."
+  },
+  "release": "/data/terradelta/releases/v2.2-main-01/",
+  "preflight": "docs/v22-main-preflight.json",
+  "offline_proof": "docs/v22-main-offline-manifest.json",
+  "evidence": {
+    "terminal": {
+      "observed_at_utc": "2026-10-05T01:44:42.692Z",
+      "row": "6\tMAIN_TERRADELTA_V22_\u2026\t0.2046\n\t\n\uc644\ub8cc\n\t2026.10.05 10:37",
+      "quota_text": "129\uc704\n\ud604\uc7ac \uc21c\uc704\n0.2046\n\ub0b4 \ucd5c\uace0 \uc810\uc218\n6\ud68c\n\ucd1d \uc81c\ucd9c \ud69f\uc218\n2 / 3\n\uc624\ub298 \ub0a8\uc740 \ud69f\uc218\n\ub514\ubc84\uadf8 1 / 10 \u00b7 \ub530\ub85c \uc149\ub2c8\ub2e4",
+      "url": "https://aifactory.space/ko/competitions/9306/submission"
+    },
+    "leaderboard": {
+      "observed_at_utc": "2026-10-05T01:45:12.967Z",
+      "row": "129\tseohuda\ub0b4 \ud300\t\nse\n\t0.2045954238\t2\t2026/10/05\n10:37:08",
+      "url": "https://aifactory.space/ko/competitions/9306/leaderboard",
+      "public_score_text": "0.2045954238",
+      "rank": 129,
+      "submitted_at_display": "2026/10/05 10:37:08"
+    },
+    "screenshots": [
+      "outputs/v22-main/main-completed.jpg",
+      "outputs/v22-main/main-leaderboard.jpg"
+    ]
+  },
+  "training_steps_this_task": 0,
+  "aihub_download_bytes_this_task": 0,
+  "aihub_auxiliary_training_rows": 0,
+  "artifact_modified_this_task": false
+}

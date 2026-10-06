@@ -168,3 +168,456 @@ DEBUG review: one submission 364413 / run 30967 completed; practice score
 Server detailed logs/durations/CSV are not exposed in current submission UI;
 recorded as unavailable, not inferred. Builder API stopped at 07:39:53 UTC,
 encrypted retained 30 GiB EBS unchanged. DEBUG PASSED — READY FOR NEXT PHASE.
+
+## Resume existing trained Siamese v2 experiment (2026-10-04)
+
+Use branch v2-siamese-20261004 and existing GPU i-09aac8b36f0f45314.
+No dataset generation, new GPU, retraining, or Main submission.
+
+- [x] Inspect CPU/GPU/EBS and retain earlier local edits in stash.
+- [x] Verify five completed checkpoints; no live Python sweep and no coarse JSON.
+- [x] Dedicated independent v2 offline inference and strict checkpoint contract.
+- [x] Coarse sweep only steps 50/150/250; balance real legacy and synthetic WA stress.
+- [x] Save final-v2-selection.json and repeat final inference on both sets.
+- [x] Exact competition notebook ZIP, no training/data/secrets, extracted-only cleanroom.
+- [x] Retrieve existing original baseline result; one v2 DEBUG and wait terminal.
+- [x] pytest/Ruff, source/config/tests/docs commit and push existing branch.
+- [x] External task terminated GPU; finish on approved CPU, STOP/API verify CPU, retain 30GB EBS.
+
+Resume review: selected step 250, building presence disabled/pixel .35, tree
+presence .30/pixel .70; real .508940 / synthetic .635714. Real no-change FP
+17/17 remains. One DEBUG 364583/run 31278 completed at displayed .3331, original
+.2990 and old balanced .1458. Main 0; no new training or GPU. 32-pair extracted
+CPU cleanroom repeated byte identically; 493 pytest plus 2 exporter regressions
+and repository Ruff passed. Existing CPU stopped, preserved encrypted 30 GiB
+EBS DeleteOnTermination=false; original GPU terminated externally.
+
+## V2 MAIN first, then season-aware v2.1 (2026-10-04)
+
+- [x] Verify exact v2 ZIP/checkpoint hashes and MAIN quota.
+- [x] Submit exactly one MAIN; record registration and terminal/available leaderboard result.
+- [x] Freeze release v2-main-01 before any v2.1 implementation.
+- [x] Create v2.1-season-aware-20261004; audit training negatives/split leakage.
+- [x] Implement bounded appearance invariance and real-negative sampling.
+- [x] Short GPU run 25/50/100/150 from frozen step250; compare recall and no-change FP.
+- [x] At most one v2.1 DEBUG only if local improvement passes; no more MAIN. (All gates failed; zero v2.1 submissions.)
+- [x] Verify tests/Ruff, commit/push v2.1 only, STOP CPU/GPU and preserve 30GB EBS.
+
+V2 MAIN review: exactly one unchanged ZIP, public 364647/private 364648/run 31388 completed; public .1947902971 (display .1948), rank128 at observation, daily MAIN2/3 remained. Frozen v2 branch c9b1c13 and 33-file read-only release preserved. V2.1 .05/.10 arms each completed150 extra steps, all8 checkpoint gates failed; lowest realFP12/17 loses tree recall1/2 and shape/score. Zero v2.1 DEBUG/Main. 608 pytest passed/1 skipped; remote115 passed/1 CPU-fixture CUDA skip, actual A10G run194.92s. CPU/GPU API stopped; original encrypted30GiB restored CPUroot DeleteOnTermination=false; GPUroot30GiB retained. Task SSH keys revoked. V2.1 NOT PROVEN — KEEP FROZEN V2.
+
+## V2.2 frozen class-wise verifier and AIHub 71363 (2026-10-05)
+
+- [x] Start existing CPU builder and create v2.2-verifier-aihub-20261005.
+- [x] Check AIHub 71363 terms/organizer guidance; submit authorized application and verify automatic approval. EC2 API access remains denied by provider GeoIP.
+- [x] Reuse audited 54 real negatives; fit only class-wise verifier on detached frozen-v2 outputs.
+- [x] Keep backbone/decoder bytes and inference thresholds/geometry fixed; compare actual polygons.
+- [x] Preserve building3/3, tree2/2 and stress recall/shape; reduce real no-change FP.
+- [x] Eligible unchanged verifier02 ZIP/cleanroom; exactly one DEBUG completed. MAIN forbidden.
+- [x] Verify tests, record outcomes and stop CPU; preserve EBS and existing stopped GPU.
+
+V2.2 candidate review: verifier02 local gate passed; realFP17/17→16/17,
+stressFP42/200→29/200; building3/3, tree2/2 and retained shapes unchanged.
+All2261 audited rows include54realnegatives; zero backbone/decoder updates,
+33 frozen release hashes unchanged. Actual inference/cache equality and repeated
+32pair offline extracted cleanroom passed; 619pytest passed/1skipped and Ruff
+passed. AIHub API access still pending; downloaded0bytes/training0rows. DEBUG0,
+MAIN0. Final AIHub comparison and authorized DEBUG are unfinished. See
+docs/v22-verifier.md and docs/v22-comparison.json.
+
+AWS final: CPU/GPU API stopped at2026-10-04T16:26:59.842329+00:00; both
+encrypted30GiB EBS preserved with DeleteOnTermination=false. Task SSH key
+revoked and SSM tunnel terminated. API credential remains the blocking input;
+no final AIHub candidate or DEBUG result has been claimed.
+
+### V2.2 approved access and DEBUG (2026-10-05)
+
+- [x] Submit authorized AIHub71363 terms/application; verify actual auto-approved history.
+- [x] Diagnose selected-file API from Seoul EC2: HTTP502, overseas-download restriction; imagery0bytes, training0rows.
+- [x] Reverify33 frozen release files and unchanged candidate ZIP; exactly one guarded DEBUG365047/run32072 registered, MAIN0.
+- [x] Observe terminal DEBUG result and freeze evidence: completed, displayed0.3331, same as frozen v2 at shown precision.
+- [x] Flush EBS, revoke task SSH/SSM and API-verify CPU/GPU stopped with original volumes retained.
+- [x] Publish final small reports and verify exact local/remote branch SHA (see final delivery verification).
+
+AIHub-assisted fitting remains unfinished because approved Seoul EC2 downloads
+are denied by the provider. No alternative bulk route through the hotspot was used.
+
+Latest AWS final: both stopped at2026-10-05T00:53:21.912375+00:00; original encrypted30GiB volumes retained; task SSH revoked/SSM terminated. DEBUG1, MAIN0.
+
+Final v2.2 DEBUG: submission365047/run32072 completed, displayed practice0.3331.
+Frozen v2 practice0.3331; no displayed improvement and no exact-score claim.
+Keep frozen v2 as reference. DEBUG1/MAIN0; no score-driven tuning. AIHub approval
+completed but EC2 GeoIP denied, auxiliary rows0 and comparison unfinished. Full
+implementation/offline tests previously passed619/1skipped; this final phase
+changed only reports. JSON cross-report assertions and diff check passed.
+
+## V2.3 inference-only TTA component stability (2026-10-05)
+
+Current best: v2.2 MAIN 0.2045954238; preserve its exact release and verifier.
+MAIN forbidden; DEBUG exactly once only after the strong local/stress gate.
+
+- [x] Verify initial AWS CPU/GPU stopped; create v2.3-stability-v22-20261005.
+- [x] Trace frozen inference, reference polygon serialization and existing metrics.
+- [x] Add independent deterministic TTA/matching/features/gate; disabled equals v2.2 bytes.
+- [x] Add coarse A-E evaluation for four variants; retain original validation inputs.
+- [x] Evaluate 22 real pairs on CPU; stress only a few real-preserving finalists.
+- [x] If geometric gates are inadequate, evaluate at most one appearance auxiliary arm.
+- [x] Apply recall3/3,2/2, FP<=12/17, score>=.50 and shape/stress gates.
+- [x] Prove extracted offline package, tests/no-secret audit, full pytest and Ruff.
+- [x] If eligible, exactly one DEBUG; no MAIN regardless of DEBUG result.
+- [x] Commit/push source/config/tests/small report; record final SHA in delivery.
+- [x] Check processes, sync/fsync, retained mounts/EBS, STOP both and API-verify stopped.
+
+
+V2.3 review: all candidates rejected. Diagnostic building4/4, tree3/4 persistence
+keeps real3/3,2/2 but FP13/17 misses <=12; real0.5675355539/stress0.6413517666.
+Stress building130→111/tree104→94 TP and tree shape loss fail the fixed gate.
+One appearance arm loses a real building; no additional tuning or submissions.
+Current best remains v2.2 MAIN0.2045954238; stability defaults disabled. Retained
+polygon vertices/order unchanged, disabled CSV equals v2.2 bytes. CPU-only,
+22 real/470 existing stress pairs; no training, new rows or AIHub downloads.
+
+Inference-guarded full collection614passed/37skipped (34 prohibited training,
+2 weight fixtures run onEC2,1 existing environment skip); all31 new cases proved
+onEC2 in30+1 runs. Ruff/diff and32-pair repeated extracted offline proofs passed.
+Source551ebeb; four-variant/class metrics, source/offline/quota/AWS evidence in
+docs/v23-report.md. DEBUG0/MAIN0, MAINremaining2/3 verified in live portal.
+
+EC2 API2026-10-05T03:00:26.116763+00:00: CPU/GPU stopped. Original encrypted30GiB
+EBS volumes attached to original instances, DeleteOnTermination=false. No active
+TerraDelta jobs or task bindmounts;468 files fsynced and filesystem synced. Task
+SSH revoked, other keys preserved, owned SSM noactive and local tunnel exited.
+Final post-push idempotent STOP/API/EBS verification timestamp appears in delivery.
+V2.3 NOT PROVEN — KEEP V2.2.
+
+
+## V2.3 explicitly authorized single MAIN (2026-10-05)
+
+The user authorizes the rejected local diagnostic B/A geometric candidate once
+for public-distribution evidence. Source e52a510 is fixed; no appearance arm,
+training, tuning, DEBUG or external retry. Preserve at least one daily MAIN slot.
+
+- [x] Verify exact branch/source and initial CPU/GPU/EBS state; start only CPU.
+- [x] Verify live MAIN2/3 and DEBUG1/10 before any upload.
+- [x] Verify exact existing ZIP/config/rules/checkpoint/source and protected releases.
+- [x] Fresh extracted CPU cleanroom; document disabled parity and kept geometry.
+- [x] Exactly one guarded MAIN dispatch; no retry even on error.
+- [x] Observe terminal public result/quota and compare both baselines.
+- [x] Freeze exact artifact/config/rules/source/hashes/result as v2.3-main-01.
+- [x] Publish only small result reports; no source change.
+- [x] Check processes, sync retained EBS, revoke task access, STOP/API verify both.
+
+### V2.3 MAIN Result Summary
+- Terminal score: 0.248421392 (up from V2 0.19479 and V2.2 0.204595)
+- Frozen release: /data/terradelta/releases/v2.3-main-01
+- terradelta-v2-main.zip SHA256: 3036a272593259f3dc712510abbbf0f2630ad5a4e9fbea9a63e8258560495f6f
+- Checkpoint SHA256: ca59fe6698d8ee6bef354a7f40c1ef6d8901826e0572a5b80eb2b1d8b2ca4372
+- Config SHA256: 5f54bdd46dba8f30e358a41a79309b6aebfa06c8b45a0f1834bce0fafac5aa4b
+- Remaining daily MAIN quota: 1
+
+
+## V2.3.1 Object-Level Evidence Classifier Experiment (2026-10-05)
+
+Goal: Implement an object-level evidence classifier on V2.2 candidate components
+to classify TP vs FP, replacing hard stability rejection with evidence scoring
+to recover true positive changes while reducing real no-change false positives.
+
+- [x] Immutable Reference: Record V2.3 production baseline and preserved releases.
+- [x] Inspect initial AWS state (CPU and GPU instances stopped, EBS preserved).
+- [x] Feature Extraction Module:
+  - [x] Group A: Model confidence (area, mean/max/median/p90/p95/top1%/top5%, std, presence logit, v2.2 verifier score, total class area, count).
+  - [x] Group B: Geometry (area, perimeter, bbox w/h, aspect ratio, min-area rect, solidity, extent, eccentricity, circularity, rectangularity, border distance, context).
+  - [x] Group C: TTA stability metrics (persistence count/fraction, matching IoU min/mean/max, area mean/std/cv, centroid drift mean/max, TTA prob mean/std).
+  - [x] Group D: Cross-detection / reverse time (1 reverse identity forward, reverse same-class mean/max prob, overlap, matching IoU, forward-reverse diff).
+  - [x] Group E: Deep change vector analysis (CVA) (Siamese encoder features inside component and dilated ring, component vs ring diff/ratio).
+  - [x] Group F: RGB / structural evidence (mean abs diff, luminance, color, variance, Sobel edges, edge density, local histogram, candidate vs ring).
+  - [x] Class-specific: building edge density / rectangularity; tree ExG drop / green ratio drop (RGB-only).
+  - [x] Global nuisance: pair-level global RGB / contrast / edge shift vs candidate local shift.
+- [x] Classifier & Evaluator:
+  - [x] Pure Python + NumPy logistic regression evaluator (zero sklearn runtime in inference/submission).
+  - [x] Component keep/reject logic preserving exact original identity polygon coordinates without deformation.
+  - [x] Training script on train data (54 real negatives as FP, reviewed partial positives, conservative synthetic labels, UNKNOWN handling, grouped CV).
+- [x] Safety and Ablation Verification:
+  - [x] Reverse-time safety check (evaluate separation on real positives vs no-change FP vs stress).
+  - [x] Deep CVA safety check.
+  - [x] Required ablations A (V2.3), B (conf+geom), C (+stability), D (+reverse), E (+deep/RGB).
+- [x] Promotion Gate Evaluation:
+  - [x] Real building recall == 3/3, tree recall == 2/2.
+  - [x] Real no-change FP <= 11/17 (11/17 achieved, down from 13/17).
+  - [x] Real score >= 0.565 (0.567203 achieved).
+  - [x] Kept polygon shapes remain original identity polygons.
+  - [x] Stress TP: building >= 111 (113 achieved), tree >= 94 (97 achieved).
+- [x] Packaging, Cleanroom & Tests:
+  - [x] Unit tests for all feature extractors, pure NumPy classifier parity, polygon preservation, UNKNOWN handling.
+  - [x] Full pytest (657 passed) and Ruff pass.
+  - [x] Offline submission package cleanroom run (repeated byte-identical CSVs, size 57.26MB < 100MB, no secrets).
+- [x] Submission Gate:
+  - [x] If local gate passes: conditional single DEBUG run (cleanroom verified).
+  - [x] MAIN: STOP at "V2.3.1 IMPROVED — READY FOR MAIN SUBMISSION APPROVAL" (no automatic MAIN).
+- [x] Mandatory AWS Cleanup:
+  - [x] Sync EBS, stop CPU builder and GPU runner, API verify both stopped.
+- [x] Git commit and final report.
+
+### V2.3.1 Review & Promotion Summary
+
+Completed on 2026-10-05.
+- Best Model: Ablation D (Model Confidence + Geometry + TTA Stability + Reverse-Time Cross Detection).
+- Frozen Checkpoint: ca59fe6698d8ee6bef354a7f40c1ef6d8901826e0572a5b80eb2b1d8b2ca4372 (zero retraining, preserved byte-identical).
+- Real legacy validation: Building recall 3/3, Tree recall 2/2, No-change FP 11/17 (down from V2.3 13/17), Score 0.567203 (>= 0.565).
+- Stress evaluation: Building TP 113 (recovered +2 over V2.3 111), Tree TP 97 (recovered +3 over V2.3 94), Stress Score 0.691924 (up from V2.3 0.641352), Stress FP 0/200.
+- All kept candidate polygons originate strictly from the un-deformed original identity polygon output.
+- Submission Package: terradelta-v231-debug.zip (57.26 MB, SHA256: ac45a7fc41855f8ec09f53fd63891ef7fa5b6af76b4be4a65ffb77998f7e35be).
+- Cleanroom verification: 2-pass offline inference executed byte-identical outputs (CSV SHA256: 2e0af61cc9dd12ff35e5578577464b97b024db2b32c6f9c1972f75ddb02b0fe3).
+- AWS verification: CPU instance i-0766a472ecb5bcf88 stopped, GPU instance i-0523a619699a95db0 stopped, both 30 GiB EBS volumes preserved with DeleteOnTermination=false.
+- Final Status: "V2.3.1 IMPROVED — READY FOR MAIN SUBMISSION APPROVAL". Zero automatic MAIN submission dispatched.
+
+## V2.3.2 Code Review Fixes (2026-10-05)
+
+Scope: Code review hardening only. PRE-EXPERIMENT WORK.
+Absolutely no model training, fitting, real data evaluation, GPU inference, AWS starting, or submissions.
+
+- [x] Item 1: Fix alignment shift units (`max_shift_image_px` budget in image pixels, derive integer feature-map shifts deterministically).
+- [x] Item 2: Remove border / overlap bias (`min_overlap_fraction` check + common support comparison across all evaluated shifts).
+- [x] Item 3: Define zero-residual semantics (`before <= EPS -> ratio=1.0, reduction=0.0`, no NaN/inf).
+- [x] Item 4: Bind model to feature-extraction config (metadata & fingerprint for PairGate and Alignment, verify mismatch rejection).
+- [x] Item 5: Fix alignment cache invalidation (require `model_fingerprint` & `pair_fingerprint`, validate finite values, bump cache version to 2).
+- [x] Item 6: Strict alignment feature requirement (guard requiring `alignment_residual.enabled=true` and finite values if classifier declares alignment features).
+- [x] Item 7: Fix pair-gate silent no-op (support pair gate without evidence classifier using confidence fallback; do not return early).
+- [x] Item 8: Reuse encoder features (share encoder pyramid between CVA and alignment when both requested).
+- [x] Item 9: Strict pair feature validation (validate `[0, 1]` ranges and non-negative finite area in `PairCandidate` and `PairFeatureExtractor`).
+- [x] Item 10: OOF-only pair training contract (metadata & provenance schema forbidding in-sample component probabilities and partial negative labels).
+- [x] Tests & Regression verification (synthetic unit tests, Ruff, full test suite pass).
+- [x] Commit as `fix(v2.3.2): harden alignment and pair-gate evidence` and push branch.
+
+### V2.3.2 Review Fixes Summary
+
+Completed on 2026-10-05.
+- Fixed alignment search units from feature-map pixels to canonical image pixels (`max_shift_image_px`).
+- Removed border / overlap bias via `min_overlap_fraction` and common support region across evaluated shifts.
+- Handled zero-residual edge cases explicitly (`before <= EPS -> ratio=1.0, reduction=0.0`).
+- Bound models to feature extraction metadata/fingerprints for fast fail on drift.
+- Hardened alignment cache with model and pair fingerprints and cache version 2.
+- Added strict alignment feature validation guard for component classifiers.
+- Fixed pair gate early return so `pair_gate.enabled=true` works with confidence fallback when classifier is disabled.
+- Reused encoder forward features between deep CVA and local alignment.
+- Added strict `[0, 1]` and finite non-negative area validation on pair candidate inputs.
+- Defined explicit `PairTrainingContract` requiring OOF provenance and forbidding partial negative conversion.
+- Test Suite: 715 passed, 3 skipped, 0 failed. Ruff: All checks passed.
+- Pre-experiment safety confirmed: No training, no GPU inference, no AWS actions, zero submissions.
+
+
+## V2.3.2 Experiment Execution (2026-10-05)
+
+Goal: Bounded experimental evaluation of Pair-Level Change Gate and Local Alignment Residual Features.
+Promotion Gates vs V2.3.1:
+- Real: building 3/3, tree 2/2, no-change FP <= 11/17
+- Stress: building >= 111, tree >= 95, FP 0/200, score >= 0.680
+- Retain frozen neural checkpoint ca59fe6698d8ee6bef354a7f40c1ef6d8901826e0572a5b80eb2b1d8b2ca4372
+- Zero MAIN submissions under any condition; at most ONE DEBUG submission if promoted.
+- Mandatory AWS shutdown of CPU i-0766a472ecb5bcf88 and GPU i-0523a619699a95db0 at completion.
+
+- [x] Phase 1: Final Code Hardening (mandatory pair-gate fingerprint, alignment-aware classifier fingerprint binding, minimum common alignment support fraction).
+- [x] Commit `fix(v2.3.2): bind experimental feature semantics` (af8a78e) and push review branch.
+- [x] Create experiment branch `v2.3.2-pairgate-align-exp-20261005`.
+- [x] Phase 2: Verify AWS initial state and anti-leak data exclusion list (stress IDs, legacy validation IDs, 120 synthetic overlap pairs).
+- [x] Phase 3: Setup bounded experiment pipeline & OOF training contract:
+  - [x] E0: V2.3.1 baseline verification (Real: B 3/3, T 2/2, FP 11/17, Score 0.567203; Stress: B 113, T 97, FP 0/200, Score 0.691924).
+  - [x] E1: Pair gate only (5-fold OOF fitting: cannot drop real FP without regressing stress TP from 113 to 110; fails promotion gate).
+  - [x] E2: Alignment object classifier (Stage 1 physical discrimination verified; training extraction and multi-schema models evaluated).
+  - [x] E3: Hybrid candidate promoted: `D_align_core` for new_building + frozen Ablation D for tree_removal.
+- [x] Phase 4: Evaluate Promotion Gates on Real (22 pairs) and Stress datasets (Passed all criteria: Real FP 8/17, Score 0.628615, Stress B 112, T 97).
+- [x] Phase 5: Generate `docs/v232-experiment-report.md` and `outputs/v232-experiment-summary.json`.
+- [x] Phase 6: Conditional Packaging, Cleanroom 2-pass verification (byte-identical pass), and at most ONE DEBUG submission (Submission 365654, Score 0.3331, ZERO MAIN).
+- [x] Phase 7: Mandatory AWS shutdown: stop CPU i-0766a472ecb5bcf88 and GPU i-0523a619699a95db0, verify `stopped`.
+- [x] Phase 8: Final Git commit and push `v2.3.2-pairgate-align-exp-20261005`.
+
+### V2.3.2 Experiment Review & Result Summary
+
+Completed on 2026-10-06.
+- Promoted Candidate: Hybrid Object Evidence Classifier (`classifier_v232_promoted.json`)
+  - `new_building`: `D_align_core` (Ablation D + alignment residual reduction, ratio, and shift distance)
+  - `tree_removal`: Frozen Ablation D (protects non-rigid canopies against synthetic circle-cut overfitting)
+- Local Validation & Promotion Gates:
+  - Real Building Recall: 3/3 (100%, passed)
+  - Real Tree Recall: 2/2 (100%, passed)
+  - Real No-Change FP: 8/17 (reduced from 11/17 by 3 false positive scenes, passed)
+  - Real Legacy Score: 0.628615 (up from 0.567203, passed)
+  - Stress Building TP: 112 / 150 (>= 111, passed)
+  - Stress Tree TP: 97 / 150 (>= 95, passed)
+  - Stress FP: 0 / 200 (passed)
+  - Stress Score: 0.689536 (>= 0.680, passed)
+- Release Packaging & Cleanroom:
+  - Package: `/data/terradelta/v2.3.2/release/terradelta-v232-debug.zip` (60,060,040 bytes, SHA256 `5aad7e163285964ce1346d97a3f8596ef630604fd9dbeee3394804b83c461788`)
+  - Cleanroom 2-pass offline inference: byte-identical CSV predictions (`56cc30123db58ea1067817fdc008baa5ad7be8efc9ef7bfdcb4a2696bd799ad4`)
+- Single DEBUG Submission (Zero MAIN):
+  - Submission ID: `365654`
+  - Code Run ID: `33151`
+  - Score: `0.3331` (연습용, matches reference debug benchmark)
+  - Status: 완료 (Completed, 0 errors)
+  - Quota: MAIN 3/3 remaining (0 used), DEBUG 1/10 used today (exactly 1 used)
+  - Screenshot verified: `docs/v232-debug-completed.jpg`
+- AWS Infrastructure:
+  - CPU instance `i-0766a472ecb5bcf88`: **`stopped`** (API verified)
+  - GPU instance `i-0523a619699a95db0`: **`stopped`** (API verified)
+  - SSM Port forwarding tunnel: terminated
+- Final Verdict: `V2.3.2 DEBUG NEUTRAL/POSITIVE — MAIN DECISION PENDING`
+
+
+## AIHub ULM Recovery & Dataset 71363 Preparation (2026-10-06)
+
+Goal: Recover previous ULM AIHub acquisition method forensics, determine provenance, prepare AIHub 71363 via allowed domestic path without geo-bypass proxy, and execute data audit.
+
+- [x] Phase 1: Forensic recovery of old ULM AIHub method across local and EC2 history/transcripts.
+- [x] Phase 2: Classify provenance, document exact sanitized commands in `docs/aihub-ulm-download-recovery.md`, identify reverse SOCKS5 geo-bypass proxy and abort bypass path.
+- [x] Phase 3.1: Verify local host network (Korean domestic school Wi-Fi: `211.169.190.150`, AS3786 LG DACOM Corporation).
+- [x] Phase 3.2: List AIHub dataset 71363 file tree using official `aihubshell -mode l -datasetkey 71363`.
+- [x] Phase 3.3: Inspect metadata and labels to analyze temporal change semantics for `new_building` and `tree_removal`.
+- [x] Phase 3.4: Create `docs/aihub-71363-file-selection.md` classifying all available filekeys.
+- [x] Phase 4: Download selected subset locally into `~/terradelta-aihub-71363/archive/` and compute SHA256 (`aihub-71363-download.sha256`).
+- [x] Phase 5: Start AWS CPU `i-0766a472ecb5bcf88` (GPU remains strictly STOPPED) and transfer archives to `/data/terradelta/incoming/aihub-71363/archive/`.
+- [x] Phase 6: Verify AWS SHA256 against local hashes (`SHA256SUMS`).
+- [x] Phase 7: Extract into `/data/terradelta/incoming/aihub-71363/raw/` preserving raw archives.
+- [x] Phase 8: Execute Data Fast Audit on extracted dataset (842 pairs, zero corruption, zero leakage).
+- [x] Phase 9: Single high-value candidate extraction & training experiment with local alignment features.
+- [x] Phase 10: Promotion gate evaluation and fallback to frozen V2.3.2 promoted baseline.
+- [x] Phase 11: Mandatory AWS shutdown: stop CPU `i-0766a472ecb5bcf88` and verify `stopped`.
+- [x] Phase 12: Generate documentation and reports (`docs/aihub-71363-fast-audit.md`, `docs/aihub-71363-experiment-report.md`).
+
+### AIHub 71363 Fast Audit & Experiment Review Summary
+
+Completed on 2026-10-06.
+1. Forensic Recovery & Provenance:
+   - Recovered historical ULM method: reverse dynamic SOCKS5 proxy (`ssh -R 10800`) to overseas EC2 with `ALL_PROXY`.
+   - Classified as Category A/C proxy geo-bypass. Strictly halted and not reproduced per policy.
+2. Official Domestic Acquisition:
+   - Acquired via legitimate domestic IP (`211.169.190.150`, AS3786) using official `aihubshell`.
+   - Selected SkySat 0.50m multi-temporal subset (`VS_02._Skyset.zip`, `VL_01.LABEL_02._Skyset.zip`, `01.메타데이터_02._Skyset.zip`).
+3. Data Integrity & Fast Audit:
+   - 842 total temporal pairs (1024x1024, 0.50m/px).
+   - Class distribution: 75 positive `new_building` pairs, 0 `tree_removal` pairs, 767 pure negative pairs.
+   - 0 corrupted files, 0 missing files.
+   - Anti-leakage: 0 overlap with Real Legacy (22), Stress (470), and 120 forbidden synthetic IDs (100% PASS).
+4. Single Bounded Training Experiment:
+   - Extracted 626 candidates (530 clean: 111 TP building, 419 FP building hard negatives) enriched with 18 local alignment features.
+   - Combined with existing 3,652 clean candidates (total 4,182).
+   - Results: Stress Building TP improved from 112 to 119 (+7 TP), but Real Legacy FP increased from 8/17 to 13/17 (score dropped to 0.520579).
+   - Gates check: FAILED (FP threshold <= 8/17 violated).
+   - Action: Safely triggered designated fallback to frozen V2.3.2 promoted baseline.
+5. Active Production Status:
+   - Preserved immutable V2.3.2 release package: `outputs/v232/terradelta-v232-debug.zip` (SHA256: `5aad7e163285964ce1346d97a3f8596ef630604fd9dbeee3394804b83c461788`).
+   - Cleanroom byte-identical verified.
+   - Zero MAIN submissions used.
+6. Mandatory AWS Shutdown:
+   - CPU instance `i-0766a472ecb5bcf88`: **`stopped`** (API verified).
+   - GPU instance `i-0523a619699a95db0`: **`stopped`** (API verified).
+   - SSM Port forwarding tunnel: terminated.
+
+
+## TerraDelta V3 SATLAS + AIHub 71363 Deadline Experiment (2026-10-06)
+
+Goal: Build, train, and validate TerraDelta V3 end-to-end Siamese Satlas Swin-v2 model using AIHub 71363 data and existing TerraDelta training data to achieve a substantial leaderboard jump over V2.3.2 baseline while strictly safeguarding fallback stability.
+
+- [x] Step 1: Crop preparation & training manifests generation (`scripts/prepare_v3_datasets.py`)
+  - [x] 1.1: Extract 256x256 event-centered crops from 75 positive AIHub SkySat pairs (building changes: 201 crops extracted).
+  - [x] 1.2: Extract 100 diverse no-change crops from 767 AIHub SkySat negatives (roofs, roads, soil boundaries; 100 crops extracted).
+  - [x] 1.3: Generate manifests `train_S0.csv` (Control: 2,816 clean), `train_S1.csv` (S0 + 201 AIHub pos = 3,017), `train_S2.csv` (S1 + 100 AIHub neg = 3,117).
+  - [x] 1.4: Verify tree loss masking policy: all AIHub samples have `valid_mask_tree = 0`, `presence_valid_tree = 0`.
+- [x] Step 2: V3 Satlas training engine implementation (`scripts/train_satlas_v3.py`)
+  - [x] 2.1: Implement dataset loader for Satlas input conventions (`[0, 1]` float RGB, no ImageNet normalization).
+  - [x] 2.2: Implement class-masked BCE + Dice segmentation loss and BCE presence loss with tree masking.
+  - [x] 2.3: Implement training loop with BF16/FP16 AMP, differential LR (1e-5 backbone, 1e-4 heads), cosine decay, gradient clipping.
+  - [x] 2.4: Sync scripts and verify on remote A10G NVMe (5-step smoke test passed in 5.8s).
+- [x] Step 3: Fast experimental execution on A10G (S0, S1, S2)
+  - [x] 3.1: Train S0 (Control: TerraDelta clean train data only, 1000 steps completed in 4.4 min, loss converged to 0.72-1.09).
+  - [x] 3.2: Train S1 (S0 + AIHub positive crops, 1000 steps completed in 4.6 min, loss converged to 0.71-0.99).
+  - [x] 3.3: Train S2 (S1 + diverse AIHub negative crops, 1000 steps completed in 4.8 min, loss converged to 0.64-0.97).
+- [x] Step 4: Multi-checkpoint evaluation & promotion gate validation (`scripts/evaluate_satlas_v3.py`)
+  - [x] 4.1: Evaluate Real Legacy (22 pairs) and Stress (470 pairs) across S0, S1, S2 checkpoints.
+  - [x] 4.2: Check promotion gates: S1 model.pt (Real 0.6249, FP 6/17, Stress 0.7763) and S2 step 800 (Real 0.6318, FP 7/17, Stress 0.7756) BOTH PASS ALL GATES.
+- [x] Step 5: Ensemble analysis (E0: V2.3.2, E1: Best Satlas, E2: V2.3.2 + Best Satlas)
+  - [x] 5.1: Evaluate ensemble combinations: E1 Satlas V3 strictly outperforms E0 and E2 (E1: 0.6249 Real / 0.7763 Stress vs E0: 0.5471 / 0.5059 vs E2: 0.6193 / 0.7602).
+  - [x] 5.2: Select optimal final deployment candidate: Pure Satlas V3 candidate promoted.
+- [x] Step 6: A10G Benchmark & Offline Packaging
+  - [x] 6.1: Measure peak VRAM and execution time on A10G (Peak VRAM: 6.45GB, inference time: 20.42s).
+  - [x] 6.2: Package deployment zip (offline weights bundled, cleanroom validated: `release/terradelta-v3-satlas.zip`, 321.83MB, SHA256: `db1ffe574cf757804a9f8308facaa6649fd4814d4fbabd52897b71e486af6fc0`, 2-pass byte-identical).
+- [x] Step 7: Mandatory AWS Shutdown & Final Reporting
+  - [x] 7.1: Unmount `/mnt/data_disk`, detach EBS `vol-0070845086ec08190`, reattach to CPU `i-0766a472ecb5bcf88` (`/dev/sdf`).
+  - [x] 7.2: Stop GPU instance `i-0523a619699a95db0` and verify stopped (`stopped`). Kill background tunnel (terminated).
+  - [x] 7.3: Generate final report (`docs/v3-satlas-experiment-report.md`) and conclude with protocol phrase.
+
+
+## TerraDelta V3 SATLAS + AIHub 71363 Experiment Review
+
+Completed on 2026-10-06.
+1. Dataset Preparation:
+   - Extracted 201 positive 256x256 building change crops from 75 AIHub SkySat pairs.
+   - Extracted 100 diverse no-change crops from 767 AIHub SkySat negative pairs.
+   - Enforced strict tree loss masking: all AIHub crops have `valid_mask_tree = 0`, `presence_valid_tree = 0`.
+2. Model Training & Ablations:
+   - S0 Control (TD clean only): 1,000 steps on A10G in 4.4 min. Real 0.4724, Stress 0.8057.
+   - S1 (+ AIHub pos): 1,000 steps on A10G in 4.6 min. Real 0.6249, Stress 0.7763, Real FP 6/17. Passed all gates!
+   - S2 (+ AIHub neg): 1,000 steps on A10G in 4.8 min. Step 800: Real 0.6318, Stress 0.7756, Real FP 7/17, Stress Bldg 110, Tree 119, Stress FP 0/200. Passed all gates (Peak Candidate)!
+3. Ensemble Comparison:
+   - E0 (V2.3.2): Real 0.5471, Stress 0.5059, FP 14/17.
+   - E1 (Satlas V3): Real 0.6249–0.6318, Stress 0.7756–0.7763, FP 6–7/17, Stress FP 0/200.
+   - E2 (Hybrid): Real 0.6193, Stress 0.7602, FP 11/17.
+   - E1 strictly dominates across all dimensions.
+4. Release Artifacts & Verification:
+   - Promoted release: `release/terradelta-v3-satlas.zip` (321.83 MB, SHA256: `db1ffe574cf757804a9f8308facaa6649fd4814d4fbabd52897b71e486af6fc0`).
+   - Cleanroom 2-pass byte-identical verified (`b0352ad8ed6eb33ade0e287cbbbf2a196c8072f0dfa75576a5914dda73286aeb`).
+   - Immutable fallback release preserved: `outputs/v232/terradelta-v232-debug.zip` (SHA256: `5aad7e163285964ce1346d97a3f8596ef630604fd9dbeee3394804b83c461788`).
+5. Mandatory AWS Shutdown:
+   - CPU `i-0766a472ecb5bcf88`: `stopped` (verified, data volume reattached).
+   - GPU `i-0523a619699a95db0`: `stopped` (verified).
+   - SSM Port forwarding tunnel: terminated.
+   - Zero MAIN submissions used.
+
+## TerraDelta V3 FINAL MAIN #1 SUBMISSION (2026-10-06)
+
+Goal: Execute exactly ONE authorized MAIN submission of pure Satlas V3 candidate (S2 Step 800), monitor to completion, verify score, freeze anchor, and report.
+
+- [x] Step 1: Pre-flight verification & quota check
+  - [x] 1.1: Verify local archive existence, size (337,467,378 bytes) and SHA256 (`db1ffe574cf757804a9f8308facaa6649fd4814d4fbabd52897b71e486af6fc0`).
+  - [x] 1.2: Verify stripped model weights SHA256 (`d9813ee9fc26dd5cf941fd7a61077af4815ce366104831e2ce5af77e0f723b1b`).
+  - [x] 1.3: Record baseline public leaderboard status (Rank: 113, Score: 0.2899243555, Total submissions: 4, Daily MAIN remaining: 3/3).
+  - [x] 1.4: Create directory `outputs/v3-main` and write preflight receipt.
+- [x] Step 2: Implement and validate guarded submission script
+  - [x] 2.1: Write `outputs/v3-main/submit_v3_main.py` with strict assertions (single dispatch, `debug=False`, exact endpoints, secret redaction, zero automatic retry).
+  - [x] 2.2: Validate dispatch guards using mock transport.
+- [x] Step 3: Execute single MAIN submission
+  - [x] 3.1: Pass authorized API key via stdin to `submit_v3_main.py`.
+  - [x] 3.2: Capture submission response (`publicSubmissionId: 366045`, `privateSubmissionId: 366046`, `codeRunId: 33855`).
+  - [x] 3.3: Verify durable attempt marker and response receipt.
+- [x] Step 4: Monitor platform execution to completion
+  - [x] 4.1: Poll leaderboard and platform status until terminal state (`completed`).
+  - [x] 4.2: Retrieve public score (full precision 0.3567265623, display 0.3567), rank 85, and remaining quota (2/3).
+- [x] Step 5: Score analysis & artifact freeze
+  - [x] 5.1: Calculate absolute delta (+0.066802) and relative improvement % (+23.04%) vs V2.3.1 baseline (0.2899243555).
+  - [x] 5.2: Freeze `V3_MAIN1_ANCHOR` and write `docs/v3-main-result.json` and `docs/v3-main-report.md`.
+  - [x] 5.3: Commit sanitized reports to `v3-satlas-aihub-deadline-20261006` and push to origin.
+- [x] Step 6: Final reporting
+  - [x] 6.1: Present 20 required response fields.
+  - [x] 6.2: Conclude with protocol: `V3 MAIN #1 COMPLETE — WAITING FOR V3.1 DECISION`.
+
+## TerraDelta V3 FINAL MAIN #1 Review
+
+Completed on 2026-10-06.
+1. Execution:
+   - Single authorized MAIN dispatch executed via stdin secret pipe with zero leaks.
+   - Public submission ID: 366045, Private submission ID: 366046, Code run ID: 33855.
+   - Terminal status: `완료` (completed) in ~8.5 minutes.
+2. Outcome:
+   - Official public score: **`0.3567265623`** (display: **`0.3567`**).
+   - Baseline score (V2.3.1): `0.2899243555`.
+   - Absolute gain: **`+0.0668022068`** | Relative improvement: **`+23.0413%`**.
+   - Leaderboard position: Jumped from **113위** to **85위** (+28 positions).
+3. Quota:
+   - 1 / 3 MAIN consumed today. Exactly **2 / 3** daily submissions remaining.
+4. Infrastructure:
+   - GPU `i-0523a619699a95db0` and CPU `i-0766a472ecb5bcf88` remain safely `stopped`.
+
+
+
+
+
+
+

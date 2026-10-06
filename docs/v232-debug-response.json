@@ -1,0 +1,27 @@
+{
+  "mode": "DEBUG",
+  "competition_id": 9306,
+  "model_name": "DEBUG_TERRADELTA_V232_ALIGNMENT_CORE",
+  "response": {
+    "debugSubmissionId": 365654,
+    "codeRunId": 33151
+  },
+  "api_calls": [
+    {
+      "method": "POST",
+      "endpoint": "upload-url",
+      "debug": true
+    },
+    {
+      "method": "POST",
+      "endpoint": "code-submissions",
+      "debug": true
+    }
+  ],
+  "status": "registered",
+  "started_at_utc": "2026-10-05T15:39:50.667279+00:00",
+  "registered_at_utc": "2026-10-05T15:39:51.621327+00:00",
+  "zip_sha256": "5aad7e163285964ce1346d97a3f8596ef630604fd9dbeee3394804b83c461788",
+  "main_submissions_this_task": 0,
+  "debug_submissions_this_task": 1
+}

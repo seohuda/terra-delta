@@ -1,0 +1,63 @@
+{
+  "timestamp": "2026-10-06T00:55:00+09:00",
+  "branch": "v2.3.2-pairgate-align-exp-20261005",
+  "baseline_production": {
+    "version": "v2.3.1",
+    "main_score": 0.2899243555,
+    "checkpoint_sha256": "ca59fe6698d8ee6bef354a7f40c1ef6d8901826e0572a5b80eb2b1d8b2ca4372",
+    "legacy": {
+      "building_recall": "3/3",
+      "tree_recall": "2/2",
+      "no_change_fp": "11/17",
+      "score": 0.567203
+    },
+    "stress": {
+      "building_tp": 113,
+      "tree_tp": 97,
+      "no_change_fp": "0/200",
+      "score": 0.691924
+    }
+  },
+  "promoted_model": {
+    "version": "v2.3.2",
+    "architecture": "Hybrid: D_align_core for new_building + Frozen Ablation D for tree_removal",
+    "model_container": "/data/terradelta/v2.3.2/training/classifier_v232_promoted.json",
+    "config_sha256": "4010da3574cbf4c1a8b1d29e56879daefafbc1d8056a5b85de633669735d0710",
+    "zip_sha256": "5aad7e163285964ce1346d97a3f8596ef630604fd9dbeee3394804b83c461788",
+    "cleanroom_csv_sha256": "56cc30123db58ea1067817fdc008baa5ad7be8efc9ef7bfdcb4a2696bd799ad4",
+    "cleanroom_pass_status": "byte_identical_2pass_pass",
+    "metrics": {
+      "real_building_recall": "3/3",
+      "real_tree_recall": "2/2",
+      "real_no_change_fp": "8/17",
+      "real_score": 0.628615,
+      "stress_building_tp": 112,
+      "stress_tree_tp": 97,
+      "stress_no_change_fp": "0/200",
+      "stress_score": 0.689536
+    }
+  },
+  "debug_submission": {
+    "submission_id": 365654,
+    "code_run_id": 33151,
+    "status": "completed",
+    "score": 0.3331,
+    "score_type": "practice",
+    "comparison_to_v2_v22": "equal (0.3331)",
+    "errors": 0,
+    "main_submissions_dispatched": 0,
+    "daily_main_remaining": 3,
+    "daily_debug_used": 1
+  },
+  "promotion_gates": {
+    "real_building_recall_ge_3_3": true,
+    "real_tree_recall_ge_2_2": true,
+    "real_no_change_fp_le_11_17": true,
+    "stress_building_tp_ge_111": true,
+    "stress_tree_tp_ge_95": true,
+    "stress_no_change_fp_eq_0_200": true,
+    "stress_score_ge_0_680": true,
+    "all_passed": true
+  },
+  "verdict": "V2.3.2 DEBUG NEUTRAL/POSITIVE — MAIN DECISION PENDING"
+}

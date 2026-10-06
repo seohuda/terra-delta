@@ -1,0 +1,45 @@
+{
+  "submitted_at_utc": "2026-10-05T00:49:26.546621+00:00",
+  "mode": "DEBUG",
+  "competition_id_user_confirmed": 9306,
+  "api_calls": [
+    {
+      "method": "POST",
+      "endpoint": "upload-url",
+      "debug": true
+    },
+    {
+      "method": "POST",
+      "endpoint": "code-submissions",
+      "debug": true
+    }
+  ],
+  "response": {
+    "debugSubmissionId": 365047,
+    "codeRunId": 32072
+  },
+  "artifact_sha256": "f4bcaa54157fe077318f9c0bef43d764bab3c14daa86c52a1f566213169d79c2",
+  "status": "completed",
+  "terminal_observed_at_utc": "2026-10-05T01:00:03.619502+00:00",
+  "displayed_practice_score": 0.3331,
+  "displayed_practice_score_text": "0.3331",
+  "exact_unrounded_score": null,
+  "source": "Authenticated AIFactory competition9306 submission-history row: DEBUG_TERRADELTA_V22…, 2026.10.05 09:49, 완료, 0.3331 연습용.",
+  "submission_ui": "https://aifactory.space/ko/competitions/9306/submission",
+  "main_submissions_this_task": 0,
+  "debug_submissions_this_task": 1,
+  "daily_main_remaining_observed": 3,
+  "daily_main_limit": 3,
+  "daily_debug_used_observed": 1,
+  "comparison": {
+    "frozen_v2_displayed_debug_score": 0.3331,
+    "displayed_score_change": 0.0,
+    "conclusion": "No improvement at displayed precision; no claim of equal unrounded scores or MAIN improvement."
+  },
+  "server_detailed_logs": "Not exposed in the observed UI",
+  "server_prediction_csv": "Not exposed in the observed UI",
+  "server_execution_duration_seconds": null,
+  "local_screenshot": "outputs/v22/debug-completed.jpg",
+  "aihub_auxiliary_training_rows": 0,
+  "aihub_status": "approved_but_provider_geoip_denied"
+}

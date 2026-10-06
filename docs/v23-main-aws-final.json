@@ -1,0 +1,92 @@
+{
+  "verified_at_utc": "2026-10-05T04:11:40.581255+00:00",
+  "region": "ap-northeast-2",
+  "status": "stopped_data_preserved",
+  "instances": [
+    {
+      "instance_id": "i-0766a472ecb5bcf88",
+      "state": "stopped",
+      "type": "t3.medium",
+      "ebs": [
+        {
+          "device": "/dev/sda1",
+          "volume_id": "vol-0070845086ec08190",
+          "delete_on_termination": false
+        }
+      ]
+    },
+    {
+      "instance_id": "i-0523a619699a95db0",
+      "state": "stopped",
+      "type": "g5.xlarge",
+      "ebs": [
+        {
+          "device": "/dev/sda1",
+          "volume_id": "vol-084ec2fa143c670d6",
+          "delete_on_termination": false
+        }
+      ]
+    }
+  ],
+  "volumes": [
+    {
+      "volume_id": "vol-0070845086ec08190",
+      "state": "in-use",
+      "size_gib": 30,
+      "encrypted": true,
+      "attachments": [
+        {
+          "instance_id": "i-0766a472ecb5bcf88",
+          "state": "attached"
+        }
+      ]
+    },
+    {
+      "volume_id": "vol-084ec2fa143c670d6",
+      "state": "in-use",
+      "size_gib": 30,
+      "encrypted": true,
+      "attachments": [
+        {
+          "instance_id": "i-0523a619699a95db0",
+          "state": "attached"
+        }
+      ]
+    }
+  ],
+  "cleanup": {
+    "verified_at_utc": "2026-10-05T04:10:03.242727+00:00",
+    "active_terradelta_processes": [],
+    "protected_release_files_unchanged": {
+      "v2-main-01": 33,
+      "v2.2-main-01": 15,
+      "v2.3-main-01": 14
+    },
+    "source_code_hashes_match": true,
+    "offline_zip_sha256": "3036a272593259f3dc712510abbbf0f2630ad5a4e9fbea9a63e8258560495f6f",
+    "retained_data_root": "/data/terradelta/v2.3",
+    "retained_mount": {
+      "target": "/",
+      "source": "/dev/nvme0n1p1",
+      "fstype": "ext4",
+      "options": "rw,relatime,discard,errors=remount-ro,commit=30"
+    },
+    "task_bind_mounts": 0,
+    "files_fsynced": 608,
+    "filesystem_sync_completed": true,
+    "task_ssh_key_revoked": true,
+    "other_ssh_keys_preserved": true,
+    "retained_data_preserved": true
+  },
+  "ssm_session": {
+    "id": "agy-tofc3asgaf4g9rer277dr96toa",
+    "prior_session_id": "agy-fzttxtxzhfjsyslzj8vkbf9iou",
+    "termination_requested": true,
+    "active_matches": 0,
+    "local_forwarder_exited": true
+  },
+  "gpu_started_this_task": false,
+  "new_resources_created": 0,
+  "snapshots_created": 0,
+  "volumes_deleted": 0
+}

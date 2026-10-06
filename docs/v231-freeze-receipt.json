@@ -1,0 +1,33 @@
+{
+  "status": "V2.3.1 IMPROVED \u2014 READY FOR MAIN SUBMISSION APPROVAL",
+  "selected_ablation": "D",
+  "checkpoint_sha256": "ca59fe6698d8ee6bef354a7f40c1ef6d8901826e0572a5b80eb2b1d8b2ca4372",
+  "config_sha256": "312acd4a1993efabe9a9b8683f4735cab23fb6a6cceff89e75d53507a3756747",
+  "zip_sha256": "ac45a7fc41855f8ec09f53fd63891ef7fa5b6af76b4be4a65ffb77998f7e35be",
+  "zip_size_bytes": 60040647,
+  "cleanroom_prediction_sha256": "2e0af61cc9dd12ff35e5578577464b97b024db2b32c6f9c1972f75ddb02b0fe3",
+  "gate_results": {
+    "passed": true,
+    "reasons": [],
+    "building_recall": "3/3",
+    "tree_recall": "2/2",
+    "no_change_fp": "11/17",
+    "real_score": 0.5672025621108665,
+    "stress_building_tp": 113,
+    "stress_tree_tp": 97,
+    "stress_score": 0.6919238850353188
+  },
+  "metrics_summary": {
+    "legacy": {
+      "score": 0.5672025621108665,
+      "building_recall": "3/3",
+      "tree_recall": "2/2",
+      "no_change_fp": "11/17"
+    },
+    "stress": {
+      "score": 0.6919238850353188,
+      "building_tp": 113,
+      "tree_tp": 97
+    }
+  }
+}

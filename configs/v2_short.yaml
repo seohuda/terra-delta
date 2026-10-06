@@ -1,0 +1,44 @@
+seed: 20261004
+model:
+  alignment: true
+  alignment_scales: [3, 4]
+  max_offset: 1.5
+data:
+  train_manifest: /data/terradelta/v2/manifests/train-synthetic.csv
+  legacy_val_manifest: /data/terradelta/processed/micro-pilot-v2/val.csv
+  stress_val_manifest: /data/terradelta/v2/manifests/stress-val-v2.csv
+augmentation:
+  relative_probability: 0.55
+  max_translation: 6.0
+  max_rotation: 1.5
+  max_scale: 0.02
+  photometric: true
+training:
+  baseline_checkpoint: /data/terradelta/baseline/unet_r18_cd.pt
+  output_dir: /data/terradelta/v2/checkpoints/siamese-align-v1
+  batch_size: 8
+  encoder_lr: 0.00001
+  new_lr: 0.0001
+  weight_decay: 0.0001
+  max_grad_norm: 1.0
+  checkpoints: [25, 50, 100, 150, 250]
+  loss:
+    bce_weight: 1.0
+    dice_weight: 1.0
+    presence_weight: 0.25
+    focal_gamma: 1.5
+evaluation:
+  batch_size: 8
+  pixel_thresholds:
+    new_building: 0.5
+    tree_removal: 0.5
+  presence_thresholds:
+    new_building: 0.5
+    tree_removal: 0.5
+  min_area:
+    new_building: 30
+    tree_removal: 30
+  min_pos_area:
+    new_building: 20
+    tree_removal: 20
+  simplify_px: 0.5

@@ -1,0 +1,72 @@
+{
+  "verified_at_utc": "2026-10-05T01:50:07.970511+00:00",
+  "region": "ap-northeast-2",
+  "status": "stopped_data_preserved",
+  "instances": [
+    {
+      "instance_id": "i-0766a472ecb5bcf88",
+      "state": "stopped",
+      "type": "t3.medium",
+      "ebs": [
+        {
+          "device": "/dev/sda1",
+          "volume_id": "vol-0070845086ec08190",
+          "delete_on_termination": false
+        }
+      ]
+    },
+    {
+      "instance_id": "i-0523a619699a95db0",
+      "state": "stopped",
+      "type": "g5.xlarge",
+      "ebs": [
+        {
+          "device": "/dev/sda1",
+          "volume_id": "vol-084ec2fa143c670d6",
+          "delete_on_termination": false
+        }
+      ]
+    }
+  ],
+  "volumes": [
+    {
+      "volume_id": "vol-0070845086ec08190",
+      "state": "in-use",
+      "size_gib": 30,
+      "encrypted": true,
+      "attachments": [
+        {
+          "instance_id": "i-0766a472ecb5bcf88",
+          "state": "attached"
+        }
+      ]
+    },
+    {
+      "volume_id": "vol-084ec2fa143c670d6",
+      "state": "in-use",
+      "size_gib": 30,
+      "encrypted": true,
+      "attachments": [
+        {
+          "instance_id": "i-0523a619699a95db0",
+          "state": "attached"
+        }
+      ]
+    }
+  ],
+  "task_ssm_session_termination_requested": true,
+  "task_ssm_session_status": "Terminating",
+  "task_ssm_session_active": false,
+  "local_ssm_forwarding_process_exited": true,
+  "task_ssh_key_revoked": true,
+  "frozen_release": "/data/terradelta/releases/v2.2-main-01",
+  "release_files_verified": 15,
+  "old_frozen_v2_files_unchanged": 33,
+  "original_data_weights_caches_preserved": true,
+  "new_instances_or_volumes_created": 0,
+  "gpu_starts": 0,
+  "main_submissions_this_task": 1,
+  "main_retries": 0,
+  "aihub_download_bytes_this_task": 0,
+  "training_steps_this_task": 0
+}

@@ -1,0 +1,63 @@
+{
+  "verified_at_utc": "2026-10-05T00:53:21.912375+00:00",
+  "region": "ap-northeast-2",
+  "instances": [
+    {
+      "instance_id": "i-0766a472ecb5bcf88",
+      "state": "stopped",
+      "type": "t3.medium",
+      "ebs": [
+        {
+          "device": "/dev/sda1",
+          "volume_id": "vol-0070845086ec08190",
+          "delete_on_termination": false
+        }
+      ]
+    },
+    {
+      "instance_id": "i-0523a619699a95db0",
+      "state": "stopped",
+      "type": "g5.xlarge",
+      "ebs": [
+        {
+          "device": "/dev/sda1",
+          "volume_id": "vol-084ec2fa143c670d6",
+          "delete_on_termination": false
+        }
+      ]
+    }
+  ],
+  "volumes": [
+    {
+      "volume_id": "vol-0070845086ec08190",
+      "state": "in-use",
+      "size_gib": 30,
+      "encrypted": true
+    },
+    {
+      "volume_id": "vol-084ec2fa143c670d6",
+      "state": "in-use",
+      "size_gib": 30,
+      "encrypted": true
+    }
+  ],
+  "task_ssm_session_terminated": true,
+  "preservation": {
+    "verified_at_utc": "2026-10-05T00:52:32.412473+00:00",
+    "frozen_release_files_unchanged": 33,
+    "artifact_sha256": "f4bcaa54157fe077318f9c0bef43d764bab3c14daa86c52a1f566213169d79c2",
+    "debug_submissions": 1,
+    "main_submissions": 0,
+    "aihub_imagery_bytes": 0,
+    "aihub_training_rows": 0,
+    "original_data_and_caches_retained": true,
+    "checkpoint_and_debug_artifact_retained": true,
+    "task_ssh_key_revoked": true
+  },
+  "debug_submissions": 1,
+  "main_submissions": 0,
+  "aihub_download_bytes": 0,
+  "aihub_training_rows": 0,
+  "aihub_status": "approved_but_provider_geoip_denied",
+  "status": "stopped_data_preserved"
+}
