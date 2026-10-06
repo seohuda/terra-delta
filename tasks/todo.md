@@ -461,3 +461,55 @@ Completed on 2026-10-06.
   - SSM Port forwarding tunnel: terminated
 - Final Verdict: `V2.3.2 DEBUG NEUTRAL/POSITIVE — MAIN DECISION PENDING`
 
+
+## AIHub ULM Recovery & Dataset 71363 Preparation (2026-10-06)
+
+Goal: Recover previous ULM AIHub acquisition method forensics, determine provenance, prepare AIHub 71363 via allowed domestic path without geo-bypass proxy, and execute data audit.
+
+- [x] Phase 1: Forensic recovery of old ULM AIHub method across local and EC2 history/transcripts.
+- [x] Phase 2: Classify provenance, document exact sanitized commands in `docs/aihub-ulm-download-recovery.md`, identify reverse SOCKS5 geo-bypass proxy and abort bypass path.
+- [x] Phase 3.1: Verify local host network (Korean domestic school Wi-Fi: `211.169.190.150`, AS3786 LG DACOM Corporation).
+- [x] Phase 3.2: List AIHub dataset 71363 file tree using official `aihubshell -mode l -datasetkey 71363`.
+- [x] Phase 3.3: Inspect metadata and labels to analyze temporal change semantics for `new_building` and `tree_removal`.
+- [x] Phase 3.4: Create `docs/aihub-71363-file-selection.md` classifying all available filekeys.
+- [x] Phase 4: Download selected subset locally into `~/terradelta-aihub-71363/archive/` and compute SHA256 (`aihub-71363-download.sha256`).
+- [x] Phase 5: Start AWS CPU `i-0766a472ecb5bcf88` (GPU remains strictly STOPPED) and transfer archives to `/data/terradelta/incoming/aihub-71363/archive/`.
+- [x] Phase 6: Verify AWS SHA256 against local hashes (`SHA256SUMS`).
+- [x] Phase 7: Extract into `/data/terradelta/incoming/aihub-71363/raw/` preserving raw archives.
+- [x] Phase 8: Execute Data Fast Audit on extracted dataset (842 pairs, zero corruption, zero leakage).
+- [x] Phase 9: Single high-value candidate extraction & training experiment with local alignment features.
+- [x] Phase 10: Promotion gate evaluation and fallback to frozen V2.3.2 promoted baseline.
+- [x] Phase 11: Mandatory AWS shutdown: stop CPU `i-0766a472ecb5bcf88` and verify `stopped`.
+- [x] Phase 12: Generate documentation and reports (`docs/aihub-71363-fast-audit.md`, `docs/aihub-71363-experiment-report.md`).
+
+### AIHub 71363 Fast Audit & Experiment Review Summary
+
+Completed on 2026-10-06.
+1. Forensic Recovery & Provenance:
+   - Recovered historical ULM method: reverse dynamic SOCKS5 proxy (`ssh -R 10800`) to overseas EC2 with `ALL_PROXY`.
+   - Classified as Category A/C proxy geo-bypass. Strictly halted and not reproduced per policy.
+2. Official Domestic Acquisition:
+   - Acquired via legitimate domestic IP (`211.169.190.150`, AS3786) using official `aihubshell`.
+   - Selected SkySat 0.50m multi-temporal subset (`VS_02._Skyset.zip`, `VL_01.LABEL_02._Skyset.zip`, `01.메타데이터_02._Skyset.zip`).
+3. Data Integrity & Fast Audit:
+   - 842 total temporal pairs (1024x1024, 0.50m/px).
+   - Class distribution: 75 positive `new_building` pairs, 0 `tree_removal` pairs, 767 pure negative pairs.
+   - 0 corrupted files, 0 missing files.
+   - Anti-leakage: 0 overlap with Real Legacy (22), Stress (470), and 120 forbidden synthetic IDs (100% PASS).
+4. Single Bounded Training Experiment:
+   - Extracted 626 candidates (530 clean: 111 TP building, 419 FP building hard negatives) enriched with 18 local alignment features.
+   - Combined with existing 3,652 clean candidates (total 4,182).
+   - Results: Stress Building TP improved from 112 to 119 (+7 TP), but Real Legacy FP increased from 8/17 to 13/17 (score dropped to 0.520579).
+   - Gates check: FAILED (FP threshold <= 8/17 violated).
+   - Action: Safely triggered designated fallback to frozen V2.3.2 promoted baseline.
+5. Active Production Status:
+   - Preserved immutable V2.3.2 release package: `outputs/v232/terradelta-v232-debug.zip` (SHA256: `5aad7e163285964ce1346d97a3f8596ef630604fd9dbeee3394804b83c461788`).
+   - Cleanroom byte-identical verified.
+   - Zero MAIN submissions used.
+6. Mandatory AWS Shutdown:
+   - CPU instance `i-0766a472ecb5bcf88`: **`stopped`** (API verified).
+   - GPU instance `i-0523a619699a95db0`: **`stopped`** (API verified).
+   - SSM Port forwarding tunnel: terminated.
+
+
+
