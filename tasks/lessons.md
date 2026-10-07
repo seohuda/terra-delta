@@ -67,3 +67,15 @@
 16. **Capacity Asymmetry in Ensemble Blending**:
     - Blending high-capacity foundation models (Swin-v2 Base) with lower-capacity architectures (ResNet18) can backfire when the weaker model's predictions suffer from high false-positive rates (FP rose from 6/17 to 11/17 in the blend). Pure foundation candidate promotion (E1) preserves superior spatial suppression.
 
+
+## 2026-10-07: Open-Source Documentation & Asset De-slopping Lessons
+
+17. **Kill AI Slop in Project Visuals & Documentation**:
+    - **No Fake Terminal Screenshots**: Never create PIL/mockup images of terminal windows with macOS window dots, blurry rasterized fonts, or neon logs. Authentic engineering projects provide terminal commands and sample log outputs directly in searchable, copy-pasteable, accessible native Markdown code blocks.
+    - **Peer-Reviewed Scientific Visual Standards Over Dark-Mode SaaS Vibes**:
+      - For research, ML benchmarks, and competition repos: use clean white backgrounds (`#FFFFFF`), standard publication typography (black/slate-900), subtle hairlines, and restrained color palettes (deep blue/cobalt line, subtle green marker for final).
+      - Never use pitch-black backgrounds with neon glowing gradients, cartoon speech bubble callouts with colored borders, or overlapping annotation boxes that occlude data points.
+    - **Authentic Sample Selection & Alignments**:
+      - Multi-temporal comparison figures must be scientifically honest: "seasonal invariance / true negative" rows must actually display verified true negatives (where ground truth is empty AND model prediction is empty), rather than mistakenly showcasing false positive artifacts as "rejection".
+      - Give labels ample horizontal layout margins with zero text collisions or truncated strings.
+

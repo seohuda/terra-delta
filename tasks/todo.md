@@ -647,3 +647,10 @@ Completed on 2026-10-06.
 - [x] Embed figures into `README.md` (Hero showcase, Leaderboard results, Cleanroom verification)
 - [x] Commit and push changes to GitHub `origin/main` (`202b846`)
 
+## README Visual De-slopping & Publication Standards (2026-10-07)
+
+- [x] Purge fake PIL macOS terminal image (`docs/images/terminal_execution.png`)
+- [x] Replace terminal screenshot with native, copy-pasteable Markdown console/text blocks in `README.md`
+- [x] De-slop change detection demo (`docs/images/change_detection_demo.png`): switch from dark neon template to clean peer-reviewed scientific figure (white background, true negative row, clean horizontal typography, neutral hairlines)
+- [x] De-slop leaderboard chart (`docs/images/leaderboard_progression.png`): switch from dark glowing SaaS chart to clean publication line plot (white background, Tufte axes, non-overlapping annotations)
+- [x] Record lessons learned in `tasks/lessons.md`

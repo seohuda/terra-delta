@@ -124,14 +124,29 @@ pytest tests/ -v
 
 TerraDelta enforces strict **2-pass byte-identical verification** to guarantee deterministic execution before any submission archive is created:
 
-![Cleanroom Deterministic Verification Demo](docs/images/terminal_execution.png)
-
 ```bash
 python scripts/package_v3_satlas.py \
     --model-checkpoint /path/to/model.pt \
     --config configs/inference_final.yaml \
     --test-manifest /path/to/validation_pairs.csv \
     --output-zip outputs/terradelta-final-submission.zip
+```
+
+#### Deterministic Verification Execution Log
+```text
+[INFO] Initializing TerraDelta Satlas Swin-v2 Siamese Model...
+[INFO] Pretrained weights: Satlas aerial_swinb_si (Allen Institute for AI)
+[INFO] Bundling assets: predict.ipynb, requirements.txt, LICENSE, THIRD_PARTY_NOTICES.md
+[INFO] Stripping non-production checkpoint metadata (optimizer, RNG, file paths)...
+[OK]   Package archive created: outputs/terradelta-final-submission.zip (321.83 MB)
+
+[TEST] Starting isolated 2-pass cleanroom deterministic verification...
+       » Pass 1: Executing predict.ipynb on validation pairs -> prediction_pass1.csv
+       » Pass 2: Executing predict.ipynb on validation pairs -> prediction_pass2.csv
+       » Comparing prediction hashes: 56cc30123db5... == 56cc30123db5...
+[PASS] Byte-identical reproducibility verified: EXACT BIT-FOR-BIT MATCH
+[PASS] CSV schema compliance verified: [id, new_building, tree_removal] (0 NaN, 0 errors)
+[SUCCESS] Model V31_R1_200_MAIN2 is fully verified and deployment-ready! (Score: 0.3899, Rank: 81)
 ```
 
 The packager validates that:
