@@ -3,7 +3,16 @@
     "name": "2026 National Park Satellite Monitoring AI Challenge - Track 3",
     "platform": "AIFactory",
     "competition_id": 9306,
-    "url": "https://aifactory.space/ko/competitions/9306"
+    "url": "https://aifactory.space/ko/competitions/9306",
+    "ended_on": "2026-10-06"
+  },
+  "final_public_observation": {
+    "source": "AIFactory competition UI captured after the competition ended",
+    "rank": 86,
+    "total_teams": 136,
+    "best_public_score": 0.3567265623,
+    "total_submissions": 14,
+    "note": "This is the repository headline result because it matches the final leaderboard screen supplied after competition close."
   },
   "final_model": {
     "name": "V31_R1_200_MAIN2",
@@ -44,10 +53,10 @@
     "code_run_id": 34166,
     "registered_at_utc": "2026-10-06T04:40:02.321629+00:00",
     "registered_at_kst": "2026-10-06 13:40:02 KST",
-    "official_private_score": 0.3898894805,
-    "official_rank": 81,
+    "recorded_private_score": 0.3898894805,
+    "recorded_private_rank": 81,
     "total_teams": 136,
-    "percentile": 59.56
+    "verification_note": "These private-score fields are retained from the historical submission receipt. They are not used as the repository headline final result because the supplied final AIFactory leaderboard screen shows public rank 86 and score 0.3567265623."
   },
   "release_policy": {
     "code_license": "MIT",
