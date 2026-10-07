@@ -7,8 +7,17 @@
 - [x] Integrate only the final model's required code and portable inference/package commands.
 - [x] Verify clean installation, tests and synthetic inference.
 - [x] Inventory remaining AWS resources and scheduled jobs; do not delete retained assets.
-- [ ] Push reviewed main, tag v1.0.0, and create a code/documentation release.
+- [x] Push reviewed main, tag v1.0.0, and create a code/documentation release.
 - [ ] Present public-conversion approval with any remaining blockers.
+
+### Release closeout review (2026-10-07)
+- Recovered and verified final submission package `terradelta-v31-r1-200.zip` (SHA256: `217f9e02...`) from stopped A10G instance into private offline storage.
+- All 7 dashboard screenshots removed across all Git commits; committer email completely anonymized to `273290042+seohuda@users.noreply.github.com`.
+- Root MIT `LICENSE`, `THIRD_PARTY_NOTICES.md` (Satlas Apache-2.0, Baseline terms), and rewritten comprehensive `README.md` added.
+- All 69 pytest cases passed cleanly; 2-pass offline cleanroom reproducibility verified.
+- `main` branch updated, `v1.0.0` tag pushed, GitHub Release `v1.0.0` published.
+- AWS inventory verified: instances `i-0766a472ecb5bcf88` and `i-0523a619699a95db0` stopped; volumes preserved.
+
 
 Earlier entries below are historical experiment logs, not the current release status.
 
