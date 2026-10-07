@@ -10,6 +10,8 @@
 
 The system accepts high-resolution pre-event and post-event satellite/aerial RGB imagery pairs, detects newly constructed illegal buildings and unauthorized tree removals, and generates standardized pixel-coordinate vector polygons.
 
+![TerraDelta Multi-Temporal Change Detection Showcase](docs/images/change_detection_demo.png)
+
 ---
 
 ## Project Status
@@ -20,6 +22,8 @@ The system accepts high-resolution pre-event and post-event satellite/aerial RGB
 ---
 
 ## Key Results & Leaderboard Progression
+
+![TerraDelta Leaderboard Progression](docs/images/leaderboard_progression.png)
 
 | Milestone / Version | Submission ID | Model Architecture | Submission Mode | Score (IoU Metric) | Leaderboard Rank |
 |:---|:---:|:---|:---:|:---:|:---:|
@@ -119,6 +123,8 @@ pytest tests/ -v
 ## Reproducing Submission Packaging & Cleanroom Verification
 
 TerraDelta enforces strict **2-pass byte-identical verification** to guarantee deterministic execution before any submission archive is created:
+
+![Cleanroom Deterministic Verification Demo](docs/images/terminal_execution.png)
 
 ```bash
 python scripts/package_v3_satlas.py \
