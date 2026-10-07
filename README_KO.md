@@ -1,5 +1,11 @@
 # TerraDelta
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![Status: Archived](https://img.shields.io/badge/Status-Archived-inactive.svg)](#project-status)
+[![Final Rank](https://img.shields.io/badge/Final%20Rank-86%20%2F%20136-orange.svg)](#final-public-result)
+[![Best Public Score](https://img.shields.io/badge/Best%20Public%20Score-0.3567265623-brightgreen.svg)](#final-public-result)
+
 2026 국립공원 위성 모니터링 AI 챌린지 주제 3: 국립공원 내 시설물 변화 탐지를 위해 개발한 고해상도 위성·항공 영상 기반 시계열 변화 탐지 프로젝트입니다.
 
 영문 README: [README.md](README.md)
