@@ -10,6 +10,8 @@ Competition: https://aifactory.space/ko/competitions/9306
 
 Project status: concluded on 2026-10-06. The repository is preserved as a technical archive and reference implementation.
 
+![TerraDelta multi-temporal change detection examples](docs/images/change_detection_demo.png)
+
 ## Final public result
 
 | Item | Result |
