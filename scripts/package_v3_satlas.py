@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Package and cleanroom-verify TerraDelta V3 Satlas release."""
+"""Build a private Satlas submission and verify it with an explicit local manifest."""
 from __future__ import annotations
 
 import argparse
@@ -7,22 +7,25 @@ import csv
 import hashlib
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import shutil
+import stat
 import subprocess
 import sys
+import tempfile
 import time
 import zipfile
 
-import numpy as np
-from PIL import Image
 import torch
 import yaml
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from terradelta.data.dataset_v2 import read_v2_manifest
-from terradelta.models.satlas_v3 import SatlasV3Model
+from terradelta.utils.io import load_config, read_csv, safe_id  # noqa: E402
+
+MAX_EXPANDED_BYTES = 8 * 1024**3
+MAX_ZIP_MEMBERS = 100_000
 
 
 def compute_sha256(path: Path | str) -> str:
@@ -34,13 +37,12 @@ def compute_sha256(path: Path | str) -> str:
 
 
 def build_predict_notebook(config_path: Path) -> dict:
-    """Construct predict.ipynb for Satlas V3 offline inference."""
+    """Keep the historical package anchors; settings live in assets/config.yaml."""
     code = r"""# TerraDelta V3 Offline Satlas Inference
 import os
 import sys
 from pathlib import Path
 
-# Locate root directory
 def _submission_root():
     anchors = []
     for name in ("__file__", "__vsc_ipynb_file__", "__notebook_path__"):
@@ -64,291 +66,179 @@ def _submission_root():
 ROOT = _submission_root()
 sys.path.insert(0, str(ROOT / "assets/code"))
 
-import csv
-import numpy as np
-from PIL import Image
 import torch
-import yaml
-from terradelta.models.satlas_v3 import SatlasV3Model
-from terradelta.postprocess.polygons import mask_to_polygons, serialize_polygons
+from terradelta.utils.io import load_config
+from terradelta.inference.satlas_v3 import predict_directory
 
+CONFIG = load_config(ROOT / "assets/config.yaml")
 INPUT_DIR = Path(os.environ.get("AIF_INPUT_DIR", "./input"))
 PREDICTION_PATH = Path(os.environ.get("AIF_PREDICTION_PATH", "./prediction.csv"))
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-
-with open(ROOT / "assets/config.yaml") as f:
-    CONFIG = yaml.safe_load(f)
-
-# Initialize Model
-model = SatlasV3Model(weights_path=None, fpn_channels=128, num_classes=2)
-ckpt = torch.load(ROOT / "assets/model/model.pt", map_location=DEVICE)
-state_dict = ckpt["model_state_dict"] if "model_state_dict" in ckpt else ckpt
-model.load_state_dict(state_dict)
-model.to(DEVICE)
-model.eval()
-
-# Locate pairs
-pairs = []
-pairs_csv = INPUT_DIR / "pairs.csv"
-if pairs_csv.is_file():
-    with open(pairs_csv, newline="") as f:
-        reader = csv.DictReader(f)
-        for r in reader:
-            pid = r.get("id") or r.get("pair_id")
-            if pid:
-                pre_p = INPUT_DIR / "images" / pid / "pre.png"
-                post_p = INPUT_DIR / "images" / pid / "post.png"
-                if not pre_p.is_file():
-                    pre_p = INPUT_DIR / pid / "pre.png"
-                    post_p = INPUT_DIR / pid / "post.png"
-                pairs.append((pid, pre_p, post_p))
-else:
-    # Scan subdirectories
-    for d in sorted(INPUT_DIR.iterdir()):
-        if d.is_dir() and (d / "pre.png").is_file() and (d / "post.png").is_file():
-            pairs.append((d.name, d / "pre.png", d / "post.png"))
-
-print(f"Loaded {len(pairs)} pairs for inference on {DEVICE}.")
-
-pixel_thresh = CONFIG.get("postprocess", {}).get("classes", {}).get("new_building", {}).get("pixel_threshold", 0.35)
-pres_thresh = CONFIG.get("postprocess", {}).get("classes", {}).get("new_building", {}).get("presence_threshold", 0.30)
-tree_pixel_thresh = CONFIG.get("postprocess", {}).get("classes", {}).get("tree_removal", {}).get("pixel_threshold", 0.70)
-tree_pres_thresh = CONFIG.get("postprocess", {}).get("classes", {}).get("tree_removal", {}).get("presence_threshold", 0.30)
-
-rows = []
-batch_size = int(CONFIG.get("inference", {}).get("batch_size", 8))
-
-with torch.inference_mode():
-    for start in range(0, len(pairs), batch_size):
-        chunk = pairs[start : start + batch_size]
-        tensors = []
-        valid_chunk = []
-        for pid, pre_path, post_path in chunk:
-            try:
-                pre = np.array(Image.open(pre_path).convert("RGB"), dtype=np.uint8)
-                post = np.array(Image.open(post_path).convert("RGB"), dtype=np.uint8)
-                pre_t = torch.from_numpy(pre.transpose(2, 0, 1)).float() / 255.0
-                post_t = torch.from_numpy(post.transpose(2, 0, 1)).float() / 255.0
-                tensors.append(torch.cat([pre_t, post_t], dim=0))
-                valid_chunk.append((pid, pre.shape[:2]))
-            except Exception as e:
-                print(f"Error loading {pid}: {e}")
-                rows.append({"id": pid, "new_building": "EMPTY", "tree_removal": "EMPTY"})
-
-        if not tensors:
-            continue
-
-        images = torch.stack(tensors).to(DEVICE)
-        seg_logits, pres_logits = model(images)
-        seg_probs = torch.sigmoid(seg_logits).cpu().numpy()
-        pres_probs = torch.sigmoid(pres_logits).cpu().numpy()
-
-        for idx, (pid, shape) in enumerate(valid_chunk):
-            row = {"id": pid}
-            # Building
-            b_mask = seg_probs[idx, 0] >= pixel_thresh
-            if pres_probs[idx, 0] < pres_thresh:
-                b_mask[:] = False
-            b_polys = mask_to_polygons(b_mask, min_area=30, min_pos_area=20, simplify_px=0.5, backend="reference")
-            row["new_building"] = serialize_polygons(b_polys)
-
-            # Tree
-            t_mask = seg_probs[idx, 1] >= tree_pixel_thresh
-            if pres_probs[idx, 1] < tree_pres_thresh:
-                t_mask[:] = False
-            t_polys = mask_to_polygons(t_mask, min_area=20, min_pos_area=20, simplify_px=0.5, backend="reference")
-            row["tree_removal"] = serialize_polygons(t_polys)
-
-            rows.append(row)
-
-PREDICTION_PATH.parent.mkdir(parents=True, exist_ok=True)
-with open(PREDICTION_PATH, "w", newline="", encoding="utf-8") as f:
-    writer = csv.DictWriter(f, fieldnames=["id", "new_building", "tree_removal"])
-    writer.writeheader()
-    writer.writerows(rows)
-
-print(f"Inference completed. Wrote {len(rows)} predictions to {PREDICTION_PATH}.")
+rows = predict_directory(INPUT_DIR, PREDICTION_PATH,
+    ROOT / "assets/model/model.pt", CONFIG, device=DEVICE)
+print("Saved", len(rows), "pairs to", PREDICTION_PATH)
 """
-    notebook = {
-        "cells": [
-            {
-                "cell_type": "code",
-                "execution_count": None,
-                "metadata": {},
-                "outputs": [],
-                "source": [line + "\n" for line in code.splitlines()],
-            }
-        ],
-        "metadata": {
-            "language_info": {"name": "python", "version": "3.11.0"},
-            "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
-        },
-        "nbformat": 4,
-        "nbformat_minor": 5,
+    return {
+        "cells": [{"cell_type": "code", "id": "satlas-predict", "execution_count": None,
+                   "metadata": {}, "outputs": [], "source": code.splitlines(keepends=True)}],
+        "metadata": {"language_info": {"name": "python"},
+                     "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+        "nbformat": 4, "nbformat_minor": 5,
     }
-    return notebook
 
 
-def create_package(
-    model_checkpoint: Path,
-    config: dict,
-    code_dir: Path,
-    output_zip: Path,
-) -> Path:
-    temp_dir = Path("/opt/dlami/nvme/tmp_package")
-    if temp_dir.exists():
-        shutil.rmtree(temp_dir)
-    temp_dir.mkdir(parents=True, exist_ok=True)
-
-    assets_dir = temp_dir / "assets"
-    assets_code = assets_dir / "code" / "terradelta"
-    assets_model = assets_dir / "model"
-    assets_model.mkdir(parents=True, exist_ok=True)
-    assets_code.parent.mkdir(parents=True, exist_ok=True)
-
-    # 1. Save clean stripped model (removes 720MB optimizer state)
-    ckpt = torch.load(model_checkpoint, map_location="cpu")
-    state_dict = ckpt["model_state_dict"] if "model_state_dict" in ckpt else ckpt
-    torch.save({"model_state_dict": state_dict}, assets_model / "model.pt")
-
-    # 2. Write config
-    with open(assets_dir / "config.yaml", "w") as f:
-        yaml.safe_dump(config, f, sort_keys=False)
-
-    # 3. Copy code
-    shutil.copytree(code_dir, assets_code, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
-
-    # 4. Generate predict.ipynb
-    nb = build_predict_notebook(assets_dir / "config.yaml")
-    with open(temp_dir / "predict.ipynb", "w", encoding="utf-8") as f:
-        json.dump(nb, f, indent=2)
-
-    # 5. Write requirements.txt
-    req_text = "torch>=2.5\ntorchvision>=0.20\nsegmentation-models-pytorch>=0.5\nnumpy>=2.0\npillow>=10.0\nshapely>=2.0\npyyaml>=6\n"
-    with open(temp_dir / "requirements.txt", "w") as f:
-        f.write(req_text)
-
-    # 6. Make ZIP
+def create_package(model_checkpoint: Path, config: dict, code_dir: Path, output_zip: Path) -> Path:
+    """Strip checkpoint metadata without changing tensors; publish without overwrite."""
+    output_zip, code_dir = Path(output_zip), Path(code_dir)
+    if output_zip.exists() or output_zip.is_symlink():
+        raise FileExistsError(output_zip)
+    if not (code_dir / "__init__.py").is_file():
+        raise ValueError("code_dir must be the terradelta package directory")
+    if any(p.is_symlink() for p in (code_dir, *code_dir.rglob("*"))):
+        raise ValueError("Package source symlinks are forbidden")
+    for name in ("LICENSE", "THIRD_PARTY_NOTICES.md"):
+        if not (REPO_ROOT / name).is_file():
+            raise FileNotFoundError(REPO_ROOT / name)
+    notices = REPO_ROOT / "third_party"
+    if not notices.is_dir():
+        raise FileNotFoundError(notices)
+    if any(p.is_symlink() for p in (notices, *notices.rglob("*"))):
+        raise ValueError("Notice symlinks are forbidden")
     output_zip.parent.mkdir(parents=True, exist_ok=True)
-    with zipfile.ZipFile(output_zip, "w", zipfile.ZIP_DEFLATED) as z:
-        for root, _, files in os.walk(temp_dir):
-            for file in files:
-                full_p = Path(root) / file
-                rel_p = full_p.relative_to(temp_dir)
-                z.write(full_p, rel_p)
-
-    shutil.rmtree(temp_dir)
+    with tempfile.TemporaryDirectory(prefix="terradelta-package-", dir=output_zip.parent) as temporary:
+        staging = Path(temporary)
+        root = staging / "package"
+        assets = root / "assets"
+        (assets / "model").mkdir(parents=True)
+        checkpoint = torch.load(model_checkpoint, map_location="cpu", weights_only=True)
+        state = checkpoint.get("model_state_dict", checkpoint.get("state_dict", checkpoint))
+        if not isinstance(state, dict) or not state or not all(
+            isinstance(k, str) and isinstance(v, torch.Tensor) for k, v in state.items()
+        ):
+            raise ValueError("Checkpoint must contain a nonempty tensor state dictionary")
+        torch.save({"model_state_dict": state}, assets / "model/model.pt")
+        (assets / "config.yaml").write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
+        # Bundle Python sources only, never local datasets, weights or archives.
+        for source in sorted(code_dir.rglob("*.py")):
+            if "__pycache__" in source.parts:
+                continue
+            target = assets / "code/terradelta" / source.relative_to(code_dir)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source, target)
+        for name in ("LICENSE", "THIRD_PARTY_NOTICES.md"):
+            shutil.copyfile(REPO_ROOT / name, root / name)
+        shutil.copytree(notices, root / "third_party")
+        (root / "predict.ipynb").write_text(
+            json.dumps(build_predict_notebook(assets / "config.yaml"), indent=2), encoding="utf-8")
+        (root / "requirements.txt").write_text(
+            "torch>=2.5\ntorchvision>=0.20\nsegmentation-models-pytorch==0.5.0\n"
+            "numpy>=2.0\npillow>=10.0\nshapely>=2.0\npyyaml>=6\n",
+            encoding="utf-8")
+        archive_path = staging / "submission.zip"
+        with zipfile.ZipFile(archive_path, "x", zipfile.ZIP_DEFLATED) as archive:
+            for path in sorted(root.rglob("*")):
+                if path.is_file():
+                    archive.write(path, path.relative_to(root).as_posix())
+        # An exclusive hard link publishes completed bytes and closes the existence-check race.
+        os.link(archive_path, output_zip)
     return output_zip
 
 
+def extract_package(archive: zipfile.ZipFile, destination: Path) -> None:
+    """Validate all members before extraction into a newly allocated cleanroom."""
+    members = archive.infolist()
+    if len(members) > MAX_ZIP_MEMBERS or sum(i.file_size for i in members) > MAX_EXPANDED_BYTES:
+        raise ValueError("ZIP expansion limit exceeded")
+    seen = set()
+    for info in members:
+        path = PurePosixPath(info.filename)
+        if ("\\" in info.filename or path.is_absolute() or ".." in path.parts
+                or not path.parts or ":" in path.parts[0]
+                or not (destination / info.filename).resolve().is_relative_to(destination.resolve())):
+            raise ValueError("Unsafe ZIP member")
+        mode = stat.S_IFMT(info.external_attr >> 16)
+        if mode not in (0, stat.S_IFREG, stat.S_IFDIR):
+            raise ValueError("ZIP symlinks and special files are forbidden")
+        if path in seen:
+            raise ValueError("Duplicate ZIP member")
+        seen.add(path)
+    archive.extractall(destination)
+
+
 def verify_cleanroom(zip_path: Path, test_manifest: Path) -> dict:
-    """Extract zip into clean temp room and verify 2-pass byte identical execution."""
-    t0 = time.time()
-    clean_dir = Path("/opt/dlami/nvme/cleanroom_test")
-    if clean_dir.exists():
-        shutil.rmtree(clean_dir)
-    clean_dir.mkdir(parents=True, exist_ok=True)
-
-    with zipfile.ZipFile(zip_path) as z:
-        z.extractall(clean_dir)
-
-    # Create dummy input from 5 test pairs
-    input_dir = clean_dir / "input"
-    input_dir.mkdir(exist_ok=True)
-    rows = read_v2_manifest(test_manifest)[:5]
-
-    for r in rows:
-        pair_dir = input_dir / "images" / r["id"]
-        pair_dir.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(r["pre"], pair_dir / "pre.png")
-        shutil.copyfile(r["post"], pair_dir / "post.png")
-
-    with open(input_dir / "pairs.csv", "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["id"])
-        writer.writeheader()
-        writer.writerows({"id": r["id"]} for r in rows)
-
-    # Pass 1: Run inference
-    pass1_pred = clean_dir / "pred1.csv"
-    env1 = os.environ.copy()
-    env1["AIF_INPUT_DIR"] = str(input_dir)
-    env1["AIF_PREDICTION_PATH"] = str(pass1_pred)
-    nb_cmd = [
-        "/opt/pytorch/bin/python", "-c",
-        f"import nbformat, io; from nbconvert.preprocessors import ExecutePreprocessor; "
-        f"nb = nbformat.read('{clean_dir}/predict.ipynb', as_version=4); "
-        f"ep = ExecutePreprocessor(timeout=600, kernel_name='python3'); "
-        f"ep.preprocess(nb, {{'metadata': {{'path': '{clean_dir}'}}}})"
-    ]
-    subprocess.run(nb_cmd, env=env1, check=True)
-    hash1 = compute_sha256(pass1_pred)
-
-    # Pass 2: Repeat inference
-    pass2_pred = clean_dir / "pred2.csv"
-    env2 = os.environ.copy()
-    env2["AIF_INPUT_DIR"] = str(input_dir)
-    env2["AIF_PREDICTION_PATH"] = str(pass2_pred)
-    subprocess.run(nb_cmd, env=env2, check=True)
-    hash2 = compute_sha256(pass2_pred)
-
-    byte_identical = (hash1 == hash2)
-    zip_size_mb = zip_path.stat().st_size / (1024 * 1024)
-
-    shutil.rmtree(clean_dir)
-    return {
-        "byte_identical": byte_identical,
-        "pass1_sha256": hash1,
-        "pass2_sha256": hash2,
-        "zip_size_mb": round(zip_size_mb, 2),
-        "elapsed_sec": round(time.time() - t0, 2),
-    }
+    """Execute the archived notebook twice in fresh kernels using explicit local inputs."""
+    start = time.monotonic()
+    test_manifest = Path(test_manifest).resolve()
+    rows = read_csv(test_manifest)
+    ids = [safe_id(row.get("id", "")) for row in rows]
+    if not rows or len(set(ids)) != len(ids):
+        raise ValueError("Manifest must have nonempty unique IDs")
+    rows = rows[:5]
+    with tempfile.TemporaryDirectory(prefix="terradelta-cleanroom-") as temporary:
+        clean_dir = Path(temporary)
+        with zipfile.ZipFile(zip_path) as archive:
+            extract_package(archive, clean_dir)
+        input_dir = clean_dir / "input"
+        for row in rows:
+            pair_dir = input_dir / "images" / safe_id(row["id"])
+            pair_dir.mkdir(parents=True)
+            for key in ("pre", "post"):
+                source = Path(row[key])
+                if not source.is_absolute():
+                    source = test_manifest.parent / source
+                shutil.copyfile(source, pair_dir / f"{key}.png")
+        with (input_dir / "pairs.csv").open("w", newline="", encoding="utf-8") as handle:
+            writer = csv.DictWriter(handle, fieldnames=["id"])
+            writer.writeheader()
+            writer.writerows({"id": row["id"]} for row in rows)
+        # Explicit kernel argv ensures use of this environment rather than a global kernelspec.
+        runner = """import os, sys, nbformat
+from nbclient import NotebookClient
+from jupyter_client import KernelManager
+from jupyter_client.kernelspec import KernelSpec
+km = KernelManager()
+km._kernel_spec = KernelSpec(argv=[sys.executable, '-m', 'ipykernel_launcher', '-f', '{connection_file}'],
+                            display_name='Python', language='python')
+nb = nbformat.read('predict.ipynb', as_version=4)
+NotebookClient(nb, km=km, timeout=600, resources={'metadata': {'path': os.getcwd()}}).execute()
+"""
+        hashes = []
+        for index in (1, 2):
+            prediction = clean_dir / f"pred{index}.csv"
+            environment = dict(os.environ, AIF_SUBMISSION_DIR=str(clean_dir),
+                               AIF_INPUT_DIR=str(input_dir), AIF_PREDICTION_PATH=str(prediction))
+            environment.pop("PYTHONPATH", None)
+            subprocess.run([sys.executable, "-c", runner], cwd=clean_dir,
+                           env=environment, check=True, timeout=700)
+            with prediction.open(newline="", encoding="utf-8-sig") as handle:
+                reader = csv.DictReader(handle)
+                if reader.fieldnames != ["id", "new_building", "tree_removal"]:
+                    raise ValueError("Invalid prediction CSV schema")
+                predictions = list(reader)
+            if [r["id"] for r in predictions] != [r["id"] for r in rows]:
+                raise ValueError("Prediction IDs do not match the manifest")
+            hashes.append(compute_sha256(prediction))
+    if hashes[0] != hashes[1]:
+        raise ValueError("Cleanroom predictions are not byte-identical")
+    return {"byte_identical": True, "pass1_sha256": hashes[0], "pass2_sha256": hashes[1],
+            "zip_sha256": compute_sha256(zip_path),
+            "zip_size_mb": round(Path(zip_path).stat().st_size / (1024 * 1024), 2),
+            "elapsed_sec": round(time.monotonic() - start, 2)}
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Package TerraDelta V3 Satlas")
-    parser.add_argument("--model-checkpoint", type=str, default="/opt/dlami/nvme/outputs/v3_satlas/S1/model.pt")
-    parser.add_argument("--output-zip", type=str, default="/opt/dlami/nvme/outputs/v3_release/terradelta-v3-satlas.zip")
-    parser.add_argument("--test-manifest", type=str, default="/data/terradelta/processed/micro-pilot-v2/val.csv")
+    parser = argparse.ArgumentParser(description="Package a private TerraDelta V3 Satlas submission")
+    parser.add_argument("--model-checkpoint", type=Path, required=True)
+    parser.add_argument("--config", type=Path, default=REPO_ROOT / "configs/inference_final.yaml")
+    parser.add_argument("--code-dir", type=Path, default=REPO_ROOT / "src/terradelta")
+    parser.add_argument("--output-zip", type=Path, default=REPO_ROOT / "outputs/private-submission.zip")
+    parser.add_argument("--test-manifest", type=Path, required=True)
     args = parser.parse_args()
-
-    model_ckpt = Path(args.model_checkpoint)
-    out_zip = Path(args.output_zip)
-    code_dir = Path("/opt/dlami/nvme/terra-delta/src/terradelta")
-
-    config = {
-        "architecture": "satlas_v3_swinb",
-        "postprocess": {
-            "classes": {
-                "new_building": {"pixel_threshold": 0.35, "presence_threshold": 0.30},
-                "tree_removal": {"pixel_threshold": 0.70, "presence_threshold": 0.30},
-            }
-        },
-        "inference": {"batch_size": 8},
-    }
-
-    print(f"Creating release package from {model_ckpt}...")
-    create_package(model_ckpt, config, code_dir, out_zip)
-    zip_hash = compute_sha256(out_zip)
-    zip_size_mb = out_zip.stat().st_size / (1024 * 1024)
-    print(f"Created {out_zip}: {zip_size_mb:.2f} MB, SHA256: {zip_hash}")
-
-    print("Running 2-pass cleanroom verification...")
-    cleanroom_res = verify_cleanroom(out_zip, Path(args.test_manifest))
-    print(f"Cleanroom verification results: {cleanroom_res}")
-
-    if not cleanroom_res["byte_identical"]:
-        raise ValueError("Cleanroom verification failed: Predictions are not byte-identical!")
-
-    summary = {
-        "status": "PROMOTED_VERIFIED",
-        "zip_path": str(out_zip),
-        "zip_size_mb": zip_size_mb,
-        "zip_sha256": zip_hash,
-        "cleanroom": cleanroom_res,
-    }
-    with open(out_zip.parent / "release_summary.json", "w") as f:
-        json.dump(summary, f, indent=2)
-    print("Release package successfully verified and ready!")
+    if not args.test_manifest.is_file():
+        parser.error("--test-manifest must be an existing explicit local manifest")
+    package = create_package(args.model_checkpoint, load_config(args.config), args.code_dir, args.output_zip)
+    result = verify_cleanroom(package, args.test_manifest)
+    print(json.dumps({"zip_path": str(package), "cleanroom": result}, indent=2))
 
 
 if __name__ == "__main__":

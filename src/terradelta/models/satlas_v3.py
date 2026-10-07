@@ -10,9 +10,8 @@ Implements shared-weight Siamese temporal change detection model:
 """
 from __future__ import annotations
 
-import os
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any, Mapping
 
 import torch
 import torch.nn as nn
@@ -20,6 +19,10 @@ import torch.nn.functional as F
 import torchvision
 
 
+# Adapted from allenai/satlaspretrain_models/utils.py at
+# 7b5cd45adc3cad70b3834d65956974af6f6bffd0 (Allen Institute for AI).
+# This helper remains Apache-2.0; see third_party/satlaspretrain_models.LICENSE.
+# Modifications: type annotations, condensed docstring, explicit None guard.
 def adjust_state_dict_prefix(state_dict: dict[str, torch.Tensor], needed: str, prefix: str | None = None, prefix_allowed_count: int | None = None) -> dict[str, torch.Tensor]:
     """Adjust state dict prefixes from Satlas checkpoint."""
     new_state_dict = {}
@@ -161,13 +164,13 @@ class SatlasV3Model(nn.Module):
         weights_path = Path(weights_path)
         if not weights_path.exists():
             raise FileNotFoundError(f"Satlas checkpoint not found: {weights_path}")
-        state_dict = torch.load(weights_path, map_location="cpu")
+        state_dict = torch.load(weights_path, map_location="cpu", weights_only=True)
         # Extract backbone keys
         if "backbone" in str(state_dict.keys()):
             adjusted = adjust_state_dict_prefix(state_dict, "backbone", "backbone.", 1)
         else:
             adjusted = state_dict
-        msg = self.backbone.load_state_dict(adjusted, strict=False)
+        self.backbone.load_state_dict(adjusted, strict=False)
         print(f"Loaded Satlas pretrained weights from {weights_path.name}: {len(adjusted)} keys loaded.")
 
     def forward(
@@ -233,7 +236,7 @@ class V3SatlasPredictor:
         self.device = torch.device(device)
         self.config = dict(config)
         self.model = SatlasV3Model(weights_path=None, fpn_channels=128, num_classes=2)
-        ckpt = torch.load(checkpoint_path, map_location=self.device)
+        ckpt = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
         if "model_state_dict" in ckpt:
             self.model.load_state_dict(ckpt["model_state_dict"])
         elif "state_dict" in ckpt:

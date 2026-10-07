@@ -15,11 +15,13 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import os
 from pathlib import Path
 import time
 import numpy as np
 from PIL import Image
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def extract_positive_crops(
@@ -252,10 +254,10 @@ def write_csv_manifest(records: list[dict], output_path: Path) -> None:
 
 def main():
     parser = argparse.ArgumentParser(description="Prepare TerraDelta V3 training crops and manifests")
-    parser.add_argument("--aihub-dir", type=str, default="/data/terradelta/incoming/aihub-71363")
-    parser.add_argument("--base-manifest", type=str, default="/data/terradelta/v2/manifests/train-v2-realboost.csv")
-    parser.add_argument("--crops-dir", type=str, default="/opt/dlami/nvme/data/aihub_crops")
-    parser.add_argument("--manifests-dir", type=str, default="/opt/dlami/nvme/data/v3_manifests")
+    parser.add_argument("--aihub-dir", type=Path, default=REPO_ROOT / "data/incoming/aihub-71363")
+    parser.add_argument("--base-manifest", type=Path, default=REPO_ROOT / "data/v2/manifests/train-v2-realboost.csv")
+    parser.add_argument("--crops-dir", type=Path, default=REPO_ROOT / "data/aihub_crops")
+    parser.add_argument("--manifests-dir", type=Path, default=REPO_ROOT / "data/v3_manifests")
     args = parser.parse_args()
 
     t0 = time.time()
@@ -288,6 +290,11 @@ def main():
 
     # For base records, ensure valid_mask_tree is True
     for r in base_records:
+        # Preserve relative manifest references when writing recipes in another directory.
+        for key in ("pre", "post", "new_building", "tree_removal", "valid_mask", "review_mask"):
+            value = (r.get(key) or "").strip()
+            if value and value.lower() != "absent" and not Path(value).is_absolute():
+                r[key] = str((base_manifest.parent / value).resolve())
         r["valid_mask_tree"] = "True"
         r["presence_valid_tree"] = "True"
 

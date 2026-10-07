@@ -1,233 +1,166 @@
-# TerraDelta
+# TerraDelta: Satellite Change Detection for National Park Monitoring
 
-**Satellite Change Detection for National Park Monitoring**
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python: 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
+[![Status: Concluded](https://img.shields.io/badge/Status-Concluded%20%28Archived%29-inactive.svg)](#project-status)
+[![Competition Rank](https://img.shields.io/badge/Private%20Rank-81%20%2F%20136-brightgreen.svg)](docs/v31-final-result.json)
+[![Private Score](https://img.shields.io/badge/Final%20Score-0.389889-brightgreen.svg)](docs/v31-final-result.json)
 
-TerraDelta detects newly constructed buildings and tree removal in paired
-high-resolution pre/post RGB imagery and exports pixel-coordinate polygons.
-It prepares an end-to-end workflow for the
-[2026 National Park Satellite Monitoring AI Challenge, topic 3](https://aifactory.space/ko/competitions/9306):
-licensed data discovery → aligned temporal tiles → geographic validation → short
-fine-tuning → probability inference → polygon CSV → offline submission ZIP.
+**TerraDelta** is an end-to-end deep learning change detection pipeline developed for the **[2026 National Park Satellite Monitoring AI Challenge](https://aifactory.space/ko/competitions/9306)** (Track 3: Illegal Building & Tree Removal Detection).
 
-**Current status (2026-10-04): NOT READY for training.** A dedicated CPU EC2
-downloaded 3.014 GB directly from providers and produced 644 real temporal
-candidates across three regions. The approved subset contains 71 reviewed
-no-change pairs; approved new-building/tree-removal masks are still absent.
-The builder is stopped with its EBS preserved. No training, optimizer updates,
-GPU operations or competition/debug submissions occurred. No score is claimed.
-See the [actual pilot report](docs/real-pilot-report.md) and
-[machine-readable evidence](docs/real-pilot-summary.json).
+The system accepts high-resolution pre-event and post-event satellite/aerial RGB imagery pairs, detects newly constructed illegal buildings and unauthorized tree removals, and generates standardized pixel-coordinate vector polygons.
 
-## Official baseline and model
+---
 
-Initial PC pre-training audit (2026-10-04): **NOT READY**. The PC contains
-four generated mock pairs and zero real training pairs. The earlier 1,000-pair
-figure is a storage estimate. [Audit evidence and commands](docs/data-audit.md)
-separate mock diagnostics from real validation. Large data/environment operations
-belong on EC2; see [the hotspot-safe workflow](docs/aws-training.md).
+## Project Status
 
-The [official baseline archive](https://drive.google.com/file/d/1RZjoG0hITfY5XqIPuv5KtKYV01XUiOT3/view)
-is preserved unchanged under `baseline/original/` locally. Its weights and files
-are excluded from Git; retrieval and SHA-256 inventory are in
-[baseline/README.md](baseline/README.md) and
-[baseline/integrity.json](baseline/integrity.json).
-[Baseline analysis](docs/baseline-analysis.md) records actual notebook, checkpoint,
-licenses and I/O rather than assumptions.
+> [!NOTE]
+> **Competition Concluded:** This project successfully concluded following the official submission deadline on October 6, 2026. This repository is maintained in a concluded/read-only state for open-source reference, documentation, and methodology dissemination. Non-breaking documentation updates and issues remain permitted.
+
+---
+
+## Key Results & Leaderboard Progression
+
+| Milestone / Version | Submission ID | Model Architecture | Submission Mode | Score (IoU Metric) | Leaderboard Rank |
+|:---|:---:|:---|:---:|:---:|:---:|
+| **Baseline UNet** | 364413 | ResNet-18 UNet 6-Channel Early Fusion | Practice/DEBUG | `0.1458` | — |
+| **V2 Siamese** | 364648 | Siamese ResNet-18 Siamese Difference | MAIN | `0.194790` | 128 / 136 |
+| **V2.2 Verifier** | 365047 | Frozen Siamese + Post-hoc Verifier | Practice/DEBUG | `0.204595` | — |
+| **V2.3 Stability** | 365654 | TTA Component Persistence Matching | MAIN | `0.248421` | — |
+| **V2.3.1 Evidence** | 365922 | Object-Level Evidence Classifier | Practice/DEBUG | `0.289924` | 113 / 136 |
+| **V3 Satlas Swin** | 366045 | Satlas Swin-v2 Siamese + AIHub 71363 (S2-800) | MAIN #1 | `0.356727` | 85 / 136 |
+| **V3.1 Promoted (Final)** | **366232** | **Satlas Swin-v2 Siamese + FPN (`V31_R1_200_MAIN2`)** | **MAIN #2** | **`0.389889`** | **81 / 136** |
+
+---
+
+## Final Model Architecture: `V31_R1_200_MAIN2`
+
+The final promoted model achieves peak performance by replacing naive early-fusion convolutional networks with a geospatial foundation backbone and dual-branch Siamese representation learning:
 
 ```text
-pre RGB  ── ImageNet normalization ──┐
-                                    ├── 6 channels ── UNet / ResNet18 ── 3 logits
-post RGB ── ImageNet normalization ──┘
-                                      background / new_building / tree_removal
+Pre-event RGB  ──┐
+                 ├── Shared Swin-v2 Backbone (SatlasPretrain aerial_swinb_si) ──┐
+Post-event RGB ──┘                                                             ├── Multi-Scale FPN ──┬── Building Head (256x256)
+                                                                               │                     └── Tree Head (256x256)
+                                                                               └── Global Presence ──┬── Building Presence Logit
+                                                                                                     └── Tree Presence Logit
 ```
 
-SMP 0.5.0 UNet matches the original state_dict keys. Inputs are 256×256 RGB;
-pre then post are normalized separately with mean [0.485,0.456,0.406] and
-std [0.229,0.224,0.225]. Inference initializes with `encoder_weights=None`, so
-bundled checkpoints load without fetching any pretrained files. Both plain
-state_dict and dictionaries containing state_dict are supported with strict
-architecture/class metadata validation.
+### 1. Foundation Encoder
+- **Backbone:** Shared-weight Swin Transformer V2 Base (`aerial_swinb_si`), pretrained on extensive multi-sensor aerial imagery by the Allen Institute for AI (SatlasPretrain).
+- **Scale Invariance:** 4-stage hierarchical feature representations extracted at 1/4, 1/8, 1/16, and 1/32 resolutions.
 
-The actual organizer checkpoint contains `steps=100`, `seed=0`. This motivates
-short **optimizer-step comparisons**, not a claim that 100 steps is optimal.
-Baseline inference uses softmax argmax with identical polygon parameters for
-both classes. TerraDelta also supports independent probability thresholds,
-optional horizontal/vertical TTA, raw probability maps and bounded phase/ECC
-registration. Baseline preset disables TTA/alignment and retains exact reference
-polygon serialization. `inference_conservative.yaml` is an untuned example;
-`inference_sweep_*.yaml` contains the three micro-pilot-v2 calibration presets.
-Their tiny AI-reviewed validation limits are recorded in the
-[calibration report](docs/threshold-sweep-report.md).
+### 2. Temporal Fusion & Decoding
+- Feature fusion modules compute differential and cross-temporal attention maps at every pyramid stage.
+- Top-down Feature Pyramid Network (FPN) with lateral skip connections aggregates multi-resolution semantic features into a unified 128-channel representation.
 
-## Quick start — no training
+### 3. Independent Class Thresholding
+Rather than enforcing a mutually exclusive softmax partition (which artificially penalizes overlapping tree felling and construction boundaries), the post-processor evaluates classes independently using calibrated probability and presence gates:
 
-Python 3.10+; create an isolated environment from the repository root. Install
-an appropriate CPU or CUDA PyTorch wheel for your future host before dependencies
-if you need to control wheel size. The preparation CPU tests use the local
-`.venv`; no CUDA execution is required.
+| Class | Pixel Probability Threshold | Presence Logit Gate | Minimum Polygon Area | Polygon Simplification |
+|:---|:---:|:---:|:---:|:---:|
+| **`new_building`** | `0.35` | `0.30` | 30 px | 0.5 px (Douglas-Peucker) |
+| **`tree_removal`** | `0.70` | `0.30` | 20 px | 0.5 px (Douglas-Peucker) |
 
-```sh
+---
+
+## Repository Structure
+
+```text
+terra-delta/
+├── configs/
+│   └── inference_final.yaml      # Pinned V31_R1_200_MAIN2 inference & threshold configuration
+├── docs/                         # Detailed experiment reports, data audits, and validation records
+│   └── v31-final-result.json     # Machine-readable final competition & submission receipt
+├── scripts/
+│   ├── package_v3_satlas.py      # Offline submission packager with cleanroom 2-pass verification
+│   ├── prepare_v3_datasets.py    # Training crop extraction & manifest generator
+│   └── run_v3_experiments.py     # Reproducible experiment orchestrator
+├── src/
+│   └── terradelta/
+│       ├── data/                 # Dataset loaders, transforms, and temporal pairing
+│       ├── inference/            # Predictors, postprocessing, polygon serialization
+│       ├── metrics/              # Competition IoU, F1, and polygon evaluation helpers
+│       ├── models/               # Satlas Swin-v2 Siamese architecture implementation
+│       └── postprocess/          # Mask-to-polygon, polygon simplification, area filtering
+├── tests/                        # Comprehensive unit and integration test suite
+├── THIRD_PARTY_NOTICES.md        # Upstream notices (Satlas Apache-2.0, Baseline terms)
+├── LICENSE                       # MIT License
+└── pyproject.toml                # Project packaging and dependency specifications
+```
+
+---
+
+## Installation & Setup
+
+### Requirements
+- Linux (x86_64)
+- Python `>= 3.10`
+- CUDA 12.x or CPU execution
+
+### Setup via pip / virtualenv
+```bash
+git clone https://github.com/seohuda/terra-delta.git
+cd terra-delta
+
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -r requirements-dev.txt
-python -m pytest -q
-# After retrieving the unchanged official baseline locally:
-python scripts/inspect_baseline.py --forward
-python scripts/smoke_test.py --output outputs/smoke_new --execute-notebook
+pip install -e .
 ```
 
-The smoke command creates four tiny mock pairs, runs loader/forward/loss checks,
-validation/search and local export, and optionally executes the generated
-notebook in a separate CPU kernel. It never constructs a training optimizer or
-performs optimizer updates. Mock scores only demonstrate code execution.
-Checkpoint-dependent tests skip when the local official archive is absent;
-ordinary Git checkouts do not carry model weights.
-
-## Data and license policy
-
-| Source | Role | Default policy |
-| --- | --- | --- |
-| NAIP | Real 0.3–1 m aerial imagery; AOI/year discovery, common-grid temporal RGB/NIR tiling | Review asset provenance and license; bounded dry-run first |
-| FEMA USA Structures | Building footprints, CRS-aware rasterization, synthetic deletion references | Static footprint is not a temporal change label |
-| Hansen Global Forest Change | 30 m loss event candidate mining | Never direct high-resolution segmentation GT; refine/review using NAIP |
-| Microsoft GlobalML Building Footprints | Static building references; CDLA-Permissive-2.0 | Require actual pre-absence/post-presence and high-resolution boundary review |
-| LEVIR-CD / AIHub | Potentially incompatible or unverified terms | Excluded from default training |
-
-[LICENSE_DATA.md](LICENSE_DATA.md) records commercial use, derivatives,
-redistribution and attribution separately for datasets/weights. Free access or
-an open-source model library does not establish data/weight rights. Unknown
-license status and unreviewed candidates are rejected before training reads
-images. Official competition assets have their own restricted-purpose grant.
-
-Downloaders default to metadata-only operation and expose `--dry-run`.
-Payload transfer requires explicit `--download` with file/feature/byte limits;
-unknown exact raster sizes cannot authorize downloads. No national dataset is
-pulled implicitly. These commands discover small AOIs only:
-
-```sh
-python scripts/download_naip.py --bounds -122.43 37.76 -122.42 37.77 \
-  --years 2020 2022 --region sf_example --max-items 2 --dry-run
-python scripts/download_fema.py --bounds -122.43 37.76 -122.42 37.77 --dry-run
-python scripts/download_hansen.py --bounds -122.43 37.76 -122.42 37.77 --dry-run
+### Running Tests
+All unit tests and package contracts can be executed offline without proprietary checkpoints:
+```bash
+pytest tests/ -v
 ```
 
-See [data pipeline](docs/data-pipeline.md) for local raster tiling, mask review,
-manifest creation and dry-run size estimates. Source COG/granules may be much
-larger than an AOI; estimated uncompressed bytes and actual transfer bytes are
-reported separately. Data and checkpoints stay outside Git.
+---
 
-The loader accepts `sample/{pre,post,new_building,tree_removal}.png` or CSV paths
-relative to the manifest, with `id,region_id,source,year_pre,year_post` and license
-metadata. Output contains normalized `pre`/`post` tensors (3,H,W), concatenated
-`image` (6,H,W) and integer `mask` (H,W): 0 background, 1 building, 2 tree removal.
-Missing masks require explicit verified absence (`absent`); missing labels are
-never silently treated as background during training. Optional auxiliary binary
-masks and valid/review masks support future partial weak labels.
+## Reproducing Submission Packaging & Cleanroom Verification
 
-All geometric augmentation is shared by pre, post and labels: flips, rotate90,
-small affine, translation and scale. Brightness/contrast, gamma, HSV, blur,
-sharpening, JPEG and haze can vary independently by timestamp. Seeds replay
-transforms. Synthetic building generators compare Telea, texture-copy and patch
-fills with feathering; no black-rectangle deletion is used. Negative generators
-cover exact copies, appearance/season/shadow/vegetation changes, slight shifts,
-compression, blur and temporary objects. Real temporal negatives need verified
-no-change provenance.
-
-## Future training and validation
-
-Training is implemented but has not been run. Default region splits preserve
-connected spatial groups, adjacent tiles and shared source imagery. State,
-temporal and random group assignments also retain geographic safety. One-region
-data cannot claim independent validation. Reviewed full labels are required for
-validation; partial labels outside valid/review masks use loss ignore index -100.
-
-```sh
-# After creating reviewed data/train_manifest.csv and retrieving baseline weights:
-python scripts/train.py --config configs/train_short.yaml --dry-run --device cpu
-# Future explicit training command (NOT executed during preparation):
-python scripts/train.py --config configs/train_short.yaml
-python scripts/validate.py --config configs/train_short.yaml \
-  --checkpoint outputs/train_short/step_000025.pt --manifest data/approved/val.csv \
-  --pred-dir outputs/val_probs
-python scripts/search_thresholds.py --pred-dir outputs/val_probs \
-  --ground-truth data/approved/val.csv --objective score --method staged
-```
-
-Training includes CUDA/CPU fallback, AMP, accumulation, encoder/head LRs,
-step milestones, optimizer/scheduler/scaler/RNG/data-order resume, metrics and
-optional early stopping. Losses: CE, weighted CE, Dice, CE+Dice, Focal,
-Focal+Dice. Short preset compares 25/50/75/100 updates; medium extends to 1000.
-See [experiment plan](docs/experiments.md) for resume semantics, first comparisons
-and data leakage controls.
-
-Local evaluation implements the published pair-presence macro F1 and tolerant
-polygon shape aggregation, with explicit approximation choices for unpublished
-private-scorer details. Pixel overlap and boundary metrics are diagnostics.
-Threshold search varies class thresholds, component/total area and simplification
-using the **exported geometry**, producing CSV trials and best YAML. See
-[evaluation](docs/evaluation.md). Example thresholds and mock results are not
-performance evidence. Frozen micro-pilot-v2 calibration uses compressed float32
-CPU maps, reference polygons and content-bound resume:
+TerraDelta enforces strict **2-pass byte-identical verification** to guarantee deterministic execution before any submission archive is created:
 
 ```bash
-python scripts/calibrate_baseline.py \
-  --manifest /data/terradelta/processed/micro-pilot-v2/val.csv \
-  --checkpoint /data/terradelta/baseline/unet_r18_cd.pt \
-  --output /data/terradelta/outputs/threshold-sweep-v1 \
-  --baseline-score 0.4700281110675977
+python scripts/package_v3_satlas.py \
+    --model-checkpoint /path/to/model.pt \
+    --config configs/inference_final.yaml \
+    --test-manifest /path/to/validation_pairs.csv \
+    --output-zip outputs/terradelta-final-submission.zip
 ```
 
-It verifies 22 full validation tiles (3 building, 2 tree, 17 no-change),
-forwards each uncached tile once in CPU inference mode, then uses cached maps
-for all trials. Repeating the same command reuses the cache and journal.
-Changed input contents or scoring code require a new search output directory.
-No training or optimizer is constructed.
+The packager validates that:
+1. All absolute local or personal paths are purged from bundled notebooks.
+2. Inference executed twice on synthetic or validation inputs produces bit-for-bit identical prediction CSV files.
+3. Prediction CSVs conform strictly to the required competition schema (`id`, `new_building`, `tree_removal`).
+4. Necessary license notices (`LICENSE`, `THIRD_PARTY_NOTICES.md`) are bundled inside the archive.
 
-## Polygon inference and submission
+---
 
-Reference conversion uses pixel-corner row-run boxes, Shapely union, component
-area ≥30, total positive area ≥20, topology-preserving simplify 0.5 px and two
-coordinate decimals. Optimized conversion coalesces equal runs vertically.
-Configurable class-specific morphology, hole filling, component filtering and
-polygon caps are supported. Submission exteriors cannot encode holes; this
-policy is retained and scored consistently.
+## Data Acquisition & Provenance
 
-```sh
-python scripts/predict_local.py --input-dir /path/to/input \
-  --checkpoint /path/to/model.pt --config configs/inference_baseline.yaml \
-  --output outputs/prediction.csv --prob-dir outputs/probabilities
-python scripts/export_submission.py \
-  --checkpoint 'baseline/original/03_illegal structure submission/assets/model/unet_r18_cd.pt' \
-  --output outputs/submission_export
-python scripts/make_submission_zip.py \
-  --source outputs/submission_export --output outputs/submission.zip
-```
+### 1. Challenge Dataset
+- Provided exclusively to participants of the **2026 National Park Satellite Monitoring AI Challenge** by AIFactory and Korea National Park Service.
+- In accordance with challenge rules, competition test sets and proprietary annotations are not distributed in this repository.
 
-ZIP root contains `predict.ipynb`, `requirements.txt`, `LICENSE`, `NOTICE`;
-`assets/` holds model, config and shared offline inference code. The notebook
-reads `AIF_INPUT_DIR`, finds `pairs.csv` and `images/<id>/{pre,post}.png`, and writes
-`AIF_PREDICTION_PATH` with `id,new_building,tree_removal`. No change is an empty
-CSV cell. There are no inference downloads, install magic or submit commands.
-Competition submission and API keys remain the user's future manual operation.
-See [submission guide](docs/submission.md).
+### 2. Auxiliary Dataset (AIHub 71363)
+- Multi-temporal high-resolution imagery was sourced from AIHub Dataset 71363 (*Forest Tree Species and Forest Change Detection Imagery*) via authorized domestic access.
+- In compliance with AIHub Terms of Service, raw imagery, crops, and derived model weights are not hosted publicly.
 
-## AWS preparation and repository map
+---
 
-[Future AWS setup](docs/aws-training.md) targets g5.2xlarge/A10G. The setup script
-prints a plan by default; `--execute` installs dependencies on an already chosen
-host, optionally syncs user-provided S3 URIs, and shows manual training/backup
-commands. It never provisions or starts an instance or starts training.
+## Limitations & Known Challenges
 
-```text
-baseline/          immutable local organizer reference and hash inventory
-configs/           baseline, short/medium training and inference presets
-src/terradelta/     data, models, training, inference, polygons, metrics, external APIs
-scripts/           discovery, preprocessing, training/validation/search, export, AWS setup
-notebooks/         dataset preview and error analysis (no training)
-tests/             CPU unit/integration and offline submission proof
-docs/              baseline, pipeline, licenses, experiments, evaluation, AWS, submission
-data/              local data only; see data/README.md
-checkpoints/       protected model artifacts, ignored by Git
-outputs/           local reports, predictions and ZIPs, ignored by Git
-submission/template/  clean offline notebook template
-```
+1. **Mountainous Topography & Shadowing:** Complex mountain terrain in Korean national parks introduces significant seasonal and sun-angle shadow variance between pre- and post-event images, occasionally causing false positive canopy change detections.
+2. **Class Imbalance:** Tree removal events outnumber building changes in protected natural areas, requiring conservative pixel thresholds (`0.70`) on tree removal to protect precision against natural canopy phenology shifts.
+3. **Sensor Discrepancies:** Pairings between satellite sensors with differing Ground Sample Distance (GSD) or spectral response curves require robust spatial registration and intensity normalization.
+
+---
+
+## License & Intellectual Property
+
+- **Source Code and Documentation:** Distributed under the [MIT License](LICENSE) &copy; 2026 seohuda.
+- **Third-Party Components:**
+  - SatlasPretrain model utilities: [Apache License 2.0](third_party/satlaspretrain_models.LICENSE) (c) 2023 Allen Institute for AI.
+  - Baseline competition evaluation helpers: AIFactory / Korea National Park Service.
+  - See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) for full terms and attributions.
+- **Weights & Data Exclusion:** The MIT License applies strictly to the source code and documentation. It does **not** grant rights to, nor distribute, proprietary challenge test sets, AIHub source imagery, or trained model parameter checkpoints.

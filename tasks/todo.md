@@ -1,3 +1,17 @@
+## Public release closeout — 2026-10-07
+
+- [x] Bind V31_R1_200_MAIN2 to its submitted artifact, checkpoint and inference configuration.
+- [x] Verify official final Private leaderboard: 0.3898894805, rank 81/136, 2026-10-06 13:40:02 KST.
+- [x] Audit all branch/tag history and GitHub attachments before changing visibility.
+- [x] Add MIT and third-party notices; update README and final report.
+- [x] Integrate only the final model's required code and portable inference/package commands.
+- [x] Verify clean installation, tests and synthetic inference.
+- [x] Inventory remaining AWS resources and scheduled jobs; do not delete retained assets.
+- [ ] Push reviewed main, tag v1.0.0, and create a code/documentation release.
+- [ ] Present public-conversion approval with any remaining blockers.
+
+Earlier entries below are historical experiment logs, not the current release status.
+
 # TerraDelta preparation plan
 
 Scope: code and non-training tests only. No optimizer steps, GPU instance operations, large imagery downloads, paid resources, or competition submissions.

@@ -4,10 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "terradelta"
-version = "0.1.0"
+version = "1.0.0"
+license = {file = "LICENSE"}
 description = "Satellite Change Detection for National Park Monitoring"
 requires-python = ">=3.10"
-dependencies = ["torch>=2.5", "segmentation-models-pytorch==0.5.0", "numpy>=2.0", "pillow>=10.0", "shapely>=2.0", "pyyaml>=6"]
+dependencies = ["torch>=2.5", "torchvision>=0.20", "segmentation-models-pytorch==0.5.0", "numpy>=2.0", "pillow>=10.0", "shapely>=2.0", "pyyaml>=6"]
 
 [project.optional-dependencies]
 train = ["opencv-python-headless>=4.10,<6", "scipy>=1.13", "tqdm>=4.66"]

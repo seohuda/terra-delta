@@ -1,0 +1,58 @@
+{
+  "competition": {
+    "name": "2026 National Park Satellite Monitoring AI Challenge - Track 3",
+    "platform": "AIFactory",
+    "competition_id": 9306,
+    "url": "https://aifactory.space/ko/competitions/9306"
+  },
+  "final_model": {
+    "name": "V31_R1_200_MAIN2",
+    "architecture": "Satlas Swin-v2 Siamese with Feature Pyramid Network (FPN)",
+    "backbone": "SatlasPretrain aerial_swinb_si",
+    "training_recipe": "S2 (Clean TerraDelta dataset + AIHub 71363 SkySat temporal crops)",
+    "training_step": 200,
+    "archive_sha256": "217f9e02f39ecdf15c9f36543ed6d5f52641ab5ca6bab05762e986f591fd7ff0",
+    "archive_bytes": 337469916,
+    "config": {
+      "architecture": "satlas_v3_swinb",
+      "postprocess": {
+        "mode": "independent",
+        "min_pos_area": 20,
+        "simplify_px": 0.5,
+        "ndigits": 2,
+        "classes": {
+          "new_building": {
+            "pixel_threshold": 0.35,
+            "presence_threshold": 0.30,
+            "min_area": 30
+          },
+          "tree_removal": {
+            "pixel_threshold": 0.70,
+            "presence_threshold": 0.30,
+            "min_area": 20
+          }
+        }
+      },
+      "inference": {
+        "batch_size": 8
+      }
+    }
+  },
+  "submission_record": {
+    "public_submission_id": 366232,
+    "private_submission_id": 366233,
+    "code_run_id": 34166,
+    "registered_at_utc": "2026-10-06T04:40:02.321629+00:00",
+    "registered_at_kst": "2026-10-06 13:40:02 KST",
+    "official_private_score": 0.3898894805,
+    "official_rank": 81,
+    "total_teams": 136,
+    "percentile": 59.56
+  },
+  "release_policy": {
+    "code_license": "MIT",
+    "weights_distributed": false,
+    "data_distributed": false,
+    "submission_zip_distributed": false
+  }
+}

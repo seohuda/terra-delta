@@ -1,0 +1,18 @@
+# V31_R1_200_MAIN2. Confirmed against the submitted archive before release.
+architecture: satlas_v3_swinb
+postprocess:
+  mode: independent
+  min_pos_area: 20
+  simplify_px: 0.5
+  ndigits: 2
+  classes:
+    new_building:
+      pixel_threshold: 0.35
+      presence_threshold: 0.30
+      min_area: 30
+    tree_removal:
+      pixel_threshold: 0.70
+      presence_threshold: 0.30
+      min_area: 20
+inference:
+  batch_size: 8
