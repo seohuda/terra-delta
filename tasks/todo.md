@@ -8,7 +8,7 @@
 - [x] Verify clean installation, tests and synthetic inference.
 - [x] Inventory remaining AWS resources and scheduled jobs; do not delete retained assets.
 - [x] Push reviewed main, tag v1.0.0, and create a code/documentation release.
-- [ ] Present public-conversion approval with any remaining blockers.
+- [x] Present public-conversion approval with any remaining blockers (Successfully converted to Public).
 
 ### Release closeout review (2026-10-07)
 - Recovered and verified final submission package `terradelta-v31-r1-200.zip` (SHA256: `217f9e02...`) from stopped A10G instance into private offline storage.
