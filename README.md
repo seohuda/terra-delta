@@ -1,5 +1,11 @@
 # TerraDelta
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![Status: Archived](https://img.shields.io/badge/Status-Archived-inactive.svg)](#project-status)
+[![Final Rank](https://img.shields.io/badge/Final%20Rank-86%20%2F%20136-orange.svg)](#final-public-result)
+[![Best Public Score](https://img.shields.io/badge/Best%20Public%20Score-0.3567265623-brightgreen.svg)](#final-public-result)
+
 [한국어 README](README_KO.md)
 
 Satellite change detection for national-park monitoring with paired high-resolution PRE/POST RGB imagery.
