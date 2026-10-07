@@ -638,9 +638,12 @@ Completed on 2026-10-06.
 4. Infrastructure:
    - GPU `i-0523a619699a95db0` and CPU `i-0766a472ecb5bcf88` remain safely `stopped`.
 
+## README Visual Assets & Execution Showcase (2026-10-07)
 
-
-
-
-
+- [x] Create deterministic figure generation script (`scripts/generate_readme_figures.py`)
+- [x] Generate visual change detection showcase (`docs/images/change_detection_demo.png`)
+- [x] Generate leaderboard progression chart (`docs/images/leaderboard_progression.png`)
+- [x] Generate cleanroom deterministic terminal execution demo card (`docs/images/terminal_execution.png`)
+- [x] Embed figures into `README.md` (Hero showcase, Leaderboard results, Cleanroom verification)
+- [x] Commit and push changes to GitHub `origin/main` (`202b846`)
 
